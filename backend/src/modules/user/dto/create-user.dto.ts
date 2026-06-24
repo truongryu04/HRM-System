@@ -1,7 +1,11 @@
 import {
+  ArrayNotEmpty,
+  ArrayUnique,
+  IsArray,
   IsEmail,
   IsEnum,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   Length,
@@ -20,7 +24,8 @@ export class CreateUserDto {
   @IsEnum(UserStatus)
   status?: UserStatus;
 
-  createdAt!: Date;
-
-  updatedAt!: Date;
+  @IsArray()
+  @ArrayNotEmpty({ message: 'Danh sách roles không được rỗng' })
+  @ArrayUnique({ message: 'RoleId bị trùng' })
+  roleIds!: number[];
 }
