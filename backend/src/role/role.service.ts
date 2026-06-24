@@ -8,6 +8,7 @@ import { Role } from './role.entity';
 import { Repository } from 'typeorm/browser/repository/Repository.js';
 import CreateRoleDto from './dto/create-role.dto';
 import { PermissionService } from 'src/permission/permission.service';
+import { In } from 'typeorm/browser/find-options/operator/In.js';
 
 @Injectable()
 export class RoleService {
@@ -35,7 +36,16 @@ export class RoleService {
     }
     return role;
   }
-
+  async findByIds(ids: number[]): Promise<Role[]> {
+    if (!ids.length) {
+      return [];
+    }
+    return this.roleRepository.find({
+      where: {
+        id: In(ids),
+      },
+    });
+  }
   async setPermissions(roleId: number, permissionNames: string[]) {
     const role = await this.findById(roleId);
 
