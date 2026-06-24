@@ -26,4 +26,7 @@ export class PermissionService {
 
     return this.permissionRepository.save(permission);
   }
+  async findAll() {
+    return this.permissionRepository.find();
+  }
 }

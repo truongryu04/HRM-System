@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { PermissionService } from './permission.service';
 
@@ -12,5 +12,9 @@ export class PermissionController {
     createPermissionDto: CreatePermissionDto,
   ) {
     return this.permissionsService.create(createPermissionDto);
+  }
+  @Get()
+  findAll() {
+    return this.permissionsService.findAll();
   }
 }
