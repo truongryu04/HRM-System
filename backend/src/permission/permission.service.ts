@@ -15,13 +15,13 @@ export class PermissionService {
     @InjectRepository(Permission)
     private readonly permissionRepository: Repository<Permission>,
   ) {}
-  private normalizeName(name: string) {
-    return name.trim().toLowerCase();
+  private normalizeCode(code: string) {
+    return code.trim().toLowerCase();
   }
   async create(createPermissionDto: CreatePermissionDto) {
     const existed = await this.permissionRepository.findOne({
       where: {
-        name: this.normalizeName(createPermissionDto.name),
+        code: this.normalizeCode(createPermissionDto.code),
       },
     });
 
@@ -37,10 +37,10 @@ export class PermissionService {
     return this.permissionRepository.find();
   }
 
-  async findByName(names: string[]) {
-    const normalized = [...new Set(names.map((n) => this.normalizeName(n)))];
+  async findByCode(codes: string[]) {
+    const normalized = [...new Set(codes.map((c) => this.normalizeCode(c)))];
     if (normalized.length === 0) return [];
-    return this.permissionRepository.find({ where: { name: In(normalized) } });
+    return this.permissionRepository.find({ where: { code: In(normalized) } });
   }
   async findById(id: string) {
     const permission = await this.permissionRepository.findOne({

@@ -6,5 +6,11 @@ export class Permission {
   id!: string;
 
   @Column({ unique: true })
+  code!: string;
+
+  @Column()
+  module!: string;
+
+  @Column()
   name!: string;
 }

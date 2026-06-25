@@ -16,8 +16,8 @@ export class RoleService {
     @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
     private readonly permissionService: PermissionService,
   ) {}
-  private normalizeName(name: string) {
-    return name.trim().toLowerCase();
+  private normalizeCode(code: string) {
+    return code.trim().toLowerCase();
   }
   async create(createRoleData: CreateRoleDto): Promise<Role> {
     const role = await this.roleRepository.findOne({
@@ -46,24 +46,24 @@ export class RoleService {
       },
     });
   }
-  async setPermissions(roleId: number, permissionNames: string[]) {
+  async setPermissions(roleId: number, permissionCodes: string[]) {
     const role = await this.findById(roleId);
 
     const normalizedPermissions = [
-      ...new Set(permissionNames.map((name) => this.normalizeName(name))),
+      ...new Set(permissionCodes.map((code) => this.normalizeCode(code))),
     ];
 
-    const permissions = await this.permissionService.findByName(
+    const permissions = await this.permissionService.findByCode(
       normalizedPermissions,
     );
 
     if (permissions.length !== normalizedPermissions.length) {
       const foundPermissions = new Set(
-        permissions.map((permission) => permission.name),
+        permissions.map((permission) => permission.code),
       );
 
       const missingPermissions = normalizedPermissions.filter(
-        (permissionName) => !foundPermissions.has(permissionName),
+        (permissionCode) => !foundPermissions.has(permissionCode),
       );
 
       throw new NotFoundException(
