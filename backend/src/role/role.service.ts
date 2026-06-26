@@ -75,4 +75,19 @@ export class RoleService {
 
     return this.roleRepository.save(role);
   }
+
+  async findAll() {
+    const roles = await this.roleRepository.find({
+      order: {
+        name: 'ASC',
+      },
+      relations: {
+        permissions: true,
+      },
+    });
+    if (roles.length === 0) {
+      throw new NotFoundException('Không có vai trò nào');
+    }
+    return roles;
+  }
 }

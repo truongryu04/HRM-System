@@ -34,7 +34,11 @@ export class PermissionService {
     return this.permissionRepository.save(permission);
   }
   async findAll() {
-    return this.permissionRepository.find();
+    return this.permissionRepository.find({
+      order: {
+        code: 'ASC',
+      },
+    });
   }
 
   async findByCode(codes: string[]) {

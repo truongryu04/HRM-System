@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Param,
   ParseIntPipe,
   Post,
@@ -28,5 +29,9 @@ export class RoleController {
     @Body() dto: SetRolePermissionsDto,
   ) {
     return this.roleService.setPermissions(id, dto.permissionNames);
+  }
+  @Get()
+  async findAll() {
+    return this.roleService.findAll();
   }
 }
