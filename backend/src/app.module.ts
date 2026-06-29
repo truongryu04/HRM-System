@@ -6,8 +6,9 @@ import { TypeOrmModule } from '@nestjs/typeorm/dist/typeorm.module';
 import { ConfigService } from '@nestjs/config/dist/config.service';
 import databaseConfig from './config/db.config';
 import { UserModule } from './modules/user/user.module';
-import { RoleModule } from './role/role.module';
-import { PermissionModule } from './permission/permission.module';
+import { RoleModule } from './modules/role/role.module';
+import { PermissionModule } from './modules/permission/permission.module';
+import { AuthModule } from './modules/auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -32,6 +33,7 @@ import { PermissionModule } from './permission/permission.module';
     UserModule,
     RoleModule,
     PermissionModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

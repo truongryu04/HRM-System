@@ -8,7 +8,7 @@ import { User } from './user.entity';
 import { Repository } from 'typeorm/browser/repository/Repository.js';
 import { CreateUserDto } from './dto/create-user.dto';
 import { comparePassword, hashPassword } from 'src/common/utils/bcrypt.util';
-import { RoleService } from 'src/role/role.service';
+import { RoleService } from '../role/role.service';
 @Injectable()
 export class UserService {
   constructor(

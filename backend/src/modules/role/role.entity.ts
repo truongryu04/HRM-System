@@ -1,4 +1,4 @@
-import { Permission } from 'src/permission/permission.entity';
+import { Permission } from '../permission/permission.entity';
 import {
   Column,
   CreateDateColumn,

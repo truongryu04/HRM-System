@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm/dist/common/typeorm.decorators
 import { Role } from './role.entity';
 import { Repository } from 'typeorm/browser/repository/Repository.js';
 import CreateRoleDto from './dto/create-role.dto';
-import { PermissionService } from 'src/permission/permission.service';
+import { PermissionService } from '../permission/permission.service';
 import { In } from 'typeorm/browser/find-options/operator/In.js';
 import { UpdateRolePermissionsDto } from './dto/updateRolePermission.dto';
 
