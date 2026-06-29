@@ -79,6 +79,9 @@ export class RoleService {
 
   async findAll() {
     const roles = await this.roleRepository.find({
+      where: {
+        isDeleted: false,
+      },
       order: {
         name: 'ASC',
       },
@@ -110,5 +113,26 @@ export class RoleService {
 
       await this.roleRepository.save(role);
     }
+  }
+  async updateRole(id: number, body: CreateRoleDto) {
+    const role = await this.findById(id);
+    role.name = body.name;
+    role.description = body.description;
+    const existingRole = await this.roleRepository.findOne({
+      where: { name: body.name },
+    });
+    if (existingRole && existingRole.id !== id) {
+      throw new ConflictException('Role đã tồn tại');
+    }
+
+    return this.roleRepository.save(role);
+  }
+  async deleteRole(id: number) {
+    const role = await this.findById(id);
+    if (role.isDeleted) {
+      throw new ConflictException('Role đã bị xóa trước đó');
+    }
+    role.isDeleted = true;
+    return this.roleRepository.save(role);
   }
 }

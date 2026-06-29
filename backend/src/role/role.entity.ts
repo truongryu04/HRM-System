@@ -28,6 +28,9 @@ export class Role {
   @UpdateDateColumn()
   updatedAt!: Date;
 
+  @Column({ default: false })
+  isDeleted?: boolean;
+
   @ManyToMany(() => Permission)
   @JoinTable({
     name: 'role_permissions',

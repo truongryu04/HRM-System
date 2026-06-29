@@ -2,6 +2,7 @@ import { UpdateRolePermissionsDto } from './dto/updateRolePermission.dto';
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -38,5 +39,16 @@ export class RoleController {
   @Get()
   async findAll() {
     return this.roleService.findAll();
+  }
+  @Put(':id')
+  updateRole(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: CreateRoleDto,
+  ) {
+    return this.roleService.updateRole(id, body);
+  }
+  @Delete(':id')
+  async deleteRole(@Param('id', ParseIntPipe) id: number) {
+    return this.roleService.deleteRole(id);
   }
 }
