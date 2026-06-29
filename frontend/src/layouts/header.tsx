@@ -9,8 +9,9 @@ import {
 import { Button } from "../components/ui/button";
 import { Bell, User, Settings } from "lucide-react";
 import { Avatar, AvatarFallback } from "../components/ui/avatar";
-
+import { useNavigate } from "react-router-dom";
 export function Header() {
+  const navigate = useNavigate();
   return (
     <header className="flex h-16 items-center justify-between border-b px-6">
       <h1 className="font-semibold text-base">HRM System</h1>
@@ -46,7 +47,9 @@ export function Header() {
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem>Đăng nhập</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/login")}>
+              Đăng nhập
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

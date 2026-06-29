@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "../../components/ui/button";
 import { RoleTable } from "./RoleTable";
-import type { Role } from "../../types/role";
+import type { Role } from "../../types/role.type";
 import RoleDialog from "./RoleDialog";
 import DeleteRoleDialog from "./DeleteRoleDialog";
 import { toast } from "sonner";

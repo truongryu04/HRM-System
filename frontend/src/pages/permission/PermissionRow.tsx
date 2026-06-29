@@ -1,7 +1,7 @@
-import type { Permission } from "@/types/permission";
+import type { Permission } from "@/types/permission.type";
 import { Checkbox } from "../../components/ui/checkbox";
 import { TableCell, TableRow } from "../../components/ui/table";
-import type { Role } from "@/types/role";
+import type { Role } from "@/types/role.type";
 interface PermissionRowProps {
   permission: Permission;
   roles: Role[];
