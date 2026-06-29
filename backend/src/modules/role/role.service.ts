@@ -135,4 +135,16 @@ export class RoleService {
     role.isDeleted = true;
     return this.roleRepository.save(role);
   }
+  async getPermissionsByRoleId(roleId: number): Promise<string[]> {
+    const role = await this.roleRepository.findOne({
+      where: { id: roleId },
+      relations: {
+        permissions: true,
+      },
+    });
+    if (!role) {
+      throw new NotFoundException(`Role với id ${roleId} không tồn tại`);
+    }
+    return role.permissions.map((permission) => permission.code);
+  }
 }
