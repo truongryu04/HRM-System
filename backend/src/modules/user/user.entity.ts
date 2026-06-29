@@ -28,7 +28,8 @@ export class User {
     default: UserStatus.PENDING,
   })
   status!: UserStatus;
-
+  @Column({ default: false })
+  isDeleted?: boolean;
   @CreateDateColumn()
   createdAt!: Date;
   @UpdateDateColumn()
