@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import PermissionRow from "../permission/PermissionRow";
+import type { Role } from "@/types/role";
 export function PermissionMatrixTable({
   rolePermissions,
   setRolePermissions,

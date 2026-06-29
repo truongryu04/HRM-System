@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import TestPage from "../pages/TestPage";
 import { MainLayout } from "../layouts/main-layout";
-import PermissionPage from "../pages/role/PermissionPage";
+import PermissionPage from "../pages/permission/PermissionPage";
 
 export const router = createBrowserRouter([
   {

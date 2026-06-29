@@ -1,4 +1,4 @@
-import { useState } from "react";
+import type { Permission } from "@/types/permission";
 import { Checkbox } from "../../components/ui/checkbox";
 import { TableCell, TableRow } from "../../components/ui/table";
 import type { Role } from "@/types/role";
