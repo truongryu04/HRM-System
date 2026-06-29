@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import TestPage from "../pages/TestPage";
 import { MainLayout } from "../layouts/main-layout";
 import PermissionPage from "../pages/permission/PermissionPage";
+import RolePage from "../pages/role/RolePage";
 
 export const router = createBrowserRouter([
   {
@@ -12,10 +13,10 @@ export const router = createBrowserRouter([
         path: "permissions",
         element: <PermissionPage />,
       },
-      //   {
-      //     path: "roles",
-      //     element: <RolePage />,
-      //   },
+      {
+        path: "roles",
+        element: <RolePage />,
+      },
     ],
   },
   {
