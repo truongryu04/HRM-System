@@ -20,7 +20,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../../components/ui/alert-dialog";
-export default function PermissionList() {
+export default function PermissionPage() {
   const [rolePermissions, setRolePermissions] = useState<
     Map<number, Set<string>>
   >(new Map());
