@@ -1,4 +1,14 @@
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu";
+import { Button } from "../components/ui/button";
 import { Bell, User, Settings } from "lucide-react";
+import { Avatar, AvatarFallback } from "../components/ui/avatar";
 
 export function Header() {
   return (
@@ -6,9 +16,39 @@ export function Header() {
       <h1 className="font-semibold text-base">HRM System</h1>
 
       <div className="flex items-center gap-4">
-        <Bell className="ml-2" size={20} />
-        <Settings className="ml-2" size={20} />
-        <User className="ml-2" size={20} />
+        <Button size="icon">
+          <Bell />
+        </Button>
+        <Button size="icon">
+          <Settings />
+        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            {/* <Button size="icon">
+              <User />
+            </Button> */}
+            <Button className="flex items-center gap-2">
+              {/* <Avatar className="h-8 w-8">
+                <AvatarFallback>TN</AvatarFallback>
+              </Avatar> */}
+              <User />
+            </Button>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Tài khoản</DropdownMenuLabel>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem>Thông tin cá nhân</DropdownMenuItem>
+
+            <DropdownMenuItem>Đổi mật khẩu</DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem>Đăng nhập</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );
