@@ -9,6 +9,7 @@ import { Repository } from 'typeorm/browser/repository/Repository.js';
 import CreateRoleDto from './dto/create-role.dto';
 import { PermissionService } from 'src/permission/permission.service';
 import { In } from 'typeorm/browser/find-options/operator/In.js';
+import { UpdateRolePermissionsDto } from './dto/updateRolePermission.dto';
 
 @Injectable()
 export class RoleService {
@@ -89,5 +90,25 @@ export class RoleService {
       throw new NotFoundException('Không có vai trò nào');
     }
     return roles;
+  }
+
+  async updatePermissions(roles: UpdateRolePermissionsDto[]) {
+    for (const roleData of roles) {
+      const role = await this.roleRepository.findOne({
+        where: { id: roleData.roleId },
+        relations: { permissions: true },
+      });
+      if (!role) {
+        throw new NotFoundException(
+          `Role với id ${roleData.roleId} không tồn tại`,
+        );
+      }
+      const permissions = await this.permissionService.findByIds(
+        roleData.permissionIds,
+      );
+      role.permissions = permissions;
+
+      await this.roleRepository.save(role);
+    }
   }
 }

@@ -55,4 +55,14 @@ export class PermissionService {
     }
     return permission;
   }
+  async findByIds(ids: string[]) {
+    if (!ids.length) {
+      return [];
+    }
+    return this.permissionRepository.find({
+      where: {
+        id: In(ids),
+      },
+    });
+  }
 }

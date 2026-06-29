@@ -1,3 +1,4 @@
+import { UpdateRolePermissionsDto } from './dto/updateRolePermission.dto';
 import {
   Body,
   Controller,
@@ -29,6 +30,10 @@ export class RoleController {
     @Body() dto: SetRolePermissionsDto,
   ) {
     return this.roleService.setPermissions(id, dto.permissionNames);
+  }
+  @Put('/permissions')
+  updateRolePermissions(@Body() body: UpdateRolePermissionsDto[]) {
+    return this.roleService.updatePermissions(body);
   }
   @Get()
   async findAll() {
