@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { RoleModule } from '../role/role.module';
 import { DepartmentController } from './department.controller';
 import { DepartmentService } from './department.service';
 import { Department } from './department.entity';

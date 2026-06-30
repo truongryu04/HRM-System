@@ -10,6 +10,7 @@ import { RoleModule } from './modules/role/role.module';
 import { PermissionModule } from './modules/permission/permission.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { DepartmentModule } from './modules/department/department.module';
+import { PositionModule } from './modules/position/position.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -36,6 +37,7 @@ import { DepartmentModule } from './modules/department/department.module';
     PermissionModule,
     AuthModule,
     DepartmentModule,
+    PositionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
