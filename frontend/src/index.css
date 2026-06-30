@@ -16,6 +16,24 @@
   --primary-foreground: oklch(0.145 0 0);
 
   --border: oklch(0.922 0 0);
+
+  /* 👇 Bổ sung các biến còn thiếu dưới đây 👇 */
+  --muted: oklch(0.962 0 0); /* Màu xám nhạt cho nền muted */
+  --muted-foreground: oklch(0.556 0 0);
+
+  --accent: oklch(0.962 0 0);
+  --accent-foreground: oklch(0.145 0 0);
+
+  --secondary: oklch(0.962 0 0);
+  --secondary-foreground: oklch(0.145 0 0);
+
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.87 0 0);
+
+  --radius: 0.5rem; /* Bổ sung biến radius vì ở @theme bạn có gọi var(--radius) */
 }
 @theme inline {
   --font-heading: var(--font-sans);
