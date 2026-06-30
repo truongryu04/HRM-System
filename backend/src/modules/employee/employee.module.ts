@@ -9,6 +9,7 @@ import { DepartmentModule } from '../department/department.module';
 @Module({
   controllers: [EmployeeController],
   providers: [EmployeeService],
+  exports: [EmployeeService],
   imports: [
     TypeOrmModule.forFeature([Employee]),
     PositionModule,

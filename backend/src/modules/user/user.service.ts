@@ -10,11 +10,14 @@ import { Repository } from 'typeorm/browser/repository/Repository.js';
 import { CreateUserDto } from './dto/create-user.dto';
 import { comparePassword, hashPassword } from 'src/common/utils/bcrypt.util';
 import { RoleService } from '../role/role.service';
+import { GetUsersDto } from './dto/get-user.dto';
+import { EmployeeService } from '../employee/employee.service';
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly roleService: RoleService,
+    private readonly employeeService: EmployeeService,
   ) {}
 
   async createUser(user: CreateUserDto): Promise<User> {
@@ -24,12 +27,17 @@ export class UserService {
     if (isEmail) {
       throw new ConflictException('Email đã tồn tại');
     }
+    const employee = await this.employeeService.findOne(user.employeeId);
+    if (!employee) {
+      throw new NotFoundException('Nhân viên không tồn tại');
+    }
     const roles = await this.roleService.findByIds(user.roleIds);
     const hashedPassword = await hashPassword(user.password);
     const newUser = this.userRepository.create({
       ...user,
       password: hashedPassword,
       roles,
+      employee: employee,
     });
     return await this.userRepository.save(newUser);
   }
@@ -63,5 +71,46 @@ export class UserService {
       return null;
     }
     return user;
+  }
+  async findAll(query: GetUsersDto) {
+    const { page = 1, limit = 10, search } = query;
+
+    const qb = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.employee', 'employee')
+      .leftJoinAndSelect('user.roles', 'role')
+      .where('user.isDeleted = :isDeleted', {
+        isDeleted: false,
+      });
+
+    if (search) {
+      qb.andWhere(
+        `
+      (
+        LOWER(user.email) LIKE LOWER(:search)
+        OR LOWER(employee.name) LIKE LOWER(:search)
+      )
+      `,
+        {
+          search: `%${search}%`,
+        },
+      );
+    }
+
+    qb.skip((page - 1) * limit)
+      .take(limit)
+      .orderBy('user.createdAt', 'DESC');
+
+    const [data, total] = await qb.getManyAndCount();
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 }
