@@ -10,8 +10,21 @@ import { Button } from "../components/ui/button";
 import { Bell, User, Settings } from "lucide-react";
 import { Avatar, AvatarFallback } from "../components/ui/avatar";
 import { useNavigate } from "react-router-dom";
+import { logoutApi } from "../services/auth.api";
+
 export function Header() {
   const navigate = useNavigate();
+  const handleLogout = async () => {
+    try {
+      await logoutApi();
+    } finally {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+
+      navigate("/login");
+    }
+  };
+  const token = localStorage.getItem("accessToken");
   return (
     <header className="flex h-16 items-center justify-between border-b px-6">
       <h1 className="font-semibold text-base">HRM System</h1>
@@ -47,9 +60,15 @@ export function Header() {
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem onClick={() => navigate("/login")}>
-              Đăng nhập
-            </DropdownMenuItem>
+            {token ? (
+              <DropdownMenuItem onClick={handleLogout}>
+                Đăng xuất
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem onClick={() => navigate("/login")}>
+                Đăng nhập
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
