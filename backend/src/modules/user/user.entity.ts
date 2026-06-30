@@ -2,13 +2,16 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { UserStatus } from './user-status.enum';
 import { Role } from '../role/role.entity';
+import { Employee } from '../employee/employee.entity';
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
@@ -34,10 +37,18 @@ export class User {
   createdAt!: Date;
   @UpdateDateColumn()
   updatedAt!: Date;
-
+  @Column({
+    type: 'timestamp',
+    nullable: true,
+  })
+  lastLoginAt?: Date;
   @ManyToMany(() => Role)
   @JoinTable({
     name: 'user_roles',
   })
   roles!: Role[];
+
+  @OneToOne(() => Employee)
+  @JoinColumn({ name: 'employee_id' })
+  employee!: Employee;
 }

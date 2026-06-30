@@ -23,6 +23,7 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('Người dùng không tồn tại');
     }
+    user.lastLoginAt = new Date();
     const permissions = [
       ...new Set(
         user.roles.flatMap((role) =>
