@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Employee } from '../employee/employee.entity';
 
 @Entity('positions')
 export class Position {
@@ -36,6 +37,6 @@ export class Position {
 
   @UpdateDateColumn()
   updated_at!: Date;
-  //   @OneToMany(() => Employee, (employee) => employee.position)
-  //   employees!: Employee[];
+  @OneToMany(() => Employee, (employee) => employee.position)
+  employees!: Employee[];
 }

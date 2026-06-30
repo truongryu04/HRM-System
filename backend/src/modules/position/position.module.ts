@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 @Module({
   controllers: [PositionController],
   providers: [PositionService],
+  exports: [PositionService],
   imports: [TypeOrmModule.forFeature([Position])],
 })
 export class PositionModule {}

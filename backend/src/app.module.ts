@@ -11,6 +11,7 @@ import { PermissionModule } from './modules/permission/permission.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { DepartmentModule } from './modules/department/department.module';
 import { PositionModule } from './modules/position/position.module';
+import { EmployeeModule } from './modules/employee/employee.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -38,6 +39,7 @@ import { PositionModule } from './modules/position/position.module';
     AuthModule,
     DepartmentModule,
     PositionModule,
+    EmployeeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
