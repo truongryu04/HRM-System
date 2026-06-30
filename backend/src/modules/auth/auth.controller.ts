@@ -1,4 +1,4 @@
-import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import LoginDto from './dto/login.dto';
 
@@ -24,5 +24,9 @@ export class AuthController {
         refresh_token: refresh_token,
       },
     };
+  }
+  @Post('logout')
+  async logout(@Body('refreshToken') refreshToken: string) {
+    return this.authService.logout(refreshToken);
   }
 }

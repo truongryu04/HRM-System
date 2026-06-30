@@ -56,4 +56,13 @@ export class AuthService {
       refresh_token: refresh_token,
     };
   }
+  async logout(refreshToken: string) {
+    await this.refreshTokenRepository.delete({
+      token: refreshToken,
+    });
+
+    return {
+      message: 'Logout success',
+    };
+  }
 }
