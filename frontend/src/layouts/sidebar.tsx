@@ -10,21 +10,40 @@ export function Sidebar() {
           to="/permissions"
           className="block rounded-md px-3 py-2 hover:bg-muted"
         >
-          Permissions
+          Phân quyền
         </NavLink>
 
         <NavLink
           to="/roles"
           className="block rounded-md px-3 py-2 hover:bg-muted"
         >
-          Roles
+          Vai trò
         </NavLink>
 
         <NavLink
           to="/employees"
           className="block rounded-md px-3 py-2 hover:bg-muted"
         >
-          Employees
+          Nhân viên
+        </NavLink>
+        <NavLink
+          to="/users"
+          className="block rounded-md px-3 py-2 hover:bg-muted"
+        >
+          Tài khoản
+        </NavLink>
+
+        <NavLink
+          to="/departments"
+          className="block rounded-md px-3 py-2 hover:bg-muted"
+        >
+          Phòng ban
+        </NavLink>
+        <NavLink
+          to="/positions"
+          className="block rounded-md px-3 py-2 hover:bg-muted"
+        >
+          Vị trí
         </NavLink>
       </nav>
     </aside>
