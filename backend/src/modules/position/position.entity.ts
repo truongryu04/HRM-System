@@ -22,12 +22,14 @@ export class Position {
     unique: true,
   })
   name!: string;
-
+  @Column({ nullable: true })
+  level!: string;
   @Column({
     nullable: true,
   })
   description!: string;
-
+  @Column({ default: 'ACTIVE' })
+  status!: string;
   @Column({
     default: true,
   })

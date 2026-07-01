@@ -12,4 +12,12 @@ export class CreatePositionDto {
   @IsOptional()
   @IsString()
   description?: string;
+
+  @IsOptional()
+  @IsString()
+  level?: string;
+
+  @IsOptional()
+  @IsString()
+  status?: string;
 }

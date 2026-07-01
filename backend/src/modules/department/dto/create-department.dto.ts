@@ -1,6 +1,10 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateDepartmentDto {
+  @IsString()
+  @IsNotEmpty()
+  code!: string;
+
   @IsString()
   @IsNotEmpty()
   name!: string;
@@ -8,4 +12,12 @@ export class CreateDepartmentDto {
   @IsString()
   @IsOptional()
   description?: string;
+
+  @IsString()
+  @IsOptional()
+  status?: string;
+
+  @IsOptional()
+  @IsNumber()
+  managerId?: number;
 }
