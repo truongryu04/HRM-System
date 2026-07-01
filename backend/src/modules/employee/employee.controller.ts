@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Put,
   Query,
@@ -13,6 +14,7 @@ import {
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
+import { UpdateEmployeeStatusDto } from './dto/update-status.dto';
 @Controller('employees')
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
@@ -53,5 +55,13 @@ export class EmployeeController {
     id: number,
   ) {
     return this.employeeService.remove(id);
+  }
+
+  @Patch(':id/status')
+  async updateStatus(
+    @Param('id') id: number,
+    @Body() dto: UpdateEmployeeStatusDto,
+  ) {
+    return this.employeeService.updateStatus(id, dto.status);
   }
 }

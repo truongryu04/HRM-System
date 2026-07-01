@@ -14,9 +14,11 @@ import { Position } from '../position/position.entity';
 import { User } from '../user/user.entity';
 
 export enum EmployeeStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-  RESIGNED = 'RESIGNED',
+  ACTIVE = 'ACTIVE', // Đang làm việc
+  INACTIVE = 'INACTIVE', // Tạm nghỉ / khóa tài khoản
+  ON_LEAVE = 'ON_LEAVE', // Nghỉ phép dài ngày
+  RESIGNED = 'RESIGNED', // Đã nghỉ việc
+  TERMINATED = 'TERMINATED', // Sa thải / chấm dứt hợp đồng
 }
 
 export enum Gender {

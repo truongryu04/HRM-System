@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
 
-import { Employee } from './employee.entity';
+import { Employee, EmployeeStatus } from './employee.entity';
 
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
@@ -162,5 +162,17 @@ export class EmployeeService {
     return {
       message: 'Employee deleted successfully',
     };
+  }
+  async updateStatus(id: number, status: EmployeeStatus) {
+    const employee = await this.employeeRepository.findOneBy({ id });
+
+    if (!employee) {
+      throw new NotFoundException('Employee not found');
+    }
+
+    employee.status = status;
+    employee.updatedAt = new Date();
+
+    return this.employeeRepository.save(employee);
   }
 }
