@@ -4,12 +4,14 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 import { Department } from '../department/department.entity';
 import { Position } from '../position/position.entity';
+import { User } from '../user/user.entity';
 
 export enum EmployeeStatus {
   ACTIVE = 'ACTIVE',
@@ -101,4 +103,7 @@ export class Employee {
     default: false,
   })
   isDeleted!: boolean;
+
+  @OneToMany(() => User, (user) => user.employee)
+  users!: User[];
 }

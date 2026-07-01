@@ -5,6 +5,7 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -48,7 +49,7 @@ export class User {
   })
   roles!: Role[];
 
-  @OneToOne(() => Employee)
+  @ManyToOne(() => Employee, (employee) => employee.users)
   @JoinColumn({ name: 'employee_id' })
   employee!: Employee;
 }

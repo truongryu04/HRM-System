@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -73,22 +72,31 @@ export class UserService {
     return user;
   }
   async findAll(query: GetUsersDto) {
-    const { page = 1, limit = 10, search } = query;
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      role,
+      status,
+      linkedEmployee,
+    } = query;
 
     const qb = this.userRepository
       .createQueryBuilder('user')
+      .distinct(true)
       .leftJoinAndSelect('user.employee', 'employee')
       .leftJoinAndSelect('user.roles', 'role')
       .where('user.isDeleted = :isDeleted', {
         isDeleted: false,
       });
 
+    // Tìm kiếm theo email hoặc tên nhân viên
     if (search) {
       qb.andWhere(
         `
       (
         LOWER(user.email) LIKE LOWER(:search)
-        OR LOWER(employee.name) LIKE LOWER(:search)
+        OR LOWER(employee.fullName) LIKE LOWER(:search)
       )
       `,
         {
@@ -97,9 +105,32 @@ export class UserService {
       );
     }
 
-    qb.skip((page - 1) * limit)
-      .take(limit)
-      .orderBy('user.createdAt', 'DESC');
+    // Lọc theo role
+    if (role && role !== 'all') {
+      qb.andWhere('role.name = :role', {
+        role,
+      });
+    }
+
+    // Lọc theo trạng thái user
+    if (status && status !== 'all') {
+      qb.andWhere('user.status = :status', {
+        status,
+      });
+    }
+
+    // Lọc user đã/chưa liên kết employee
+    if (linkedEmployee === 'true' || linkedEmployee === 'linked') {
+      qb.andWhere('employee.id IS NOT NULL');
+    }
+
+    if (linkedEmployee === 'false' || linkedEmployee === 'unlinked') {
+      qb.andWhere('employee.id IS NULL');
+    }
+
+    qb.orderBy('user.createdAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
 
     const [data, total] = await qb.getManyAndCount();
 
