@@ -5,7 +5,7 @@ import type {
   EmployeeSummary,
   EmployeeUpdateRequest,
   EmployeeCreateRequest,
-} from "../types/employee.type";
+} from "../features/employees/types/employee.type";
 import {
   getEmployee,
   updateEmployee,

@@ -1,4 +1,7 @@
-import type { EmployeeGender, EmployeeStatus } from "@/types/employee.type";
+import type {
+  EmployeeGender,
+  EmployeeStatus,
+} from "@/features/employees/types/employee.type";
 
 import {
   employeeGenderOptions,
