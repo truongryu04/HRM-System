@@ -44,6 +44,7 @@ export class RoleService {
     return this.roleRepository.find({
       where: {
         id: In(ids),
+        isDeleted: false,
       },
     });
   }

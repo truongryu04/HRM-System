@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -11,6 +12,7 @@ import { comparePassword, hashPassword } from 'src/common/utils/bcrypt.util';
 import { RoleService } from '../role/role.service';
 import { GetUsersDto } from './dto/get-user.dto';
 import { EmployeeService } from '../employee/employee.service';
+import { UserStatus } from './user-status.enum';
 @Injectable()
 export class UserService {
   constructor(
@@ -142,6 +144,52 @@ export class UserService {
         total,
         totalPages: Math.ceil(total / limit),
       },
+    };
+  }
+  async updateStatus(id: number, status: UserStatus) {
+    const user = await this.userRepository.findOne({
+      where: {
+        id,
+        isDeleted: false,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.status = status;
+
+    return await this.userRepository.save(user);
+  }
+
+  async assignRoles(userId: number, roleIds: number[]) {
+    const user = await this.userRepository.findOne({
+      where: {
+        id: userId,
+        isDeleted: false,
+      },
+      relations: {
+        roles: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const roles = await this.roleService.findByIds(roleIds);
+
+    if (roles.length !== roleIds.length) {
+      throw new BadRequestException('One or more roles do not exist');
+    }
+
+    user.roles = roles;
+
+    await this.userRepository.save(user);
+
+    return {
+      message: 'Roles assigned successfully',
     };
   }
 }
