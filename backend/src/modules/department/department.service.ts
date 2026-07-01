@@ -1,33 +1,59 @@
 import {
   ConflictException,
+  Inject,
+  forwardRef,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Repository } from 'typeorm/browser/repository/Repository.js';
+import { Repository } from 'typeorm';
 import { Department } from './department.entity';
-import { InjectRepository } from '@nestjs/typeorm/dist/common/typeorm.decorators';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
+import { EmployeeService } from '../employee/employee.service';
 
 @Injectable()
 export class DepartmentService {
   constructor(
     @InjectRepository(Department)
     private readonly departmentRepository: Repository<Department>,
+
+    @Inject(forwardRef(() => EmployeeService))
+    private readonly employeeService: EmployeeService,
   ) {}
   async create(createDepartmentDto: CreateDepartmentDto) {
     const existed = await this.departmentRepository.findOne({
-      where: {
-        name: createDepartmentDto.name,
-        isDeleted: false,
-      },
+      where: [
+        {
+          code: createDepartmentDto.code,
+          isDeleted: false,
+        },
+        {
+          name: createDepartmentDto.name,
+          isDeleted: false,
+        },
+      ],
     });
 
     if (existed) {
       throw new ConflictException('Department already exists');
     }
 
-    const department = this.departmentRepository.create(createDepartmentDto);
+    const manager = createDepartmentDto.managerId
+      ? await this.employeeService.findOne(createDepartmentDto.managerId)
+      : undefined;
+
+    if (createDepartmentDto.managerId && !manager) {
+      throw new NotFoundException('Manager not found');
+    }
+
+    const department = this.departmentRepository.create({
+      code: createDepartmentDto.code,
+      name: createDepartmentDto.name,
+      description: createDepartmentDto.description,
+      status: createDepartmentDto.status ?? 'ACTIVE',
+      manager,
+    });
 
     return await this.departmentRepository.save(department);
   }
@@ -35,6 +61,9 @@ export class DepartmentService {
     return await this.departmentRepository.find({
       where: {
         isDeleted: false,
+      },
+      relations: {
+        manager: true,
       },
       order: {
         createdAt: 'DESC',
@@ -46,6 +75,9 @@ export class DepartmentService {
       where: {
         id,
         isDeleted: false,
+      },
+      relations: {
+        manager: true,
       },
     });
 
@@ -59,12 +91,28 @@ export class DepartmentService {
     const department = await this.findOne(id);
 
     if (
+      updateDepartmentDto.code &&
+      updateDepartmentDto.code !== department.code
+    ) {
+      const existed = await this.departmentRepository.findOne({
+        where: {
+          code: updateDepartmentDto.code,
+          isDeleted: false,
+        },
+      });
+
+      if (existed) {
+        throw new ConflictException('Department code already exists');
+      }
+    }
+
+    if (
       updateDepartmentDto.name &&
       updateDepartmentDto.name !== department.name
     ) {
       const existed = await this.departmentRepository.findOne({
         where: {
-          name: updateDepartmentDto.name as string,
+          name: updateDepartmentDto.name,
           isDeleted: false,
         },
       });
@@ -73,9 +121,22 @@ export class DepartmentService {
         throw new ConflictException('Department name already exists');
       }
     }
+
+    let manager = department.manager;
+
+    if (updateDepartmentDto.managerId !== undefined) {
+      manager = updateDepartmentDto.managerId
+        ? await this.employeeService.findOne(updateDepartmentDto.managerId)
+        : undefined;
+    }
+
     const updatedDepartment = {
       ...department,
-      ...updateDepartmentDto,
+      code: updateDepartmentDto.code ?? department.code,
+      name: updateDepartmentDto.name ?? department.name,
+      description: updateDepartmentDto.description ?? department.description,
+      status: updateDepartmentDto.status ?? department.status,
+      manager,
     };
 
     return await this.departmentRepository.save(updatedDepartment);

@@ -12,6 +12,12 @@ import { PositionService } from './position.service';
 import { CreatePositionDto } from './dto/create-position.dto';
 import { UpdatePositionDto } from './dto/update-position.dto';
 
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { Permissions } from '../auth/decorators/permission.decorator';
+
+@UseGuards(AuthGuard('jwt'), PermissionsGuard)
 @Controller('positions')
 export class PositionController {
   constructor(private readonly positionService: PositionService) {}

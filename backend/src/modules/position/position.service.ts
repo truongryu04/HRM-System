@@ -3,9 +3,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Repository } from 'typeorm/browser/repository/Repository.js';
+import { Repository } from 'typeorm';
 import { Position } from './position.entity';
-import { InjectRepository } from '@nestjs/typeorm/dist/common/typeorm.decorators';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePositionDto } from './dto/create-position.dto';
 import { UpdatePositionDto } from './dto/update-position.dto';
 
@@ -32,6 +32,8 @@ export class PositionService {
       code: createPositionDto.code,
       name: createPositionDto.name,
       description: createPositionDto.description,
+      level: createPositionDto.level,
+      status: createPositionDto.status ?? 'ACTIVE',
     });
 
     return await this.positionRepository.save(position);
@@ -93,6 +95,10 @@ export class PositionService {
 
     position.description =
       updatePositionDto.description ?? position.description;
+
+    position.level = updatePositionDto.level ?? position.level;
+
+    position.status = updatePositionDto.status ?? position.status;
 
     return await this.positionRepository.save(position);
   }
