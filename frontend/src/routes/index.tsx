@@ -7,6 +7,7 @@ import RolePage from "../pages/role/RolePage";
 import LoginPage from "../pages/auth/LoginPage";
 
 import ProtectedRoute from "../guards/ProtectedRoute";
+import UserManagementPage from "../pages/user/UserManagementPage";
 
 export const router = createBrowserRouter([
   {
@@ -27,6 +28,10 @@ export const router = createBrowserRouter([
           {
             path: "roles",
             element: <RolePage />,
+          },
+          {
+            path: "users",
+            element: <UserManagementPage />,
           },
         ],
       },
