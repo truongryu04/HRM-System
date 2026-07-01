@@ -8,6 +8,8 @@ import LoginPage from "../pages/auth/LoginPage";
 
 import ProtectedRoute from "../guards/ProtectedRoute";
 import UserManagementPage from "../pages/user/UserManagementPage";
+import DepartmentPage from "../pages/department/DepartmentPage";
+import PositionPage from "../pages/position/PositionPage";
 
 export const router = createBrowserRouter([
   {
@@ -32,6 +34,14 @@ export const router = createBrowserRouter([
           {
             path: "users",
             element: <UserManagementPage />,
+          },
+          {
+            path: "departments",
+            element: <DepartmentPage />,
+          },
+          {
+            path: "positions",
+            element: <PositionPage />,
           },
         ],
       },
