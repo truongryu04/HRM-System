@@ -24,6 +24,10 @@ export class CreateUserDto {
   @IsEnum(UserStatus)
   status?: UserStatus;
 
+  @IsNumber()
+  @IsNotEmpty({ message: 'EmployeeId không được để trống' })
+  employeeId!: number;
+
   @IsArray()
   @ArrayNotEmpty({ message: 'Danh sách roles không được rỗng' })
   @ArrayUnique({ message: 'RoleId bị trùng' })
