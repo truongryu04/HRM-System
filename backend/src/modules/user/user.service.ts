@@ -58,6 +58,9 @@ export class UserService {
     if (!isMatch) {
       return null;
     }
+    user.lastLoginAt = new Date();
+
+    await this.userRepository.save(user);
     return user;
   }
   async findByEmail(email: string): Promise<User | null> {
