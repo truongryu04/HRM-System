@@ -1,11 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt/dist/jwt.service';
 import { UserService } from '../user/user.service';
 import LoginDto from './dto/login.dto';
 import { RefreshToken } from './refresh-token.entity';
 import { Repository } from 'typeorm/browser/repository/Repository.js';
 import { InjectRepository } from '@nestjs/typeorm/dist/common/typeorm.decorators';
-
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { comparePassword, hashPassword } from 'src/common/utils/bcrypt.util';
 @Injectable()
 export class AuthService {
   constructor(
@@ -64,6 +69,37 @@ export class AuthService {
 
     return {
       message: 'Logout success',
+    };
+  }
+
+  async changePassword(userId: number, dto: ChangePasswordDto) {
+    const user = await this.userService.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    if (dto.currentPassword === dto.newPassword) {
+      throw new BadRequestException(
+        'New password must be different from current password',
+      );
+    }
+    if (dto.newPassword !== dto.confirmPassword) {
+      throw new BadRequestException('Confirm password does not match');
+    }
+    const isMatch = await comparePassword(dto.currentPassword, user.password);
+
+    if (!isMatch) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    const hashedPassword = await hashPassword(dto.newPassword);
+    user.password = hashedPassword;
+    await this.userService.update(userId, { password: user.password });
+    await this.refreshTokenRepository.delete({
+      user_id: userId,
+    });
+    return {
+      message: 'Password changed successfully',
     };
   }
 }

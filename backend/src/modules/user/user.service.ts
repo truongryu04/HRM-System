@@ -56,7 +56,7 @@ export class UserService {
     }
     const isMatch = await comparePassword(password, user.password);
     if (!isMatch) {
-      return null;
+      throw new NotFoundException('MẬt khẩu không đúng');
     }
     user.lastLoginAt = new Date();
 
@@ -194,5 +194,32 @@ export class UserService {
     return {
       message: 'Roles assigned successfully',
     };
+  }
+  async findById(id: number): Promise<User | null> {
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.roles', 'role')
+      .leftJoinAndSelect('role.permissions', 'permission')
+      .where('user.id = :id', { id })
+      .andWhere('user.isDeleted = :isDeleted', { isDeleted: false })
+      .getOne();
+    if (!user) {
+      return null;
+    }
+    return user;
+  }
+
+  async update(id: number, data: Partial<User>) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    Object.assign(user, data);
+
+    return this.userRepository.save(user);
   }
 }
