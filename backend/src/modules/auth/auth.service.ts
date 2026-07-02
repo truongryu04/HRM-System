@@ -39,6 +39,7 @@ export class AuthService {
     const payload = {
       sub: user.id,
       email: user.email,
+      employeeId: user.employee?.id,
       roles: user.roles.map((role) => role.name),
       permissions,
     };
@@ -55,6 +56,7 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
+        employeeId: user.employee?.id,
         roles: user.roles.map((role) => role.name),
       },
       permissions: permissions,

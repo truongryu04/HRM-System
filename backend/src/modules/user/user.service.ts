@@ -46,6 +46,7 @@ export class UserService {
     const user = await this.userRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.roles', 'role')
+      .leftJoinAndSelect('user.employee', 'employee')
       .leftJoinAndSelect('role.permissions', 'permission')
       .addSelect('user.password')
       .where('user.email = :email', { email })
@@ -67,6 +68,7 @@ export class UserService {
     const user = await this.userRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.roles', 'role')
+      .leftJoinAndSelect('user.employee', 'employee')
       .leftJoinAndSelect('role.permissions', 'permission')
       .where('user.email = :email', { email })
       .andWhere('user.isDeleted = :isDeleted', { isDeleted: false })
@@ -199,6 +201,7 @@ export class UserService {
     const user = await this.userRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.roles', 'role')
+      .leftJoinAndSelect('user.employee', 'employee')
       .leftJoinAndSelect('role.permissions', 'permission')
       .where('user.id = :id', { id })
       .andWhere('user.isDeleted = :isDeleted', { isDeleted: false })
