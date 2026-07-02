@@ -5,6 +5,7 @@ import { Employee } from './employee.entity';
 import { PositionModule } from '../position/position.module';
 import { TypeOrmModule } from '@nestjs/typeorm/dist/typeorm.module';
 import { DepartmentModule } from '../department/department.module';
+import { WorkShiftsModule } from '../work-shifts/work-shifts.module';
 
 @Module({
   controllers: [EmployeeController],
@@ -13,7 +14,7 @@ import { DepartmentModule } from '../department/department.module';
   imports: [
     TypeOrmModule.forFeature([Employee]),
     PositionModule,
-    DepartmentModule,
+    WorkShiftsModule,
     forwardRef(() => DepartmentModule),
   ],
 })

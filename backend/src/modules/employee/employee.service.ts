@@ -14,6 +14,7 @@ import { Employee, EmployeeStatus } from './employee.entity';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { PositionService } from '../position/position.service';
+import { WorkShiftsService } from '../work-shifts/work-shifts.service';
 @Injectable()
 export class EmployeeService {
   constructor(
@@ -23,6 +24,8 @@ export class EmployeeService {
     private readonly DepartmentService: DepartmentService,
 
     private readonly positionService: PositionService,
+
+    private readonly workShiftService: WorkShiftsService,
   ) {}
 
   async create(dto: CreateEmployeeDto) {
@@ -52,6 +55,17 @@ export class EmployeeService {
     if (!position) {
       throw new NotFoundException('Position not found');
     }
+    const workShift = dto.workShiftId
+      ? await this.workShiftService.findOne(dto.workShiftId)
+      : await this.workShiftService.findDefaultWorkShift();
+
+    if (!workShift) {
+      throw new NotFoundException(
+        dto.workShiftId
+          ? 'Work shift not found'
+          : 'Default work shift not found',
+      );
+    }
 
     const employee = this.employeeRepository.create({
       employeeCode: dto.employeeCode,
@@ -67,7 +81,7 @@ export class EmployeeService {
       department,
       position,
     });
-
+    employee.workShift = workShift;
     return this.employeeRepository.save(employee);
   }
   async findAll(page = 1, limit = 10) {

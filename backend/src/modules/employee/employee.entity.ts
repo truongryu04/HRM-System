@@ -12,6 +12,7 @@ import {
 import { Department } from '../department/department.entity';
 import { Position } from '../position/position.entity';
 import { User } from '../user/user.entity';
+import { WorkShift } from '../work-shifts/work-shifts.entity';
 
 export enum EmployeeStatus {
   ACTIVE = 'ACTIVE', // Đang làm việc
@@ -108,4 +109,8 @@ export class Employee {
 
   @OneToMany(() => User, (user) => user.employee)
   users!: User[];
+
+  @ManyToOne(() => WorkShift)
+  @JoinColumn({ name: 'work_shift_id' })
+  workShift?: WorkShift;
 }
