@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Attendance } from './attendance.entity';
 import { Repository } from 'typeorm/browser/repository/Repository.js';
 import { EmployeeService } from '../employee/employee.service';
+import { Between } from 'typeorm/browser/find-options/operator/Between.js';
 
 @Injectable()
 export class AttendanceService {
@@ -153,6 +154,46 @@ export class AttendanceService {
     return {
       message: 'Check-out successful',
       checkOutTime: attendance.checkOutTime,
+    };
+  }
+
+  async getCalendar(employeeId: number, month: number, year: number) {
+    const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
+
+    const lastDay = new Date(year, month, 0).getDate();
+
+    const endDate = `${year}-${String(month).padStart(2, '0')}-${String(
+      lastDay,
+    ).padStart(2, '0')}`;
+
+    const attendances = await this.attendanceRepository.find({
+      where: {
+        employee: {
+          id: employeeId,
+        },
+        attendanceDate: Between(startDate, endDate),
+      },
+      order: {
+        attendanceDate: 'ASC',
+      },
+    });
+    const calendar: Record<string, any> = {};
+
+    attendances.forEach((attendance) => {
+      calendar[attendance.attendanceDate] = {
+        checkInTime: attendance.checkInTime,
+        checkOutTime: attendance.checkOutTime,
+        workingDayValue: Number(attendance.workingDayValue),
+        lateMinutes: attendance.lateMinutes,
+        isLate: attendance.isLate,
+        earlyLeaveMinutes: attendance.earlyLeaveMinutes,
+        isEarlyLeave: attendance.isEarlyLeave,
+      };
+    });
+    return {
+      month,
+      year,
+      calendar,
     };
   }
 }
