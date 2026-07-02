@@ -119,6 +119,7 @@ export class EmployeeService {
       relations: {
         department: true,
         position: true,
+        workShift: true,
       },
     });
 

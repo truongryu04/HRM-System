@@ -112,5 +112,5 @@ export class Employee {
 
   @ManyToOne(() => WorkShift)
   @JoinColumn({ name: 'work_shift_id' })
-  workShift?: WorkShift;
+  workShift!: WorkShift;
 }
