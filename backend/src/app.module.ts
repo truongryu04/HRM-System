@@ -12,6 +12,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { DepartmentModule } from './modules/department/department.module';
 import { PositionModule } from './modules/position/position.module';
 import { EmployeeModule } from './modules/employee/employee.module';
+import { AttendanceModule } from './modules/attendance/attendance.module';
+import { WorkShiftsModule } from './modules/work-shifts/work-shifts.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -40,6 +42,8 @@ import { EmployeeModule } from './modules/employee/employee.module';
     DepartmentModule,
     PositionModule,
     EmployeeModule,
+    AttendanceModule,
+    WorkShiftsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
