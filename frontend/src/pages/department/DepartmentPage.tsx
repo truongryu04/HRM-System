@@ -80,7 +80,9 @@ function DepartmentFormDialog({
       setName(department.name);
       setDescription(department.description ?? "");
       setStatus(department.status ?? "ACTIVE");
-      setManagerId(department.manager?.id ? String(department.manager.id) : "none");
+      setManagerId(
+        department.manager?.id ? String(department.manager.id) : "none",
+      );
       return;
     }
 
@@ -202,14 +204,16 @@ function DepartmentFormDialog({
 export default function DepartmentPage() {
   const queryClient = useQueryClient();
   const { data: departments = [] } = useDepartments();
-  const { data: employeeResponse } = useEmployees({ page: 1, limit: 1000 }, true);
+  const { data: employeeResponse } = useEmployees(
+    { page: 1, limit: 1000 },
+    true,
+  );
 
   const employees = employeeResponse?.data ?? [];
   const [openDialog, setOpenDialog] = useState(false);
   const [mode, setMode] = useState<DepartmentMode>("create");
-  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(
-    null,
-  );
+  const [selectedDepartment, setSelectedDepartment] =
+    useState<Department | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Department | null>(null);
 
   const createMutation = useMutation({
@@ -276,7 +280,9 @@ export default function DepartmentPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Department Management</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Department Management
+          </h1>
           <p className="text-muted-foreground">
             Quản lý phòng ban theo cấu trúc entity mới.
           </p>
@@ -307,31 +313,47 @@ export default function DepartmentPage() {
             <TableBody>
               {departments.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
+                  <TableCell
+                    colSpan={6}
+                    className="py-10 text-center text-muted-foreground"
+                  >
                     Chưa có phòng ban nào.
                   </TableCell>
                 </TableRow>
               ) : (
                 departments.map((department) => (
                   <TableRow key={department.id}>
-                    <TableCell className="font-medium">{department.code}</TableCell>
+                    <TableCell className="font-medium">
+                      {department.code}
+                    </TableCell>
                     <TableCell>{department.name}</TableCell>
                     <TableCell>{department.description ?? "-"}</TableCell>
-                    <TableCell>{department.manager?.fullName ?? "Chưa phân công"}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={statusClass(department.status)}>
+                      {department.manager?.fullName ?? "Chưa phân công"}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={statusClass(department.status)}
+                      >
                         {department.status}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button variant="outline" size="sm" onClick={() => openEditDialog(department)}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openEditDialog(department)}
+                        >
                           Sửa
                         </Button>
 
                         <AlertDialog
                           open={deleteTarget?.id === department.id}
-                          onOpenChange={(open) => !open && setDeleteTarget(null)}
+                          onOpenChange={(open) =>
+                            !open && setDeleteTarget(null)
+                          }
                         >
                           <AlertDialogTrigger asChild>
                             <Button
@@ -344,14 +366,20 @@ export default function DepartmentPage() {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Xóa phòng ban?</AlertDialogTitle>
+                              <AlertDialogTitle>
+                                Xóa phòng ban?
+                              </AlertDialogTitle>
                               <AlertDialogDescription>
                                 Hành động này sẽ ẩn phòng ban khỏi danh sách.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Hủy</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => deleteMutation.mutate(deleteTarget!.id)}>
+                              <AlertDialogAction
+                                onClick={() =>
+                                  deleteMutation.mutate(deleteTarget!.id)
+                                }
+                              >
                                 Xác nhận
                               </AlertDialogAction>
                             </AlertDialogFooter>

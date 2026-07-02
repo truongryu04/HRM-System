@@ -19,7 +19,7 @@ import {
 import type {
   EmployeeSummary,
   EmployeeUpdateRequest,
-} from "@/features/employees/types/employee.type";
+} from "@/types/employee.type";
 
 import { employeePageSize } from "./employee.constants";
 import { EmployeeFilters as EmployeeFilterBar } from "./components/EmployeeFilterBar";

@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { EmployeeForm } from "./components/EmployeeForm";
-import type { EmployeeCreateRequest } from "@/features/employees/types/employee.type";
+import type { EmployeeCreateRequest } from "@/types/employee.type";
 
 import { useDepartments } from "../../hooks/useDepartments";
 import { usePositions } from "../../hooks/usePositions";

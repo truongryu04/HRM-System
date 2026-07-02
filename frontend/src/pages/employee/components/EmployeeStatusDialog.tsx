@@ -20,7 +20,7 @@ import type {
   EmployeeStatus,
   EmployeeSummary,
   EmployeeUpdateRequest,
-} from "@/features/employees/types/employee.type";
+} from "@/types/employee.type";
 import { employeeStatusOptions } from "../employee.constants";
 
 interface EmployeeStatusDialogProps {

@@ -24,7 +24,7 @@ import type {
   EmployeeGender,
   EmployeeStatus,
   EmployeeSummary,
-} from "@/features/employees/types/employee.type";
+} from "@/types/employee.type";
 import {
   employeeGenderOptions,
   employeeStatusOptions,

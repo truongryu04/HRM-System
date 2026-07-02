@@ -36,10 +36,8 @@ export default function UserCreateDialog({
   roles,
 }: UserCreateDialogProps) {
   const queryClient = useQueryClient();
-  const { data: employeeResponse, isLoading: isEmployeesLoading } = useEmployees(
-    { page: 1, limit: 1000 },
-    open,
-  );
+  const { data: employeeResponse, isLoading: isEmployeesLoading } =
+    useEmployees({ page: 1, limit: 1000 }, open);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -59,7 +57,11 @@ export default function UserCreateDialog({
     onError: (error) => {
       if (error instanceof AxiosError) {
         const message = error.response?.data?.message;
-        toast.error(Array.isArray(message) ? message[0] : message ?? "Tạo tài khoản thất bại");
+        toast.error(
+          Array.isArray(message)
+            ? message[0]
+            : (message ?? "Tạo tài khoản thất bại"),
+        );
         return;
       }
 
@@ -147,7 +149,9 @@ export default function UserCreateDialog({
               <SelectTrigger id="employee-select" className="w-full">
                 <SelectValue
                   placeholder={
-                    isEmployeesLoading ? "Đang tải danh sách nhân viên..." : "Chọn nhân viên"
+                    isEmployeesLoading
+                      ? "Đang tải danh sách nhân viên..."
+                      : "Chọn nhân viên"
                   }
                 />
               </SelectTrigger>
@@ -165,7 +169,9 @@ export default function UserCreateDialog({
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label>Vai trò</Label>
-            <span className="text-xs text-muted-foreground">{selectedRoleLabel}</span>
+            <span className="text-xs text-muted-foreground">
+              {selectedRoleLabel}
+            </span>
           </div>
 
           <div className="grid gap-2 rounded-lg border p-3 md:grid-cols-2">

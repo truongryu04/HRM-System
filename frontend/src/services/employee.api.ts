@@ -5,7 +5,7 @@ import type {
   EmployeeStatus,
   EmployeeSummary,
   EmployeeUpdateRequest,
-} from "@/features/employees/types/employee.type";
+} from "@/types/employee.type";
 
 export const getEmployees = async (params?: {
   page?: number;

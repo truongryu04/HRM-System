@@ -10,6 +10,10 @@ import ProtectedRoute from "../guards/ProtectedRoute";
 import UserManagementPage from "../pages/user/UserManagementPage";
 import DepartmentPage from "../pages/department/DepartmentPage";
 import PositionPage from "../pages/position/PositionPage";
+import EmployeePage from "../pages/employee/EmployeePage";
+import EmployeeDetailPage from "../pages/employee/EmployeeDetailPage";
+import EmployeeEditPage from "../pages/employee/EmployeeEditPage";
+import EmployeeCreatePage from "../pages/employee/EmployeeCreatePage";
 
 export const router = createBrowserRouter([
   {
@@ -38,6 +42,22 @@ export const router = createBrowserRouter([
           {
             path: "departments",
             element: <DepartmentPage />,
+          },
+          {
+            path: "employees",
+            element: <EmployeePage />,
+          },
+          {
+            path: "employees/id",
+            element: <EmployeeDetailPage />,
+          },
+          {
+            path: "employees/id/edit",
+            element: <EmployeeEditPage />,
+          },
+          {
+            path: "employees/create",
+            element: <EmployeeCreatePage />,
           },
           {
             path: "positions",

@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "../../../components/ui/table";
-import type { EmployeeSummary } from "@/features/employees/types/employee.type";
+import type { EmployeeSummary } from "@/types/employee.type";
 import {
   departmentTagClass,
   employeeStatusBadgeClass,
@@ -68,7 +68,6 @@ interface EmployeeTableProps {
 export function EmployeeTable({
   employees,
   onViewDetail,
-  onEdit,
   onChangeStatus,
   onDelete,
 }: EmployeeTableProps) {

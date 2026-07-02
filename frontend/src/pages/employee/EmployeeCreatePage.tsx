@@ -2,7 +2,7 @@ import { EmployeeForm } from "./components/EmployeeForm";
 import { useDepartments } from "../../hooks/useDepartments";
 import { usePositions } from "../../hooks/usePositions";
 import { useCreateEmployee } from "../../hooks/useEmployees";
-import type { EmployeeCreateRequest } from "@/features/employees/types/employee.type";
+import type { EmployeeCreateRequest } from "@/types/employee.type";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 export default function EmployeeCreatePage() {

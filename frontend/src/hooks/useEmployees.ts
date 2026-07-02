@@ -1,15 +1,15 @@
-import { getEmployees } from "../services/employee.api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
   EmployeeListResponse,
   EmployeeSummary,
   EmployeeUpdateRequest,
   EmployeeCreateRequest,
-} from "../features/employees/types/employee.type";
+} from "../types/employee.type";
 import {
   getEmployee,
   updateEmployee,
   createEmployee,
+  getEmployees,
 } from "../services/employee.api";
 export const useEmployees = (
   params?: { page?: number; limit?: number },

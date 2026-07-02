@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../../components/ui/dialog";
-import type { EmployeeSummary } from "@/features/employees/types/employee.type";
+import type { EmployeeSummary } from "@/types/employee.type";
 import {
   departmentTagClass,
   employeeStatusBadgeClass,

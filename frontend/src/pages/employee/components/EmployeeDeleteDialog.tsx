@@ -9,7 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../../../components/ui/alert-dialog";
-import type { EmployeeSummary } from "@/features/employees/types/employee.type";
+import type { EmployeeSummary } from "@/types/employee.type";
 
 interface EmployeeDeleteDialogProps {
   open: boolean;
