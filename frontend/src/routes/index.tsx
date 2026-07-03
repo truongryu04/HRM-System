@@ -53,11 +53,11 @@ export const router = createBrowserRouter([
             element: <EmployeePage />,
           },
           {
-            path: "employees/id",
+            path: "employees/:id",
             element: <EmployeeDetailPage />,
           },
           {
-            path: "employees/id/edit",
+            path: "employees/:id/edit",
             element: <EmployeeEditPage />,
           },
           {
