@@ -24,10 +24,10 @@ export class Attendance {
   attendanceDate!: string;
 
   @Column({ type: 'timestamp', nullable: true })
-  checkInTime!: Date;
+  checkInTime!: Date | null;
 
   @Column({ type: 'timestamp', nullable: true })
-  checkOutTime?: Date;
+  checkOutTime?: Date | null;
 
   @Column({
     type: 'int',

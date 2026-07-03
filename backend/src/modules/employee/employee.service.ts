@@ -190,4 +190,12 @@ export class EmployeeService {
 
     return this.employeeRepository.save(employee);
   }
+  async totalEmployee() {
+    const total = await this.employeeRepository.count({
+      where: {
+        isDeleted: false,
+      },
+    });
+    return total;
+  }
 }

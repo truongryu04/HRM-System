@@ -35,4 +35,9 @@ export class AttendanceController {
   getToday(@CurrentUser() user: JwtPayload) {
     return this.attendanceService.getToday(user.employeeId);
   }
+
+  @Get('dashboard')
+  getDashboard() {
+    return this.attendanceService.getDashboard();
+  }
 }

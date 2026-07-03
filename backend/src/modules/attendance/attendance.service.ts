@@ -130,7 +130,9 @@ export class AttendanceService {
     if (attendance.checkOutTime) {
       throw new BadRequestException('You have already checked out');
     }
-
+    if (!attendance.checkInTime) {
+      throw new BadRequestException('Bạn chưa checkin');
+    }
     const shiftEnd = this.timeStringToDate(
       now,
       attendance.employee.workShift.endTime,
@@ -232,5 +234,40 @@ export class AttendanceService {
       },
     });
     return attendance;
+  }
+  async getDashboard() {
+    const today = new Date().toISOString().split('T')[0];
+
+    const totalEmployees = await this.employeeService.totalEmployee();
+
+    const present = await this.attendanceRepository.count({
+      where: {
+        attendanceDate: today,
+      },
+    });
+
+    const late = await this.attendanceRepository.count({
+      where: {
+        attendanceDate: today,
+        isLate: true,
+      },
+    });
+
+    const absent = totalEmployees - present - late;
+
+    const working = await this.attendanceRepository
+      .createQueryBuilder('attendance')
+      .where('attendance.attendanceDate = :today', { today })
+      .andWhere('attendance.checkInTime IS NOT NULL')
+      .andWhere('attendance.checkOutTime IS NULL')
+      .getCount();
+
+    return {
+      totalEmployees,
+      present,
+      late,
+      absent,
+      working,
+    };
   }
 }
