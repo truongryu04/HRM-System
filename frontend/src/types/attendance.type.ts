@@ -28,3 +28,56 @@ export interface TodayAttendance {
   createdAt: string;
   updatedAt: string;
 }
+export interface AttendanceDashboard {
+  totalEmployees: number;
+  present: number;
+  late: number;
+  absent: number;
+  working: number;
+}
+export interface Attendance {
+  id: number;
+
+  attendanceDate: string;
+
+  checkInTime: string | null;
+
+  checkOutTime: string | null;
+
+  workMinutes: number;
+
+  lateMinutes: number;
+
+  isLate: boolean;
+
+  employee: {
+    id: number;
+
+    employeeCode: string;
+
+    fullName: string;
+
+    department: {
+      id: number;
+      name: string;
+      code: string;
+    };
+
+    position: {
+      id: number;
+      name: string;
+      code: string;
+    };
+  };
+}
+
+export interface AttendanceListResponse {
+  data: Attendance[];
+
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}

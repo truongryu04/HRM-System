@@ -1,4 +1,9 @@
-import type { AttendanceCalendarResponse } from "@/types/attendance.type";
+import type {
+  AttendanceCalendarResponse,
+  AttendanceDashboard,
+  AttendanceListResponse,
+} from "@/types/attendance.type";
+
 import { apiClient } from "./api-client";
 
 export const attendanceApi = {
@@ -12,9 +17,10 @@ export const attendanceApi = {
         year,
       },
     });
-    console.log(response.data);
+
     return response.data;
   },
+
   checkIn: async () => {
     const response = await apiClient.post("/attendances/check-in");
 
@@ -26,8 +32,31 @@ export const attendanceApi = {
 
     return response.data;
   },
+
   getToday: async () => {
     const response = await apiClient.get("/attendances/today");
+
+    return response.data;
+  },
+
+  getDashboard: async (): Promise<AttendanceDashboard> => {
+    const response = await apiClient.get("/attendances/dashboard");
+
+    return response.data;
+  },
+
+  getAttendances: async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    attendanceDate?: string;
+    departmentId?: number;
+    positionId?: number;
+    status?: string;
+  }): Promise<AttendanceListResponse> => {
+    const response = await apiClient.get("/attendances", {
+      params,
+    });
 
     return response.data;
   },
