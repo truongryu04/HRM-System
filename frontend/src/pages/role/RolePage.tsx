@@ -75,7 +75,7 @@ export default function RolePage() {
           <p className="text-muted-foreground">Manage roles in the system.</p>
         </div>
         <Button
-          className="bg-blue-600 hover:bg-blue-700 text-white"
+          className="bg-teal-500 text-white hover:bg-teal-700 hover:text-white "
           variant="outline"
           onClick={() => {
             setMode("create");

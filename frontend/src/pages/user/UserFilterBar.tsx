@@ -73,7 +73,7 @@ export function UserFilterBar({
         <Button
           type="button"
           onClick={() => onSearch(searchInput.trim())}
-          className="shrink-0 bg-violet-600 text-white hover:bg-violet-700"
+          className="shrink-0 bg-teal-500 text-white hover:bg-teal-700"
         >
           <Search className="size-4" />
         </Button>

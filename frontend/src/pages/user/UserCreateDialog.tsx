@@ -204,7 +204,7 @@ export default function UserCreateDialog({
           <Button
             onClick={handleSubmit}
             disabled={createUserMutation.isPending}
-            className="bg-violet-600 text-white hover:bg-violet-700"
+            className="bg-teal-500 text-white hover:bg-teal-700"
           >
             {createUserMutation.isPending ? "Đang tạo..." : "Tạo tài khoản"}
           </Button>

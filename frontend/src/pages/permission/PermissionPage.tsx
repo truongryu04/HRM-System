@@ -55,10 +55,7 @@ export default function PermissionPage() {
         </div>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button
-              className="bg-green-600 hover:bg-green-700 text-white"
-              variant="outline"
-            >
+            <Button className="bg-teal-500 hover:bg-teal-700 text-white ">
               Lưu
             </Button>
           </AlertDialogTrigger>

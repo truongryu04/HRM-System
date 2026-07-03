@@ -54,7 +54,7 @@ export default function UserManagementPage() {
 
         <Button
           onClick={() => setOpenCreateDialog(true)}
-          className="bg-violet-600 text-white hover:bg-violet-700"
+          className="bg-teal-500 text-white hover:bg-teal-700"
         >
           Thêm tài khoản
         </Button>

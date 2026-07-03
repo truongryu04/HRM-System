@@ -201,7 +201,7 @@ export default function EmployeePage() {
 
         <Button
           onClick={() => navigate(`/employees/create`)}
-          className="bg-green-500 hover:bg-green-600 text-white"
+          className="bg-teal-500 hover:bg-teal-700 text-white"
         >
           <Plus />
           Thêm nhân viên

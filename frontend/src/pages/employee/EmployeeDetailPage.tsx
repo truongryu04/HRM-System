@@ -123,8 +123,11 @@ export default function EmployeeDetailPage() {
             </p>
           </div>
         </div>
-        <Button onClick={() => navigate(`/employees/${employeeId}/edit`)}>
-          <PencilLine className="size-4" />
+        <Button
+          className="bg-teal-500 text-white hover:bg-teal-700"
+          onClick={() => navigate(`/employees/${employeeId}/edit`)}
+        >
+          <PencilLine className="size-4  " />
           Sửa thông tin
         </Button>
       </div>

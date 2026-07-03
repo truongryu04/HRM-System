@@ -63,7 +63,7 @@ export default function LoginForm() {
       <Button
         type="submit"
         disabled={loginMutation.isPending}
-        className="bg-blue-600 hover:bg-blue-700 text-white w-full"
+        className="bg-teal-500 hover:bg-teal-700 text-white w-full"
         variant="outline"
       >
         {loginMutation.isPending ? "Đang đăng nhập..." : "Đăng nhập"}

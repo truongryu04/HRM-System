@@ -112,9 +112,7 @@ function PositionFormDialog({
           <DialogTitle>
             {mode === "create" ? "Thêm vị trí" : "Cập nhật vị trí"}
           </DialogTitle>
-          <DialogDescription>
-            Quản lý vị trí theo entity mới.
-          </DialogDescription>
+          <DialogDescription>Quản lý vị trí</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 md:grid-cols-2">
@@ -179,7 +177,7 @@ function PositionFormDialog({
           <Button
             onClick={handleSubmit}
             disabled={loading}
-            className="bg-violet-600 text-white hover:bg-violet-700"
+            className="bg-teal-500 text-white hover:bg-teal-700"
           >
             {loading ? "Đang lưu..." : "Lưu"}
           </Button>
@@ -195,7 +193,9 @@ export default function PositionPage() {
 
   const [openDialog, setOpenDialog] = useState(false);
   const [mode, setMode] = useState<PositionMode>("create");
-  const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
+  const [selectedPosition, setSelectedPosition] = useState<Position | null>(
+    null,
+  );
   const [deleteTarget, setDeleteTarget] = useState<Position | null>(null);
 
   const createMutation = useMutation({
@@ -262,15 +262,15 @@ export default function PositionPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Position Management</h1>
-          <p className="text-muted-foreground">
-            Quản lý vị trí theo entity mới.
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Position Management
+          </h1>
+          <p className="text-muted-foreground">Quản lý vị trí làm việc</p>
         </div>
 
         <Button
           onClick={openCreateDialog}
-          className="bg-violet-600 text-white hover:bg-violet-700"
+          className="bg-teal-500 text-white hover:bg-teal-700"
         >
           Thêm vị trí
         </Button>
@@ -293,31 +293,45 @@ export default function PositionPage() {
             <TableBody>
               {positions.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
+                  <TableCell
+                    colSpan={6}
+                    className="py-10 text-center text-muted-foreground"
+                  >
                     Chưa có vị trí nào.
                   </TableCell>
                 </TableRow>
               ) : (
                 positions.map((position) => (
                   <TableRow key={position.id}>
-                    <TableCell className="font-medium">{position.code}</TableCell>
+                    <TableCell className="font-medium">
+                      {position.code}
+                    </TableCell>
                     <TableCell>{position.name}</TableCell>
                     <TableCell>{position.level ?? "-"}</TableCell>
                     <TableCell>{position.description ?? "-"}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={statusClass(position.status)}>
+                      <Badge
+                        variant="outline"
+                        className={statusClass(position.status)}
+                      >
                         {position.status}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button variant="outline" size="sm" onClick={() => openEditDialog(position)}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openEditDialog(position)}
+                        >
                           Sửa
                         </Button>
 
                         <AlertDialog
                           open={deleteTarget?.id === position.id}
-                          onOpenChange={(open) => !open && setDeleteTarget(null)}
+                          onOpenChange={(open) =>
+                            !open && setDeleteTarget(null)
+                          }
                         >
                           <AlertDialogTrigger asChild>
                             <Button
@@ -337,7 +351,11 @@ export default function PositionPage() {
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Hủy</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => deleteMutation.mutate(deleteTarget!.id)}>
+                              <AlertDialogAction
+                                onClick={() =>
+                                  deleteMutation.mutate(deleteTarget!.id)
+                                }
+                              >
                                 Xác nhận
                               </AlertDialogAction>
                             </AlertDialogFooter>

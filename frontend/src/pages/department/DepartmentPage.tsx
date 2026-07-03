@@ -117,9 +117,7 @@ function DepartmentFormDialog({
           <DialogTitle>
             {mode === "create" ? "Thêm phòng ban" : "Cập nhật phòng ban"}
           </DialogTitle>
-          <DialogDescription>
-            Quản lý thông tin phòng ban theo entity mới.
-          </DialogDescription>
+          <DialogDescription>Quản lý thông tin phòng ban</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 md:grid-cols-2">
@@ -191,7 +189,7 @@ function DepartmentFormDialog({
           <Button
             onClick={handleSubmit}
             disabled={loading}
-            className="bg-violet-600 text-white hover:bg-violet-700"
+            className="bg-teal-500 text-white hover:bg-teal-700"
           >
             {loading ? "Đang lưu..." : "Lưu"}
           </Button>
@@ -283,14 +281,12 @@ export default function DepartmentPage() {
           <h1 className="text-3xl font-bold tracking-tight">
             Department Management
           </h1>
-          <p className="text-muted-foreground">
-            Quản lý phòng ban theo cấu trúc entity mới.
-          </p>
+          <p className="text-muted-foreground">Quản lý phòng ban</p>
         </div>
 
         <Button
           onClick={openCreateDialog}
-          className="bg-violet-600 text-white hover:bg-violet-700"
+          className="bg-teal-500 text-white hover:bg-violet-700"
         >
           Thêm phòng ban
         </Button>

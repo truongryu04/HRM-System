@@ -557,7 +557,7 @@ export function EmployeeForm({
           <Button
             type="submit"
             disabled={loading}
-            className="bg-violet-600 text-white hover:bg-violet-700"
+            className="bg-teal-500 text-white hover:bg-teal-700"
           >
             {loading ? "Đang lưu..." : "Lưu thông tin"}
           </Button>
