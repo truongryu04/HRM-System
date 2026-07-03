@@ -31,4 +31,8 @@ export class AttendanceController {
       query.year,
     );
   }
+  @Get('today')
+  getToday(@CurrentUser() user: JwtPayload) {
+    return this.attendanceService.getToday(user.employeeId);
+  }
 }

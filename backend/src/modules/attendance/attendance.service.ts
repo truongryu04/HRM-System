@@ -25,6 +25,22 @@ export class AttendanceService {
 
     return result;
   }
+  private calculateBreakMinutes(
+    checkIn: Date,
+    checkOut: Date,
+    breakStart: Date,
+    breakEnd: Date,
+  ): number {
+    const overlapStart = Math.max(checkIn.getTime(), breakStart.getTime());
+
+    const overlapEnd = Math.min(checkOut.getTime(), breakEnd.getTime());
+
+    if (overlapEnd <= overlapStart) {
+      return 0;
+    }
+
+    return Math.floor((overlapEnd - overlapStart) / 60000);
+  }
   async checkIn(employeeId: number) {
     const employee = await this.employeeService.findOne(employeeId);
 
@@ -134,21 +150,24 @@ export class AttendanceService {
 
     if (breakStart && breakEnd) {
       const breakStartTime = this.timeStringToDate(now, breakStart);
-
       const breakEndTime = this.timeStringToDate(now, breakEnd);
 
-      const breakMinutes = Math.floor(
-        (breakEndTime.getTime() - breakStartTime.getTime()) / 60000,
+      workedMinutes -= this.calculateBreakMinutes(
+        attendance.checkInTime,
+        now,
+        breakStartTime,
+        breakEndTime,
       );
-
-      workedMinutes -= breakMinutes;
     }
+    const ratio = workedMinutes / attendance.employee.workShift.standardMinutes;
+
+    const workingDayValue = Math.min(Math.round(ratio * 10) / 10, 1);
 
     attendance.checkOutTime = now;
     attendance.isEarlyLeave = isEarlyLeave;
     attendance.earlyLeaveMinutes = earlyLeaveMinutes;
     attendance.workMinutes = Math.max(workedMinutes, 0);
-
+    attendance.workingDayValue = workingDayValue;
     await this.attendanceRepository.save(attendance);
 
     return {
@@ -195,5 +214,23 @@ export class AttendanceService {
       year,
       calendar,
     };
+  }
+
+  async getToday(employeeId: number) {
+    const today = new Date();
+
+    const attendanceDate = `${today.getFullYear()}-${String(
+      today.getMonth() + 1,
+    ).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+    const attendance = await this.attendanceRepository.findOne({
+      where: {
+        employee: {
+          id: employeeId,
+        },
+        attendanceDate,
+      },
+    });
+    return attendance;
   }
 }
