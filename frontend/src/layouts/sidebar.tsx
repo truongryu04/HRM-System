@@ -7,6 +7,12 @@ export function Sidebar() {
 
       <nav className="space-y-1 p-2">
         <NavLink
+          to="/attendance"
+          className="block rounded-md px-3 py-2 hover:bg-muted"
+        >
+          Lịch làm việc
+        </NavLink>
+        <NavLink
           to="/permissions"
           className="block rounded-md px-3 py-2 hover:bg-muted"
         >

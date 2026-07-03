@@ -14,6 +14,7 @@ import EmployeePage from "../pages/employee/EmployeePage";
 import EmployeeDetailPage from "../pages/employee/EmployeeDetailPage";
 import EmployeeEditPage from "../pages/employee/EmployeeEditPage";
 import EmployeeCreatePage from "../pages/employee/EmployeeCreatePage";
+import AttendancePage from "../pages/attendance/AttendancePage";
 
 export const router = createBrowserRouter([
   {
@@ -25,7 +26,11 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Navigate to="/permissions" replace />,
+            element: <Navigate to="/attendance" replace />,
+          },
+          {
+            path: "attendance",
+            element: <AttendancePage />,
           },
           {
             path: "permissions",
