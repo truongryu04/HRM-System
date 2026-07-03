@@ -5,6 +5,7 @@ import { AuthGuard } from '@nestjs/passport/dist/auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { JwtPayload } from '../auth/jwt-payload.interface';
 import { AttendanceCalendarDto } from './dto/attendance-calendar.dto';
+import { AttendanceQueryDto } from './dto/attendance-query.dto';
 @UseGuards(AuthGuard('jwt'), PermissionsGuard)
 @Controller('attendances')
 export class AttendanceController {
@@ -39,5 +40,10 @@ export class AttendanceController {
   @Get('dashboard')
   getDashboard() {
     return this.attendanceService.getDashboard();
+  }
+
+  @Get()
+  findAll(@Query() query: AttendanceQueryDto) {
+    return this.attendanceService.findAll(query);
   }
 }

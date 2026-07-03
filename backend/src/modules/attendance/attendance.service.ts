@@ -8,6 +8,7 @@ import { Attendance } from './attendance.entity';
 import { Repository } from 'typeorm/browser/repository/Repository.js';
 import { EmployeeService } from '../employee/employee.service';
 import { Between } from 'typeorm/browser/find-options/operator/Between.js';
+import { AttendanceQueryDto } from './dto/attendance-query.dto';
 
 @Injectable()
 export class AttendanceService {
@@ -268,6 +269,69 @@ export class AttendanceService {
       late,
       absent,
       working,
+    };
+  }
+  async findAll(query: AttendanceQueryDto) {
+    const {
+      page = '1',
+      limit = '10',
+      search,
+      departmentId,
+      employeeId,
+      fromDate,
+      toDate,
+    } = query;
+
+    const qb = this.attendanceRepository
+      .createQueryBuilder('attendance')
+      .leftJoinAndSelect('attendance.employee', 'employee')
+      .leftJoinAndSelect('employee.department', 'department')
+      .leftJoinAndSelect('employee.position', 'position');
+
+    if (search) {
+      qb.andWhere(
+        '(employee.fullName ILIKE :search OR employee.employeeCode ILIKE :search)',
+        {
+          search: `%${search}%`,
+        },
+      );
+    }
+
+    if (departmentId) {
+      qb.andWhere('department.id = :departmentId', {
+        departmentId,
+      });
+    }
+
+    if (employeeId) {
+      qb.andWhere('employee.id = :employeeId', {
+        employeeId,
+      });
+    }
+
+    if (fromDate) {
+      qb.andWhere('attendance.attendanceDate >= :fromDate', { fromDate });
+    }
+
+    if (toDate) {
+      qb.andWhere('attendance.attendanceDate <= :toDate', { toDate });
+    }
+
+    qb.orderBy('attendance.attendanceDate', 'DESC');
+
+    const [data, total] = await qb
+      .skip((+page - 1) * +limit)
+      .take(+limit)
+      .getManyAndCount();
+
+    return {
+      data,
+      meta: {
+        page: +page,
+        limit: +limit,
+        total,
+        totalPages: Math.ceil(total / +limit),
+      },
     };
   }
 }
