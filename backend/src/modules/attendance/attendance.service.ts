@@ -141,7 +141,9 @@ export class AttendanceService {
 
     const now = new Date();
 
-    const attendanceDate = now.toISOString().split('T')[0];
+    const attendanceDate = `${now.getFullYear()}-${String(
+      now.getMonth() + 1,
+    ).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
     const existedAttendance = await this.attendanceRepository.findOne({
       where: {
@@ -298,7 +300,12 @@ export class AttendanceService {
     return attendance;
   }
   async getDashboard() {
-    const today = new Date().toISOString().split('T')[0];
+    const now = new Date();
+
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
+      2,
+      '0',
+    )}-${String(now.getDate()).padStart(2, '0')}`;
 
     const totalEmployees = await this.employeeService.totalEmployee();
 
