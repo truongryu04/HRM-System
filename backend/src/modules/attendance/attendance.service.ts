@@ -9,6 +9,7 @@ import { Repository } from 'typeorm/browser/repository/Repository.js';
 import { EmployeeService } from '../employee/employee.service';
 import { Between } from 'typeorm/browser/find-options/operator/Between.js';
 import { AttendanceQueryDto } from './dto/attendance-query.dto';
+import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 
 @Injectable()
 export class AttendanceService {
@@ -41,6 +42,95 @@ export class AttendanceService {
     }
 
     return Math.floor((overlapEnd - overlapStart) / 60000);
+  }
+  private recalculateAttendance(attendance: Attendance): Attendance {
+    const { workShift } = attendance.employee;
+
+    if (!attendance.checkInTime || !attendance.checkOutTime || !workShift) {
+      return attendance;
+    }
+
+    // ===== Tính đi muộn =====
+
+    const shiftStart = this.timeStringToDate(
+      attendance.checkInTime,
+      workShift.startTime,
+    );
+
+    const isLate = attendance.checkInTime > shiftStart;
+
+    const lateMinutes = isLate
+      ? Math.floor(
+          (attendance.checkInTime.getTime() - shiftStart.getTime()) / 60000,
+        )
+      : 0;
+
+    // ===== Tính về sớm =====
+
+    const shiftEnd = this.timeStringToDate(
+      attendance.checkOutTime,
+      workShift.endTime,
+    );
+
+    const isEarlyLeave = attendance.checkOutTime < shiftEnd;
+
+    const earlyLeaveMinutes = isEarlyLeave
+      ? Math.floor(
+          (shiftEnd.getTime() - attendance.checkOutTime.getTime()) / 60000,
+        )
+      : 0;
+
+    // ===== Tính thời gian làm việc =====
+
+    let workedMinutes = Math.floor(
+      (attendance.checkOutTime.getTime() - attendance.checkInTime.getTime()) /
+        60000,
+    );
+
+    // ===== Trừ thời gian nghỉ =====
+
+    if (workShift.breakStart && workShift.breakEnd) {
+      const breakStart = this.timeStringToDate(
+        attendance.checkInTime,
+        workShift.breakStart,
+      );
+
+      const breakEnd = this.timeStringToDate(
+        attendance.checkInTime,
+        workShift.breakEnd,
+      );
+
+      workedMinutes -= this.calculateBreakMinutes(
+        attendance.checkInTime,
+        attendance.checkOutTime,
+        breakStart,
+        breakEnd,
+      );
+    }
+
+    workedMinutes = Math.max(workedMinutes, 0);
+
+    // ===== Tính công =====
+
+    const ratio = workedMinutes / workShift.standardMinutes;
+
+    const workingDayValue = Math.min(Math.round(ratio * 10) / 10, 1);
+
+    // ===== Gán kết quả =====
+
+    attendance.isLate = isLate;
+
+    attendance.lateMinutes = lateMinutes;
+
+    attendance.isEarlyLeave = isEarlyLeave;
+
+    attendance.earlyLeaveMinutes = earlyLeaveMinutes;
+
+    attendance.workMinutes = workedMinutes;
+
+    attendance.workingDayValue = workingDayValue;
+
+    return attendance;
   }
   async checkIn(employeeId: number) {
     const employee = await this.employeeService.findOne(employeeId);
@@ -131,51 +221,22 @@ export class AttendanceService {
     if (attendance.checkOutTime) {
       throw new BadRequestException('You have already checked out');
     }
+
     if (!attendance.checkInTime) {
       throw new BadRequestException('Bạn chưa checkin');
     }
-    const shiftEnd = this.timeStringToDate(
-      now,
-      attendance.employee.workShift.endTime,
-    );
-
-    const isEarlyLeave = now < shiftEnd;
-
-    const earlyLeaveMinutes = isEarlyLeave
-      ? Math.floor((shiftEnd.getTime() - now.getTime()) / 60000)
-      : 0;
-
-    let workedMinutes = Math.floor(
-      (now.getTime() - attendance.checkInTime.getTime()) / 60000,
-    );
-
-    const { breakStart, breakEnd } = attendance.employee.workShift;
-
-    if (breakStart && breakEnd) {
-      const breakStartTime = this.timeStringToDate(now, breakStart);
-      const breakEndTime = this.timeStringToDate(now, breakEnd);
-
-      workedMinutes -= this.calculateBreakMinutes(
-        attendance.checkInTime,
-        now,
-        breakStartTime,
-        breakEndTime,
-      );
-    }
-    const ratio = workedMinutes / attendance.employee.workShift.standardMinutes;
-
-    const workingDayValue = Math.min(Math.round(ratio * 10) / 10, 1);
 
     attendance.checkOutTime = now;
-    attendance.isEarlyLeave = isEarlyLeave;
-    attendance.earlyLeaveMinutes = earlyLeaveMinutes;
-    attendance.workMinutes = Math.max(workedMinutes, 0);
-    attendance.workingDayValue = workingDayValue;
+
+    this.recalculateAttendance(attendance);
+
     await this.attendanceRepository.save(attendance);
 
     return {
       message: 'Check-out successful',
       checkOutTime: attendance.checkOutTime,
+      workMinutes: attendance.workMinutes,
+      workingDayValue: attendance.workingDayValue,
     };
   }
 
@@ -333,5 +394,39 @@ export class AttendanceService {
         totalPages: Math.ceil(total / +limit),
       },
     };
+  }
+  async update(id: number, dto: UpdateAttendanceDto) {
+    const attendance = await this.attendanceRepository.findOne({
+      where: { id },
+      relations: {
+        employee: {
+          workShift: true,
+        },
+      },
+    });
+
+    if (!attendance) {
+      throw new NotFoundException('Attendance not found');
+    }
+
+    if (dto.checkInTime !== undefined) {
+      attendance.checkInTime = dto.checkInTime
+        ? new Date(dto.checkInTime)
+        : null;
+    }
+
+    if (dto.checkOutTime !== undefined) {
+      attendance.checkOutTime = dto.checkOutTime
+        ? new Date(dto.checkOutTime)
+        : null;
+    }
+
+    if (dto.note !== undefined) {
+      attendance.note = dto.note;
+    }
+
+    this.recalculateAttendance(attendance);
+
+    return this.attendanceRepository.save(attendance);
   }
 }
