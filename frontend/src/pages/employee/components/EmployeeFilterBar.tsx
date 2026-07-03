@@ -1,4 +1,4 @@
-import { Search } from "lucide-react";
+import { RotateCcw, Search } from "lucide-react";
 
 import { Button } from "../../../components/ui/button";
 import { Card, CardContent } from "../../../components/ui/card";
@@ -61,7 +61,7 @@ export function EmployeeFilters({
     <Card>
       <CardContent className="pt-6">
         <div className="grid gap-4 lg:grid-cols-12">
-          <div className="space-y-2 lg:col-span-4">
+          {/* <div className="space-y-2 lg:col-span-4">
             <Label htmlFor="employee-search">Tìm kiếm</Label>
             <div className="relative">
               <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -76,8 +76,35 @@ export function EmployeeFilters({
                 className="pl-9"
               />
             </div>
-          </div>
+          </div> */}
+          <div className="space-y-2 lg:col-span-4">
+            <Label htmlFor="employee-search">Tìm kiếm</Label>
 
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="employee-search"
+                  value={searchInput}
+                  onChange={(event) => setSearchInput(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      onSearch(searchInput);
+                    }
+                  }}
+                  placeholder="Mã, tên, email, số điện thoại"
+                  className="pl-9"
+                />
+              </div>
+              <Button
+                type="button"
+                onClick={() => onSearch(searchInput.trim())}
+                className="shrink-0 bg-teal-500 text-white hover:bg-violet-700"
+              >
+                <Search className="size-4" />
+              </Button>
+            </div>
+          </div>
           <div className="space-y-2 lg:col-span-2">
             <Label>Phòng ban</Label>
             <Select value={departmentId} onValueChange={setDepartmentId}>
@@ -168,7 +195,8 @@ export function EmployeeFilters({
 
           <div className="flex items-end lg:col-span-2">
             <Button variant="outline" className="w-full" onClick={onReset}>
-              Xóa bộ lọc
+              <RotateCcw className="mr-2 size-4" />
+              Reset
             </Button>
           </div>
         </div>
