@@ -45,90 +45,77 @@ export class AttendanceService {
   }
   private recalculateAttendance(attendance: Attendance): Attendance {
     const { workShift } = attendance.employee;
-
-    if (!attendance.checkInTime || !attendance.checkOutTime || !workShift) {
+    if (!workShift) {
       return attendance;
     }
+    if (attendance.checkInTime) {
+      const shiftStart = this.timeStringToDate(
+        attendance.checkInTime,
+        workShift.lateAfter,
+      );
 
-    // ===== Tính đi muộn =====
+      attendance.isLate = attendance.checkInTime > shiftStart;
 
-    const shiftStart = this.timeStringToDate(
-      attendance.checkInTime,
-      workShift.startTime,
-    );
-
-    const isLate = attendance.checkInTime > shiftStart;
-
-    const lateMinutes = isLate
-      ? Math.floor(
-          (attendance.checkInTime.getTime() - shiftStart.getTime()) / 60000,
-        )
-      : 0;
+      attendance.lateMinutes = attendance.isLate
+        ? Math.floor(
+            (attendance.checkInTime.getTime() - shiftStart.getTime()) / 60000,
+          )
+        : 0;
+    }
 
     // ===== Tính về sớm =====
 
-    const shiftEnd = this.timeStringToDate(
-      attendance.checkOutTime,
-      workShift.endTime,
-    );
-
-    const isEarlyLeave = attendance.checkOutTime < shiftEnd;
-
-    const earlyLeaveMinutes = isEarlyLeave
-      ? Math.floor(
-          (shiftEnd.getTime() - attendance.checkOutTime.getTime()) / 60000,
-        )
-      : 0;
-
-    // ===== Tính thời gian làm việc =====
-
-    let workedMinutes = Math.floor(
-      (attendance.checkOutTime.getTime() - attendance.checkInTime.getTime()) /
-        60000,
-    );
-
-    // ===== Trừ thời gian nghỉ =====
-
-    if (workShift.breakStart && workShift.breakEnd) {
-      const breakStart = this.timeStringToDate(
-        attendance.checkInTime,
-        workShift.breakStart,
-      );
-
-      const breakEnd = this.timeStringToDate(
-        attendance.checkInTime,
-        workShift.breakEnd,
-      );
-
-      workedMinutes -= this.calculateBreakMinutes(
-        attendance.checkInTime,
+    if (attendance.checkOutTime) {
+      const shiftEnd = this.timeStringToDate(
         attendance.checkOutTime,
-        breakStart,
-        breakEnd,
+        workShift.endTime,
       );
+
+      attendance.isEarlyLeave = attendance.checkOutTime < shiftEnd;
+
+      attendance.earlyLeaveMinutes = attendance.isEarlyLeave
+        ? Math.floor(
+            (shiftEnd.getTime() - attendance.checkOutTime.getTime()) / 60000,
+          )
+        : 0;
     }
 
-    workedMinutes = Math.max(workedMinutes, 0);
+    // ===== Thời gian làm việc và công =====
 
-    // ===== Tính công =====
+    if (attendance.checkInTime && attendance.checkOutTime) {
+      let workedMinutes = Math.floor(
+        (attendance.checkOutTime.getTime() - attendance.checkInTime.getTime()) /
+          60000,
+      );
 
-    const ratio = workedMinutes / workShift.standardMinutes;
+      if (workShift.breakStart && workShift.breakEnd) {
+        const breakStart = this.timeStringToDate(
+          attendance.checkInTime,
+          workShift.breakStart,
+        );
 
-    const workingDayValue = Math.min(Math.round(ratio * 10) / 10, 1);
+        const breakEnd = this.timeStringToDate(
+          attendance.checkInTime,
+          workShift.breakEnd,
+        );
 
-    // ===== Gán kết quả =====
+        workedMinutes -= this.calculateBreakMinutes(
+          attendance.checkInTime,
+          attendance.checkOutTime,
+          breakStart,
+          breakEnd,
+        );
+      }
 
-    attendance.isLate = isLate;
+      workedMinutes = Math.max(workedMinutes, 0);
 
-    attendance.lateMinutes = lateMinutes;
+      attendance.workMinutes = workedMinutes;
 
-    attendance.isEarlyLeave = isEarlyLeave;
-
-    attendance.earlyLeaveMinutes = earlyLeaveMinutes;
-
-    attendance.workMinutes = workedMinutes;
-
-    attendance.workingDayValue = workingDayValue;
+      attendance.workingDayValue = Math.min(
+        Number((workedMinutes / workShift.standardMinutes).toFixed(2)),
+        1,
+      );
+    }
 
     return attendance;
   }
