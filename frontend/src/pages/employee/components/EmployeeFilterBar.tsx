@@ -60,23 +60,7 @@ export function EmployeeFilters({
   return (
     <Card>
       <CardContent className="pt-6">
-        <div className="grid gap-4 lg:grid-cols-12">
-          {/* <div className="space-y-2 lg:col-span-4">
-            <Label htmlFor="employee-search">Tìm kiếm</Label>
-            <div className="relative">
-              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                id="employee-search"
-                value={searchInput}
-                onChange={(event) => {
-                  setSearchInput(event.target.value);
-                  onSearch(event.target.value);
-                }}
-                placeholder="Mã, tên, email, số điện thoại"
-                className="pl-9"
-              />
-            </div>
-          </div> */}
+        <div className="grid gap-4 lg:grid-cols-18">
           <div className="space-y-2 lg:col-span-4">
             <Label htmlFor="employee-search">Tìm kiếm</Label>
 
@@ -92,14 +76,14 @@ export function EmployeeFilters({
                       onSearch(searchInput);
                     }
                   }}
-                  placeholder="Mã, tên, email, số điện thoại"
+                  placeholder="Tên, email"
                   className="pl-9"
                 />
               </div>
               <Button
                 type="button"
                 onClick={() => onSearch(searchInput.trim())}
-                className="shrink-0 bg-teal-500 text-white hover:bg-violet-700"
+                className="shrink-0 bg-teal-500 text-white hover:bg-teal-700"
               >
                 <Search className="size-4" />
               </Button>
@@ -115,7 +99,7 @@ export function EmployeeFilters({
                 <SelectItem value="all">Tất cả</SelectItem>
                 {departments.map((department) => (
                   <SelectItem key={department.id} value={String(department.id)}>
-                    {department.code} - {department.name}
+                    {department.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -132,7 +116,7 @@ export function EmployeeFilters({
                 <SelectItem value="all">Tất cả</SelectItem>
                 {positions.map((position) => (
                   <SelectItem key={position.id} value={String(position.id)}>
-                    {position.code} - {position.name}
+                    {position.name}
                   </SelectItem>
                 ))}
               </SelectContent>
