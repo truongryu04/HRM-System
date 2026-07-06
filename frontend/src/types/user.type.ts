@@ -1,3 +1,5 @@
+import type { Role } from "./role.type";
+
 export interface UserRoleSummary {
   id: number;
   name: string;
@@ -12,9 +14,11 @@ export interface User {
   id: number;
   email: string;
   status: string;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
   lastLoginAt: string | null;
-  roles: UserRoleSummary[];
-  employee: UserEmployeeSummary | null;
+  roles: Role[];
 }
 
 export interface UserListResponse {

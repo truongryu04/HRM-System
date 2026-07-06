@@ -14,7 +14,6 @@ import {
 } from "../employee.constants";
 import {
   formatDateOnly,
-  formatDateTime,
   genderLabel,
   statusLabel,
 } from "../../../utils/employee.utils";
@@ -83,10 +82,6 @@ export function EmployeeDetailInfoTable({
           </TableCell>
         </TableRow>
         <TableRow>
-          <TableHead>Department status</TableHead>
-          <TableCell>{employee.department.status ?? "-"}</TableCell>
-        </TableRow>
-        <TableRow>
           <TableHead>Position</TableHead>
           <TableCell>
             <Badge variant="outline" className={positionTagClass}>
@@ -95,24 +90,45 @@ export function EmployeeDetailInfoTable({
           </TableCell>
         </TableRow>
         <TableRow>
-          <TableHead>Position level</TableHead>
-          <TableCell>{employee.position.level ?? "-"}</TableCell>
+          <TableHead>Accounts</TableHead>
+          <TableCell>
+            <div className="space-y-2">
+              {employee.users?.length
+                ? employee.users.map((user) => (
+                    <div key={user.id} className="flex flex-col gap-1">
+                      <span>{user.email}</span>
+
+                      <div className="flex flex-wrap gap-2">
+                        {user.roles?.map((role) => (
+                          <Badge key={role.id} variant="secondary">
+                            {role.name}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                : "-"}
+            </div>
+          </TableCell>
         </TableRow>
         <TableRow>
-          <TableHead>Avatar URL</TableHead>
-          <TableCell>{employee.avatarUrl ?? "-"}</TableCell>
+          <TableHead>Work shift</TableHead>
+          <TableCell>
+            {employee.workShift ? (
+              <Badge variant="outline">{employee.workShift.name}</Badge>
+            ) : (
+              "-"
+            )}
+          </TableCell>
         </TableRow>
+
         <TableRow>
-          <TableHead>Created at</TableHead>
-          <TableCell>{formatDateTime(employee.createdAt)}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableHead>Updated at</TableHead>
-          <TableCell>{formatDateTime(employee.updatedAt)}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableHead>Deleted</TableHead>
-          <TableCell>{employee.isDeleted ? "Yes" : "No"}</TableCell>
+          <TableHead>Shift time</TableHead>
+          <TableCell>
+            {employee.workShift
+              ? `${employee.workShift.startTime} - ${employee.workShift.endTime}`
+              : "-"}
+          </TableCell>
         </TableRow>
       </TableBody>
     </Table>

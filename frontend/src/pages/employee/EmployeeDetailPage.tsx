@@ -18,7 +18,7 @@ import {
 
 import { EmployeeDetailInfoTable } from "./components/EmployeeDetailInfoTable";
 
-import { getEmployee } from "../../services/employee.api";
+import { useEmployee } from "../../hooks/useEmployees";
 
 import { getInitials, statusLabel } from "../../utils/employee.utils";
 import { employeeStatusBadgeClass } from "./employee.constants";
@@ -35,12 +35,8 @@ export default function EmployeeDetailPage() {
     data: employee,
     isLoading,
     isError,
-  } = useQuery({
-    queryKey: ["employee", employeeId],
-    queryFn: () => getEmployee(employeeId),
-    enabled: isValidId,
-  });
-
+  } = useEmployee(employeeId, isValidId);
+  console.log("employee", employee);
   const normalizedEmployee = employee ?? null;
 
   if (!isValidId) {

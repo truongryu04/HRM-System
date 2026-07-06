@@ -1,3 +1,8 @@
+import type { Department } from "./department.type";
+import type { Position } from "./position.type";
+import type { User } from "./user.type";
+import type { WorkShift } from "./work-shift.type";
+
 export type EmployeeGender = "MALE" | "FEMALE" | "OTHER";
 
 export type EmployeeStatus =
@@ -6,22 +11,6 @@ export type EmployeeStatus =
   | "RESIGNED"
   | "ON_LEAVE"
   | "TERMINATED";
-export interface EmployeeDepartmentSummary {
-  id: number;
-  code: string;
-  name: string;
-  description?: string | null;
-  status?: string;
-}
-
-export interface EmployeePositionSummary {
-  id: number;
-  code: string;
-  name: string;
-  level: string | null;
-  description?: string | null;
-  status?: string;
-}
 
 export interface EmployeeSummary {
   id: number;
@@ -35,13 +24,11 @@ export interface EmployeeSummary {
   joinDate: string;
   status: EmployeeStatus;
   avatarUrl: string | null;
-  department: EmployeeDepartmentSummary;
-  position: EmployeePositionSummary;
-  createdAt?: string;
-  updatedAt?: string;
-  isDeleted?: boolean;
+  department: Department;
+  position: Position;
+  users: User[];
+  workShift: WorkShift | null;
 }
-
 export interface EmployeeListResponse {
   data: EmployeeSummary[];
   total: number;
