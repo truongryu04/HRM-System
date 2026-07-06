@@ -21,7 +21,7 @@ export function useAttendances(params?: {
   page?: number;
   limit?: number;
   search?: string;
-  attendanceDate?: string;
+  date?: string;
   departmentId?: number;
   positionId?: number;
   status?: string;

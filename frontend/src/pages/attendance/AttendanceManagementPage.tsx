@@ -18,7 +18,7 @@ export default function AttendanceManagementPage() {
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
 
-  const [attendanceDate, setAttendanceDate] = useState(today);
+  const [date, setDate] = useState(today);
 
   const [departmentId, setDepartmentId] = useState("all");
 
@@ -34,7 +34,7 @@ export default function AttendanceManagementPage() {
 
   const { data: attendanceResponse, isLoading } = useAttendances({
     search,
-    attendanceDate,
+    date: date,
     departmentId: departmentId === "all" ? undefined : Number(departmentId),
     positionId: positionId === "all" ? undefined : Number(positionId),
     status: status === "all" ? undefined : status,
@@ -50,7 +50,7 @@ export default function AttendanceManagementPage() {
     setSearchInput("");
     setSearch("");
 
-    setAttendanceDate(today);
+    setDate(today);
 
     setDepartmentId("all");
     setPositionId("all");
@@ -73,8 +73,8 @@ export default function AttendanceManagementPage() {
         searchInput={searchInput}
         setSearchInput={setSearchInput}
         onSearch={handleSearch}
-        attendanceDate={attendanceDate}
-        setAttendanceDate={setAttendanceDate}
+        date={date}
+        setDate={setDate}
         departmentId={departmentId}
         setDepartmentId={setDepartmentId}
         positionId={positionId}

@@ -17,8 +17,8 @@ interface AttendanceFilterProps {
   setSearchInput: (value: string) => void;
   onSearch: (value: string) => void;
 
-  attendanceDate: string;
-  setAttendanceDate: (value: string) => void;
+  date: string;
+  setDate: (value: string) => void;
 
   departmentId: string;
   setDepartmentId: (value: string) => void;
@@ -48,8 +48,8 @@ export function AttendanceFilter({
   searchInput,
   setSearchInput,
   onSearch,
-  attendanceDate,
-  setAttendanceDate,
+  date,
+  setDate,
   departmentId,
   setDepartmentId,
   positionId,
@@ -63,7 +63,7 @@ export function AttendanceFilter({
   return (
     <Card>
       <CardContent className="pt-6">
-        <div className="grid gap-4 lg:grid-cols-12">
+        <div className="grid gap-4 xl:grid-cols-14">
           {/* Tìm kiếm */}
           <div className="space-y-2 lg:col-span-4">
             <Label htmlFor="employee-search">Tìm kiếm nhân viên</Label>
@@ -102,8 +102,8 @@ export function AttendanceFilter({
 
             <Input
               type="date"
-              value={attendanceDate}
-              onChange={(e) => setAttendanceDate(e.target.value)}
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
             />
           </div>
 
@@ -112,7 +112,7 @@ export function AttendanceFilter({
             <Label>Phòng ban</Label>
 
             <Select value={departmentId} onValueChange={setDepartmentId}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Tất cả" />
               </SelectTrigger>
 
@@ -121,7 +121,7 @@ export function AttendanceFilter({
 
                 {departments.map((department) => (
                   <SelectItem key={department.id} value={String(department.id)}>
-                    {department.code} - {department.name}
+                    {department.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -133,7 +133,7 @@ export function AttendanceFilter({
             <Label>Vị trí</Label>
 
             <Select value={positionId} onValueChange={setPositionId}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Tất cả" />
               </SelectTrigger>
 
@@ -142,7 +142,7 @@ export function AttendanceFilter({
 
                 {positions.map((position) => (
                   <SelectItem key={position.id} value={String(position.id)}>
-                    {position.code} - {position.name}
+                    {position.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -154,7 +154,7 @@ export function AttendanceFilter({
             <Label>Trạng thái</Label>
 
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Tất cả" />
               </SelectTrigger>
 

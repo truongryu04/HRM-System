@@ -31,6 +31,11 @@ interface Attendance {
       name: string;
       code: string;
     };
+    position?: {
+      id: number;
+      name: string;
+      code: string;
+    };
   };
 }
 
@@ -87,6 +92,7 @@ export function AttendanceTable({ data }: AttendanceTableProps) {
               <TableHead>Mã NV</TableHead>
               <TableHead>Nhân viên</TableHead>
               <TableHead>Phòng ban</TableHead>
+              <TableHead>Chức vụ</TableHead>
               <TableHead>Ngày</TableHead>
               <TableHead>Check In</TableHead>
               <TableHead>Check Out</TableHead>
@@ -117,6 +123,7 @@ export function AttendanceTable({ data }: AttendanceTableProps) {
                   <TableCell>
                     {item.employee.department?.name ?? "--"}
                   </TableCell>
+                  <TableCell>{item.employee.position?.name ?? "--"}</TableCell>
 
                   <TableCell>{formatDate(item.attendanceDate)}</TableCell>
 
