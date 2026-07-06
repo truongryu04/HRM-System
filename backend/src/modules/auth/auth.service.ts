@@ -96,7 +96,7 @@ export class AuthService {
 
     const hashedPassword = await hashPassword(dto.newPassword);
     user.password = hashedPassword;
-    await this.userService.update(userId, { password: user.password });
+    await this.userService.updatePassword(userId, user.password);
     await this.refreshTokenRepository.delete({
       user_id: userId,
     });

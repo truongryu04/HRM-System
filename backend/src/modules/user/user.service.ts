@@ -13,6 +13,7 @@ import { RoleService } from '../role/role.service';
 import { GetUsersDto } from './dto/get-user.dto';
 import { EmployeeService } from '../employee/employee.service';
 import { UserStatus } from './user-status.enum';
+import { UpdateUserDto } from './dto/update-user.dto';
 @Injectable()
 export class UserService {
   constructor(
@@ -211,8 +212,7 @@ export class UserService {
     }
     return user;
   }
-
-  async update(id: number, data: Partial<User>) {
+  async updatePassword(id: number, password: string) {
     const user = await this.userRepository.findOne({
       where: { id },
     });
@@ -221,8 +221,43 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    Object.assign(user, data);
+    Object.assign(user, { password });
 
     return this.userRepository.save(user);
+  }
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: {
+        roles: true,
+        employee: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const { roleIds, employeeId, ...data } = updateUserDto;
+
+    Object.assign(user, data);
+
+    if (roleIds !== undefined) {
+      const roles = await this.roleService.findByIds(roleIds);
+
+      user.roles = roles;
+    }
+
+    if (employeeId !== undefined) {
+      const employee = await this.employeeService.findOne(employeeId);
+
+      if (!employee) {
+        throw new NotFoundException('Employee not found');
+      }
+
+      user.employee = employee;
+    }
+
+    return await this.userRepository.save(user);
   }
 }
