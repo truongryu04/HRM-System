@@ -8,23 +8,19 @@ import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 
 import { useDepartments } from "../../hooks/useDepartments";
-import { useEmployees } from "../../hooks/useEmployees";
+import {
+  useEmployees,
+  useUpdateEmployeeStatus,
+} from "../../hooks/useEmployees";
 import { usePositions } from "../../hooks/usePositions";
 
-import {
-  deleteEmployee,
-  updateEmployeeStatus,
-} from "../../services/employee.api";
+import { deleteEmployee } from "../../services/employee.api";
 
-import type {
-  EmployeeSummary,
-  EmployeeUpdateRequest,
-} from "@/types/employee.type";
+import type { EmployeeStatus, EmployeeSummary } from "@/types/employee.type";
 
 import { employeePageSize } from "./employee.constants";
 import { EmployeeFilters as EmployeeFilterBar } from "./components/EmployeeFilterBar";
 import { EmployeeDeleteDialog } from "./components/EmployeeDeleteDialog";
-import { EmployeePagination } from "./components/EmployeePagination";
 import { EmployeeStatusDialog } from "./components/EmployeeStatusDialog";
 import { EmployeeTable } from "./components/EmployeeTable";
 import { normalizeDateKey } from "../../utils/employee.utils";
@@ -41,7 +37,6 @@ export default function EmployeePage() {
     page: 1,
     limit: 1000,
   });
-
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
@@ -51,9 +46,6 @@ export default function EmployeePage() {
   const [gender, setGender] = useState("all");
   const [joinDateFrom, setJoinDateFrom] = useState("");
   const [joinDateTo, setJoinDateTo] = useState("");
-
-  const [employeeToStatus, setEmployeeToStatus] =
-    useState<EmployeeSummary | null>(null);
 
   const [employeeToDelete, setEmployeeToDelete] =
     useState<EmployeeSummary | null>(null);
@@ -80,25 +72,29 @@ export default function EmployeePage() {
   };
 
   // ================= STATUS UPDATE =================
-  const statusMutation = useMutation({
-    mutationFn: updateEmployeeStatus,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["employees"] });
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+
+  const [selectedEmployee, setSelectedEmployee] =
+    useState<EmployeeSummary | null>(null);
+
+  const updateStatusMutation = useUpdateEmployeeStatus();
+  const handleUpdateStatus = async (status: EmployeeStatus) => {
+    if (!selectedEmployee) return;
+
+    try {
+      await updateStatusMutation.mutateAsync({
+        id: selectedEmployee.id,
+        status,
+      });
+
       toast.success("Cập nhật trạng thái thành công");
-      setEmployeeToStatus(null);
-    },
-    onError: () => toast.error("Cập nhật trạng thái thất bại"),
-  });
 
-  const handleStatusSubmit = async (payload: EmployeeUpdateRequest) => {
-    if (!employeeToStatus) return;
-
-    await statusMutation.mutateAsync({
-      id: employeeToStatus.id,
-      data: payload,
-    });
+      setStatusDialogOpen(false);
+      setSelectedEmployee(null);
+    } catch {
+      toast.error("Cập nhật trạng thái thất bại");
+    }
   };
-
   // ================= FILTER =================
   const handleSearch = (value: string) => {
     setPage(1);
@@ -253,7 +249,10 @@ export default function EmployeePage() {
           <EmployeeTable
             employees={pagedEmployees}
             onViewDetail={(e) => navigate(`/employees/${e.id}`)}
-            onChangeStatus={setEmployeeToStatus}
+            onChangeStatus={(employee) => {
+              setSelectedEmployee(employee);
+              setStatusDialogOpen(true);
+            }}
             onDelete={setEmployeeToDelete}
           />
         </CardContent>
@@ -269,13 +268,12 @@ export default function EmployeePage() {
       />
 
       <EmployeeStatusDialog
-        open={Boolean(employeeToStatus)}
-        onOpenChange={(open) => {
-          if (!open) setEmployeeToStatus(null);
-        }}
-        employee={employeeToStatus}
-        onSubmit={handleStatusSubmit}
-        loading={statusMutation.isPending}
+        key={selectedEmployee?.id}
+        open={statusDialogOpen}
+        onOpenChange={setStatusDialogOpen}
+        employee={selectedEmployee}
+        onSubmit={handleUpdateStatus}
+        loading={updateStatusMutation.isPending}
       />
 
       <EmployeeDeleteDialog

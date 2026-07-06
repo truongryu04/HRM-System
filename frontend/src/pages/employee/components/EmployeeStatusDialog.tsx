@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 
 import { Button } from "../../../components/ui/button";
 import {
@@ -16,18 +16,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../../components/ui/select";
-import type {
-  EmployeeStatus,
-  EmployeeSummary,
-  EmployeeUpdateRequest,
-} from "@/types/employee.type";
+import type { EmployeeStatus, EmployeeSummary } from "@/types/employee.type";
 import { employeeStatusOptions } from "../employee.constants";
+import { useState } from "react";
 
 interface EmployeeStatusDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   employee: EmployeeSummary | null;
-  onSubmit: (payload: EmployeeUpdateRequest) => Promise<void>;
+  onSubmit: (status: EmployeeStatus) => Promise<void>;
   loading: boolean;
 }
 
@@ -38,22 +35,16 @@ export function EmployeeStatusDialog({
   onSubmit,
   loading,
 }: EmployeeStatusDialogProps) {
-  const [status, setStatus] = useState<EmployeeStatus>("ACTIVE");
-
-  useEffect(() => {
-    if (!open || !employee) {
-      return;
-    }
-
-    setStatus(employee.status);
-  }, [employee, open]);
+  const [status, setStatus] = useState<EmployeeStatus>(
+    employee?.status ?? "ACTIVE",
+  );
 
   const handleSubmit = async () => {
     if (!employee) {
       return;
     }
 
-    await onSubmit({ status });
+    await onSubmit(status);
   };
 
   return (

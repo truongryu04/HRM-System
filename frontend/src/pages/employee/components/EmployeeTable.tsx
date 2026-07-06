@@ -1,4 +1,4 @@
-import { Eye, MoreHorizontal, PencilLine, ShieldCheck } from "lucide-react";
+import { Eye, MoreHorizontal, ShieldCheck } from "lucide-react";
 
 import { Button } from "../../../components/ui/button";
 import { Card, CardContent } from "../../../components/ui/card";
@@ -60,7 +60,6 @@ function EmployeeActionItem({
 interface EmployeeTableProps {
   employees: EmployeeSummary[];
   onViewDetail: (employee: EmployeeSummary) => void;
-  onEdit: (employee: EmployeeSummary) => void;
   onChangeStatus: (employee: EmployeeSummary) => void;
   onDelete: (employee: EmployeeSummary) => void;
 }

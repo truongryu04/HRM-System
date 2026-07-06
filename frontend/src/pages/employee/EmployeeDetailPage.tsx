@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, PencilLine, UserRound } from "lucide-react";
 
 import { Link, useParams, useNavigate } from "react-router-dom";

@@ -4,12 +4,15 @@ import type {
   EmployeeSummary,
   EmployeeUpdateRequest,
   EmployeeCreateRequest,
+  EmployeeStatus,
 } from "../types/employee.type";
+
 import {
   getEmployee,
   updateEmployee,
   createEmployee,
   getEmployees,
+  updateEmployeeStatus,
 } from "../services/employee.api";
 export const useEmployees = (
   params?: { page?: number; limit?: number },
@@ -57,6 +60,25 @@ export const useCreateEmployee = () => {
       // refresh danh sách nhân viên
       queryClient.invalidateQueries({
         queryKey: ["employees"],
+      });
+    },
+  });
+};
+
+export const useUpdateEmployeeStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, status }: { id: number; status: EmployeeStatus }) =>
+      updateEmployeeStatus(id, status),
+
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["employees"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["employee", variables.id],
       });
     },
   });
