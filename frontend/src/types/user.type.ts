@@ -18,6 +18,7 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   lastLoginAt: string | null;
+  employee: UserEmployeeSummary | null;
   roles: Role[];
 }
 
@@ -34,6 +35,12 @@ export interface UserListResponse {
 export interface CreateUserRequest {
   email: string;
   password: string;
+  status?: string;
+  employeeId: number;
+  roleIds: number[];
+}
+export interface UpdateUserRequest {
+  email: string;
   status?: string;
   employeeId: number;
   roleIds: number[];

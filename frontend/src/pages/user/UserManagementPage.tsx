@@ -6,6 +6,8 @@ import { useRoles } from "../../hooks/useRoles";
 import { Button } from "../../components/ui/button";
 import UserCreateDialog from "./UserCreateDialog";
 import { Pagination } from "../../components/Pagination";
+import type { User } from "@/types/user.type";
+import UserEditDialog from "./UserEditDialog";
 
 export default function UserManagementPage() {
   const [page, setPage] = useState(1);
@@ -17,7 +19,13 @@ export default function UserManagementPage() {
   const [status, setStatus] = useState("all");
   const [linkedEmployee, setLinkedEmployee] = useState("all");
   const { data: roles = [] } = useRoles();
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
+  const handleEditUser = (user: User) => {
+    setSelectedUser(user);
+    setOpenEditDialog(true);
+  };
   const handleSearch = (value: string) => {
     setPage(1);
     setSearch(value);
@@ -74,7 +82,7 @@ export default function UserManagementPage() {
         roles={roles}
       />
 
-      <UserTable users={data?.data ?? []} />
+      <UserTable users={data?.data ?? []} onEdit={handleEditUser} />
       <Pagination
         page={pagination?.page ?? 1}
         totalPages={pagination?.totalPages ?? 1}
@@ -87,6 +95,12 @@ export default function UserManagementPage() {
         key={openCreateDialog ? "open" : "closed"}
         open={openCreateDialog}
         onOpenChange={setOpenCreateDialog}
+        roles={roles}
+      />
+      <UserEditDialog
+        open={openEditDialog}
+        onOpenChange={setOpenEditDialog}
+        user={selectedUser}
         roles={roles}
       />
     </div>

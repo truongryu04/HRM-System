@@ -1,5 +1,5 @@
 import { apiClient } from "./api-client";
-import type { UserListResponse } from "@/types/user.type";
+import type { UpdateUserRequest, UserListResponse } from "@/types/user.type";
 import type { CreateUserRequest } from "@/types/user.type";
 interface UserQuery {
   page: number;
@@ -20,6 +20,12 @@ export const getUsers = async (params: UserQuery) => {
 
 export const createUser = async (payload: CreateUserRequest) => {
   const { data } = await apiClient.post("/users", payload);
+
+  return data;
+};
+
+export const updateUser = async (id: number, payload: UpdateUserRequest) => {
+  const { data } = await apiClient.patch(`/users/${id}`, payload);
 
   return data;
 };

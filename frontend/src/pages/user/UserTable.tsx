@@ -1,5 +1,3 @@
-// components/UserTable.tsx
-import type { Dispatch, SetStateAction } from "react";
 import {
   Table,
   TableBody,
@@ -14,9 +12,10 @@ import type { User } from "@/types/user.type";
 
 interface UserTableProps {
   users: User[];
+  onEdit: (user: User) => void;
 }
 
-export function UserTable({ users }: UserTableProps) {
+export function UserTable({ users, onEdit }: UserTableProps) {
   return (
     <div className="space-y-4">
       <Table>
@@ -58,7 +57,7 @@ export function UserTable({ users }: UserTableProps) {
 
                 {/* Actions */}
                 <TableCell className="text-right">
-                  <UserActionDropdown />
+                  <UserActionDropdown user={u} onEdit={onEdit} />
                 </TableCell>
               </TableRow>
             ))

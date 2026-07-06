@@ -9,8 +9,15 @@ import {
 
 import { Button } from "../../components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-
-export default function UserActionDropdown() {
+import type { User } from "@/types/user.type";
+interface UserActionDropdownProps {
+  user: User;
+  onEdit: (user: User) => void;
+}
+export default function UserActionDropdown({
+  user,
+  onEdit,
+}: UserActionDropdownProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -20,11 +27,7 @@ export default function UserActionDropdown() {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end">
-        <DropdownMenuItem>Xem chi tiết</DropdownMenuItem>
-
-        <DropdownMenuItem>Gán nhân viên</DropdownMenuItem>
-
-        <DropdownMenuItem>Phân quyền</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onEdit(user)}>Sửa</DropdownMenuItem>
 
         <DropdownMenuItem>Đặt lại mật khẩu</DropdownMenuItem>
 
