@@ -28,6 +28,7 @@ import { EmployeePagination } from "./components/EmployeePagination";
 import { EmployeeStatusDialog } from "./components/EmployeeStatusDialog";
 import { EmployeeTable } from "./components/EmployeeTable";
 import { normalizeDateKey } from "../../utils/employee.utils";
+import { Pagination } from "../../components/Pagination";
 
 export default function EmployeePage() {
   const navigate = useNavigate();
@@ -258,12 +259,13 @@ export default function EmployeePage() {
         </CardContent>
       </Card>
 
-      <EmployeePagination
+      <Pagination
         page={currentPage}
         totalPages={totalPages}
         totalItems={filteredEmployees.length}
         pageSize={employeePageSize}
         setPage={setPage}
+        itemName="nhân viên"
       />
 
       <EmployeeStatusDialog

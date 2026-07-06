@@ -5,6 +5,7 @@ import { useUsers } from "../../hooks/useUsers";
 import { useRoles } from "../../hooks/useRoles";
 import { Button } from "../../components/ui/button";
 import UserCreateDialog from "./UserCreateDialog";
+import { Pagination } from "../../components/Pagination";
 
 export default function UserManagementPage() {
   const [page, setPage] = useState(1);
@@ -37,7 +38,7 @@ export default function UserManagementPage() {
     status: status === "all" ? undefined : status,
     linkedEmployee: normalizedLinkedEmployee,
   });
-
+  const pagination = data?.pagination;
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -73,13 +74,15 @@ export default function UserManagementPage() {
         roles={roles}
       />
 
-      <UserTable
-        users={data?.data ?? []}
-        page={page}
-        totalPages={data?.pagination.totalPages ?? 1}
+      <UserTable users={data?.data ?? []} />
+      <Pagination
+        page={pagination?.page ?? 1}
+        totalPages={pagination?.totalPages ?? 1}
+        totalItems={pagination?.total ?? 0}
+        pageSize={pagination?.limit ?? 10}
         setPage={setPage}
+        itemName="tài khoản"
       />
-
       <UserCreateDialog
         key={openCreateDialog ? "open" : "closed"}
         open={openCreateDialog}

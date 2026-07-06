@@ -9,21 +9,14 @@ import {
   TableRow,
 } from "../../components/ui/table";
 
-import { Button } from "../../components/ui/button";
 import UserActionDropdown from "./UserActionDropdown";
 import type { User } from "@/types/user.type";
 
 interface UserTableProps {
   users: User[];
-  page: number;
-  totalPages: number;
-  setPage: Dispatch<SetStateAction<number>>;
 }
 
-export function UserTable({ users, page, totalPages, setPage }: UserTableProps) {
-  const canGoPrev = page > 1;
-  const canGoNext = page < totalPages;
-
+export function UserTable({ users }: UserTableProps) {
   return (
     <div className="space-y-4">
       <Table>
@@ -72,24 +65,6 @@ export function UserTable({ users, page, totalPages, setPage }: UserTableProps) 
           )}
         </TableBody>
       </Table>
-
-      {/* Pagination */}
-      <div className="flex justify-end gap-2">
-        <Button
-          variant="outline"
-          onClick={() => setPage(page - 1)}
-          disabled={!canGoPrev}
-        >
-          Prev
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => setPage(page + 1)}
-          disabled={!canGoNext}
-        >
-          Next
-        </Button>
-      </div>
     </div>
   );
 }

@@ -11,6 +11,7 @@ import {
 
 import { useDepartments } from "../../hooks/useDepartments";
 import { usePositions } from "../../hooks/usePositions";
+import { Pagination } from "../../components/Pagination";
 
 export default function AttendanceManagementPage() {
   const today = new Date().toISOString().split("T")[0];
@@ -25,7 +26,7 @@ export default function AttendanceManagementPage() {
   const [positionId, setPositionId] = useState("all");
 
   const [status, setStatus] = useState("all");
-
+  const [page, setPage] = useState(1);
   const { data: dashboard, isLoading: dashboardLoading } =
     useAttendanceDashboard();
 
@@ -38,10 +39,10 @@ export default function AttendanceManagementPage() {
     departmentId: departmentId === "all" ? undefined : Number(departmentId),
     positionId: positionId === "all" ? undefined : Number(positionId),
     status: status === "all" ? undefined : status,
-    page: 1,
+    page,
     limit: 10,
   });
-
+  const meta = attendanceResponse?.meta;
   const handleSearch = (value: string) => {
     setSearch(value);
   };
@@ -87,6 +88,14 @@ export default function AttendanceManagementPage() {
       />
 
       <AttendanceTable data={attendanceResponse?.data ?? []} />
+      <Pagination
+        page={meta?.page ?? 1}
+        totalPages={meta?.totalPages ?? 1}
+        totalItems={meta?.total ?? 0}
+        pageSize={meta?.limit ?? 10}
+        setPage={setPage}
+        itemName="tài khoản"
+      />
     </div>
   );
 }
