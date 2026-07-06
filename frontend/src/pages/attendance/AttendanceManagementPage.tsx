@@ -12,7 +12,9 @@ import {
 import { useDepartments } from "../../hooks/useDepartments";
 import { usePositions } from "../../hooks/usePositions";
 import { Pagination } from "../../components/Pagination";
-
+import type { Attendance } from "@/types/attendance.type";
+import { AttendanceEditDialog } from "./AttendanceEditDialog";
+import { attendanceApi } from "../../services/attendance.api";
 export default function AttendanceManagementPage() {
   const today = new Date().toISOString().split("T")[0];
 
@@ -32,8 +34,15 @@ export default function AttendanceManagementPage() {
 
   const { data: departments = [] } = useDepartments();
   const { data: positions = [] } = usePositions();
+  const [openEditDialog, setOpenEditDialog] = useState(false);
 
-  const { data: attendanceResponse, isLoading } = useAttendances({
+  const [selectedAttendance, setSelectedAttendance] =
+    useState<Attendance | null>(null);
+  const {
+    data: attendanceResponse,
+    isLoading,
+    refetch,
+  } = useAttendances({
     search,
     date: date,
     departmentId: departmentId === "all" ? undefined : Number(departmentId),
@@ -56,6 +65,10 @@ export default function AttendanceManagementPage() {
     setDepartmentId("all");
     setPositionId("all");
     setStatus("all");
+  };
+  const handleUpdateAttendance = async (data: any) => {
+    await attendanceApi.updateAttendance(selectedAttendance!.id, data);
+    refetch();
   };
 
   return (
@@ -87,7 +100,12 @@ export default function AttendanceManagementPage() {
         onReset={handleReset}
       />
 
-      <AttendanceTable data={attendanceResponse?.data ?? []} />
+      <AttendanceTable
+        data={attendanceResponse?.data ?? []}
+        setSelectedAttendance={setSelectedAttendance}
+        setOpenEditDialog={setOpenEditDialog}
+      />
+
       <Pagination
         page={meta?.page ?? 1}
         totalPages={meta?.totalPages ?? 1}
@@ -95,6 +113,13 @@ export default function AttendanceManagementPage() {
         pageSize={meta?.limit ?? 10}
         setPage={setPage}
         itemName="tài khoản"
+      />
+      <AttendanceEditDialog
+        key={selectedAttendance?.id}
+        open={openEditDialog}
+        onOpenChange={setOpenEditDialog}
+        attendance={selectedAttendance}
+        onSubmit={handleUpdateAttendance}
       />
     </div>
   );

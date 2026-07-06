@@ -2,6 +2,7 @@ import type {
   AttendanceCalendarResponse,
   AttendanceDashboard,
   AttendanceListResponse,
+  UpdateAttendanceRequest,
 } from "@/types/attendance.type";
 
 import { apiClient } from "./api-client";
@@ -57,6 +58,11 @@ export const attendanceApi = {
     const response = await apiClient.get("/attendances", {
       params,
     });
+
+    return response.data;
+  },
+  updateAttendance: async (id: number, data: UpdateAttendanceRequest) => {
+    const response = await apiClient.patch(`/attendances/${id}`, data);
 
     return response.data;
   },

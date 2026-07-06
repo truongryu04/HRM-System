@@ -1,6 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { attendanceApi } from "../services/attendance.api";
+import type { UpdateAttendanceRequest } from "@/types/attendance.type";
 
 export const attendanceKeys = {
   all: ["attendance"] as const,
@@ -29,5 +30,19 @@ export function useAttendances(params?: {
   return useQuery({
     queryKey: attendanceKeys.list(params),
     queryFn: () => attendanceApi.getAttendances(params),
+  });
+}
+export function useUpdateAttendance() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: UpdateAttendanceRequest }) =>
+      attendanceApi.updateAttendance(id, data),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: attendanceKeys.all,
+      });
+    },
   });
 }

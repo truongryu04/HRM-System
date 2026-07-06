@@ -12,35 +12,14 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
-
-interface Attendance {
-  id: number;
-  attendanceDate: string;
-  checkInTime: string | null;
-  checkOutTime: string | null;
-  workMinutes: number;
-  isLate: boolean;
-  lateMinutes: number;
-
-  employee: {
-    employeeCode: string;
-    fullName: string;
-
-    department?: {
-      id: number;
-      name: string;
-      code: string;
-    };
-    position?: {
-      id: number;
-      name: string;
-      code: string;
-    };
-  };
-}
+import type { Attendance } from "../../types/attendance.type";
 
 interface AttendanceTableProps {
   data: Attendance[];
+
+  setSelectedAttendance: (attendance: Attendance | null) => void;
+
+  setOpenEditDialog: (open: boolean) => void;
 }
 
 const formatDate = (date: string) => {
@@ -81,7 +60,11 @@ function StatusBadge({
   return <Badge>Có mặt</Badge>;
 }
 
-export function AttendanceTable({ data }: AttendanceTableProps) {
+export function AttendanceTable({
+  data,
+  setSelectedAttendance,
+  setOpenEditDialog,
+}: AttendanceTableProps) {
   return (
     <Card>
       <CardContent className="p-0">
@@ -105,7 +88,7 @@ export function AttendanceTable({ data }: AttendanceTableProps) {
           <TableBody>
             {data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={10} className="text-center py-8">
+                <TableCell colSpan={11} className="text-center py-8">
                   Không có dữ liệu
                 </TableCell>
               </TableRow>
@@ -141,8 +124,15 @@ export function AttendanceTable({ data }: AttendanceTableProps) {
                   </TableCell>
 
                   <TableCell className="text-right">
-                    <Button variant="outline" size="icon">
-                      <Pencil className="h-4 w-4" />
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => {
+                        setSelectedAttendance(item);
+                        setOpenEditDialog(true);
+                      }}
+                    >
+                      <Pencil className="size-4" />
                     </Button>
                   </TableCell>
                 </TableRow>

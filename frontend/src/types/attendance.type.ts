@@ -49,7 +49,7 @@ export interface Attendance {
   lateMinutes: number;
 
   isLate: boolean;
-
+  note: string | null;
   employee: {
     id: number;
 
@@ -80,4 +80,9 @@ export interface AttendanceListResponse {
     total: number;
     totalPages: number;
   };
+}
+export interface UpdateAttendanceRequest {
+  checkInTime?: string | null;
+  checkOutTime?: string | null;
+  note?: string;
 }
