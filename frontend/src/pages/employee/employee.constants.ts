@@ -18,8 +18,9 @@ export const employeeStatusOptions: Array<{
   { value: "ACTIVE", label: "Đang làm việc" },
   { value: "INACTIVE", label: "Tạm nghỉ" },
   { value: "RESIGNED", label: "Đã nghỉ" },
+  { value: "ON_LEAVE", label: "Nghỉ phép" },
+  { value: "TERMINATED", label: "Sa thải" },
 ];
-
 export const employeeStatusBadgeClass: Record<EmployeeStatus, string> = {
   ACTIVE: "border-emerald-500/20 bg-emerald-500/10 text-emerald-700",
   INACTIVE: "border-amber-500/20 bg-amber-500/10 text-amber-700",
