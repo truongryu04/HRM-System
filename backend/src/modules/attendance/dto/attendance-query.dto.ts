@@ -22,5 +22,8 @@ export class AttendanceQueryDto {
   fromDate?: string;
 
   @IsOptional()
-  toDate?: string;
+  date?: string;
+
+  @IsOptional()
+  positionId?: string;
 }

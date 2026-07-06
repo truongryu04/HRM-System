@@ -346,8 +346,8 @@ export class AttendanceService {
       search,
       departmentId,
       employeeId,
-      fromDate,
-      toDate,
+      date,
+      positionId,
     } = query;
 
     const qb = this.attendanceRepository
@@ -377,12 +377,13 @@ export class AttendanceService {
       });
     }
 
-    if (fromDate) {
-      qb.andWhere('attendance.attendanceDate >= :fromDate', { fromDate });
+    if (date) {
+      qb.andWhere('attendance.attendanceDate = :date', { date });
     }
-
-    if (toDate) {
-      qb.andWhere('attendance.attendanceDate <= :toDate', { toDate });
+    if (positionId) {
+      qb.andWhere('position.id = :positionId', {
+        positionId,
+      });
     }
 
     qb.orderBy('attendance.attendanceDate', 'DESC');
