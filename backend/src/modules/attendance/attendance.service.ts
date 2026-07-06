@@ -322,7 +322,7 @@ export class AttendanceService {
       },
     });
 
-    const absent = totalEmployees - present - late;
+    const absent = totalEmployees - present;
 
     const working = await this.attendanceRepository
       .createQueryBuilder('attendance')
