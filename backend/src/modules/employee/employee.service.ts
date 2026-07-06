@@ -111,18 +111,17 @@ export class EmployeeService {
     };
   }
   async findOne(id: number) {
-    const employee = await this.employeeRepository.findOne({
-      where: {
-        id,
-        isDeleted: false,
-      },
-      relations: {
-        department: true,
-        position: true,
-        workShift: true,
-      },
-    });
-
+    const employee = await this.employeeRepository
+      .createQueryBuilder('employee')
+      .leftJoinAndSelect('employee.department', 'department')
+      .leftJoinAndSelect('employee.position', 'position')
+      .leftJoinAndSelect('employee.workShift', 'workShift')
+      .leftJoinAndSelect('employee.users', 'user')
+      .leftJoinAndSelect('user.roles', 'role')
+      .where('employee.id = :id', { id })
+      .andWhere('employee.isDeleted = false')
+      .getOne();
+    console.log('employee', employee);
     if (!employee) {
       throw new NotFoundException('Employee not found');
     }
