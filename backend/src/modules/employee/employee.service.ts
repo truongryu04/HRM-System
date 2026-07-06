@@ -178,7 +178,9 @@ export class EmployeeService {
     };
   }
   async updateStatus(id: number, status: EmployeeStatus) {
-    const employee = await this.employeeRepository.findOneBy({ id });
+    const employee = await this.employeeRepository.findOne({
+      where: { id, isDeleted: false },
+    });
 
     if (!employee) {
       throw new NotFoundException('Employee not found');
