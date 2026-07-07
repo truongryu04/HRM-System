@@ -13,28 +13,28 @@ import { AttendanceService } from './attendance.service';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { AuthGuard } from '@nestjs/passport/dist/auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import type { JwtPayload } from '../auth/jwt-payload.interface';
 import { AttendanceCalendarDto } from './dto/attendance-calendar.dto';
 import { AttendanceQueryDto } from './dto/attendance-query.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
+import type { JwtUser } from '../auth/jwt-user.interface';
 @UseGuards(AuthGuard('jwt'), PermissionsGuard)
 @Controller('attendances')
 export class AttendanceController {
   constructor(private readonly attendanceService: AttendanceService) {}
 
   @Post('check-in')
-  checkIn(@CurrentUser() user: JwtPayload) {
+  checkIn(@CurrentUser() user: JwtUser) {
     return this.attendanceService.checkIn(user.employeeId);
   }
 
   @Post('check-out')
-  checkOut(@CurrentUser() user: JwtPayload) {
+  checkOut(@CurrentUser() user: JwtUser) {
     return this.attendanceService.checkOut(user.employeeId);
   }
 
   @Get('calendar')
   getCalendar(
-    @CurrentUser() user: JwtPayload,
+    @CurrentUser() user: JwtUser,
     @Query() query: AttendanceCalendarDto,
   ) {
     return this.attendanceService.getCalendar(
@@ -44,7 +44,7 @@ export class AttendanceController {
     );
   }
   @Get('today')
-  getToday(@CurrentUser() user: JwtPayload) {
+  getToday(@CurrentUser() user: JwtUser) {
     return this.attendanceService.getToday(user.employeeId);
   }
 
