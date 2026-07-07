@@ -12,6 +12,8 @@ import { Employee } from '../employee/employee.entity';
 import { User } from '../user/user.entity';
 import { LeaveStatus } from './leave-status.enum';
 import { UpdateLeaveRequestDto } from './dto/update-leave-request.dto';
+import { RejectLeaveRequestDto } from './dto/reject-leave-request.dto';
+import { ApproveLeaveRequestDto } from './dto/approve-leave-request.dto';
 
 @Injectable()
 export class LeaveRequestService {
@@ -139,6 +141,64 @@ export class LeaveRequestService {
     }
 
     request.status = LeaveStatus.CANCELLED;
+
+    return this.leaveRequestRepository.save(request);
+  }
+  async approve(
+    id: number,
+    userId: number,
+    dto: ApproveLeaveRequestDto,
+  ): Promise<LeaveRequest> {
+    const request = await this.findOne(id);
+
+    if (request.status !== LeaveStatus.PENDING) {
+      throw new BadRequestException('Đơn đã được xử lý');
+    }
+
+    const approver = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!approver) {
+      throw new NotFoundException('Người duyệt không tồn tại');
+    }
+
+    request.status = LeaveStatus.APPROVED;
+
+    request.approvedBy = approver;
+
+    request.approvedAt = new Date();
+
+    request.approvalNote = dto.note;
+
+    return this.leaveRequestRepository.save(request);
+  }
+  async reject(
+    id: number,
+    userId: number,
+    dto: RejectLeaveRequestDto,
+  ): Promise<LeaveRequest> {
+    const request = await this.findOne(id);
+
+    if (request.status !== LeaveStatus.PENDING) {
+      throw new BadRequestException('Đơn đã được xử lý');
+    }
+
+    const approver = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!approver) {
+      throw new NotFoundException('Người duyệt không tồn tại');
+    }
+
+    request.status = LeaveStatus.REJECTED;
+
+    request.approvedBy = approver;
+
+    request.approvedAt = new Date();
+
+    request.rejectReason = dto.reason;
 
     return this.leaveRequestRepository.save(request);
   }

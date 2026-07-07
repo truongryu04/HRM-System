@@ -6,10 +6,16 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateLeaveRequestDto } from './dto/create-leave-request.dto';
 import { LeaveRequestService } from './leave-request.service';
 import { UpdateLeaveRequestDto } from './dto/update-leave-request.dto';
+import { RejectLeaveRequestDto } from './dto/reject-leave-request.dto';
+import { ApproveLeaveRequestDto } from './dto/approve-leave-request.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import type { JwtUser } from '../auth/jwt-user.interface';
 
 @Controller('leave-requests')
 export class LeaveRequestController {
@@ -59,5 +65,31 @@ export class LeaveRequestController {
     id: number,
   ) {
     return this.leaveRequestService.cancel(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/approve')
+  approve(
+    @Param('id', ParseIntPipe)
+    id: number,
+
+    @Body()
+    dto: ApproveLeaveRequestDto,
+
+    @CurrentUser() user: JwtUser,
+  ) {
+    return this.leaveRequestService.approve(id, user.id, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/reject')
+  reject(
+    @Param('id', ParseIntPipe)
+    id: number,
+    @Body()
+    dto: RejectLeaveRequestDto,
+    @CurrentUser() user: JwtUser,
+  ) {
+    return this.leaveRequestService.reject(id, user.id, dto);
   }
 }
