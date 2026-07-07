@@ -68,4 +68,47 @@ export class LeaveRequestService {
 
     return this.leaveRequestRepository.save(leaveRequest);
   }
+  async findAll(): Promise<LeaveRequest[]> {
+    return this.leaveRequestRepository.find({
+      relations: {
+        employee: true,
+        leaveType: true,
+        approvedBy: true,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+  }
+  async findOne(id: number): Promise<LeaveRequest> {
+    const request = await this.leaveRequestRepository.findOne({
+      where: { id },
+      relations: {
+        employee: true,
+        leaveType: true,
+        approvedBy: true,
+      },
+    });
+
+    if (!request) {
+      throw new NotFoundException('Không tìm thấy đơn nghỉ phép');
+    }
+
+    return request;
+  }
+  async findByEmployee(employeeId: number): Promise<LeaveRequest[]> {
+    return this.leaveRequestRepository.find({
+      where: {
+        employee: {
+          id: employeeId,
+        },
+      },
+      relations: {
+        leaveType: true,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+  }
 }
