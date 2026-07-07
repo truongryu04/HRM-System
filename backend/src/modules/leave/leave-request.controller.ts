@@ -4,10 +4,12 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { CreateLeaveRequestDto } from './dto/create-leave-request.dto';
 import { LeaveRequestService } from './leave-request.service';
+import { UpdateLeaveRequestDto } from './dto/update-leave-request.dto';
 
 @Controller('leave-requests')
 export class LeaveRequestController {
@@ -39,5 +41,23 @@ export class LeaveRequestController {
     employeeId: number,
   ) {
     return this.leaveRequestService.findByEmployee(employeeId);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe)
+    id: number,
+    @Body()
+    dto: UpdateLeaveRequestDto,
+  ) {
+    return this.leaveRequestService.update(id, dto);
+  }
+
+  @Patch(':id/cancel')
+  cancel(
+    @Param('id', ParseIntPipe)
+    id: number,
+  ) {
+    return this.leaveRequestService.cancel(id);
   }
 }

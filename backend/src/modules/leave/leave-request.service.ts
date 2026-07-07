@@ -10,6 +10,8 @@ import { InjectRepository } from '@nestjs/typeorm/dist/common/typeorm.decorators
 import { CreateLeaveRequestDto } from './dto/create-leave-request.dto';
 import { Employee } from '../employee/employee.entity';
 import { User } from '../user/user.entity';
+import { LeaveStatus } from './leave-status.enum';
+import { UpdateLeaveRequestDto } from './dto/update-leave-request.dto';
 
 @Injectable()
 export class LeaveRequestService {
@@ -110,5 +112,34 @@ export class LeaveRequestService {
         createdAt: 'DESC',
       },
     });
+  }
+  async update(id: number, dto: UpdateLeaveRequestDto): Promise<LeaveRequest> {
+    const request = await this.findOne(id);
+
+    if (request.status !== LeaveStatus.PENDING) {
+      throw new BadRequestException('Chỉ được sửa đơn đang chờ duyệt');
+    }
+
+    Object.assign(request, dto);
+
+    if (dto.startDate && dto.endDate) {
+      request.totalDays = this.calculateDays(
+        new Date(dto.startDate),
+        new Date(dto.endDate),
+      );
+    }
+
+    return this.leaveRequestRepository.save(request);
+  }
+  async cancel(id: number): Promise<LeaveRequest> {
+    const request = await this.findOne(id);
+
+    if (request.status !== LeaveStatus.PENDING) {
+      throw new BadRequestException('Không thể hủy đơn đã xử lý');
+    }
+
+    request.status = LeaveStatus.CANCELLED;
+
+    return this.leaveRequestRepository.save(request);
   }
 }
