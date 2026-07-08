@@ -74,6 +74,20 @@ export class AuthService {
     };
   }
 
+  private async deleteUserRefreshTokens(userId: number) {
+    await this.refreshTokenRepository.delete({
+      user_id: userId,
+    });
+  }
+
+  async deleteExpiredRefreshTokens() {
+    await this.refreshTokenRepository
+      .createQueryBuilder()
+      .delete()
+      .where('expires_at <= :now', { now: new Date() })
+      .execute();
+  }
+
   async changePassword(userId: number, dto: ChangePasswordDto) {
     const user = await this.userService.findById(userId);
 
@@ -97,9 +111,7 @@ export class AuthService {
     const hashedPassword = await hashPassword(dto.newPassword);
     user.password = hashedPassword;
     await this.userService.updatePassword(userId, user.password);
-    await this.refreshTokenRepository.delete({
-      user_id: userId,
-    });
+    await this.deleteUserRefreshTokens(userId);
     return {
       message: 'Password changed successfully',
     };
