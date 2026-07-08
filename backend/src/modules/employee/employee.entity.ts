@@ -13,7 +13,6 @@ import { Department } from '../department/department.entity';
 import { Position } from '../position/position.entity';
 import { User } from '../user/user.entity';
 import { WorkShift } from '../work-shifts/work-shifts.entity';
-import { LeaveRequest } from '../leave/leave-request.entity';
 
 export enum EmployeeStatus {
   ACTIVE = 'ACTIVE', // Đang làm việc
@@ -114,7 +113,4 @@ export class Employee {
   @ManyToOne(() => WorkShift)
   @JoinColumn({ name: 'work_shift_id' })
   workShift!: WorkShift;
-
-  @OneToMany(() => LeaveRequest, (leaveRequest) => leaveRequest.employee)
-  leaveRequests?: LeaveRequest[];
 }
