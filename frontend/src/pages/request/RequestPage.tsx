@@ -1,0 +1,88 @@
+import { Plus, RefreshCcw } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+
+import { Button } from "../../components/ui/button";
+import { Card, CardContent } from "../../components/ui/card";
+import {
+  useCancelLeaveRequest,
+  useLeaveRequests,
+} from "../../hooks/useLeaveRequests";
+import { RequestTable } from "./components/RequestTable";
+
+export default function RequestPage() {
+  const navigate = useNavigate();
+
+  const {
+    data: requests = [],
+    isLoading,
+    isError,
+    refetch,
+    isFetching,
+  } = useLeaveRequests();
+
+  const cancelLeaveRequestMutation = useCancelLeaveRequest();
+
+  const handleCancelRequest = async (requestId: number) => {
+    await cancelLeaveRequestMutation.mutateAsync(requestId);
+    toast.success("Đã hủy yêu cầu");
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Yêu cầu của tôi
+          </h1>
+          <p className="text-muted-foreground">
+            Theo dõi các yêu cầu nghỉ phép đã gửi và trạng thái phê duyệt.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            onClick={() => void refetch()}
+            disabled={isFetching}
+          >
+            <RefreshCcw className="size-4" />
+            Làm mới
+          </Button>
+          <Button
+            onClick={() => navigate("/requests/create")}
+            className="bg-teal-500 text-white hover:bg-teal-700"
+          >
+            <Plus className="size-4" />
+            Thêm yêu cầu mới
+          </Button>
+        </div>
+      </div>
+
+      <Card>
+        <CardContent className="pt-6">
+          {isLoading ? (
+            <div className="py-12 text-center text-muted-foreground">
+              Đang tải danh sách yêu cầu...
+            </div>
+          ) : isError ? (
+            <div className="space-y-3 py-12 text-center">
+              <p className="text-destructive">
+                Không thể tải danh sách yêu cầu.
+              </p>
+              <Button variant="outline" onClick={() => void refetch()}>
+                Thử lại
+              </Button>
+            </div>
+          ) : (
+            <RequestTable
+              requests={requests}
+              cancellingRequestId={cancelLeaveRequestMutation.variables}
+              onCancel={(request) => void handleCancelRequest(request.requestId)}
+            />
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

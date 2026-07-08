@@ -4,6 +4,7 @@ interface AuthState {
   user: {
     id: number;
     email: string;
+    employeeId?: number;
     roles: string[];
   } | null;
 

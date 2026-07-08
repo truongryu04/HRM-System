@@ -16,6 +16,8 @@ import EmployeeEditPage from "../pages/employee/EmployeeEditPage";
 import EmployeeCreatePage from "../pages/employee/EmployeeCreatePage";
 import AttendancePage from "../pages/attendance/AttendancePage";
 import AttendanceManagementPage from "../pages/attendance/AttendanceManagementPage";
+import RequestPage from "../pages/request/RequestPage";
+import RequestCreatePage from "../pages/request/RequestCreatePage";
 
 export const router = createBrowserRouter([
   {
@@ -36,6 +38,14 @@ export const router = createBrowserRouter([
           {
             path: "attendance",
             element: <AttendanceManagementPage />,
+          },
+          {
+            path: "requests/my",
+            element: <RequestPage />,
+          },
+          {
+            path: "requests/create",
+            element: <RequestCreatePage />,
           },
           {
             path: "permissions",
