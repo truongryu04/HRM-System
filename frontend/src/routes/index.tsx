@@ -18,6 +18,7 @@ import AttendancePage from "../pages/attendance/AttendancePage";
 import AttendanceManagementPage from "../pages/attendance/AttendanceManagementPage";
 import RequestPage from "../pages/request/RequestPage";
 import RequestCreatePage from "../pages/request/RequestCreatePage";
+import RequestTypePage from "../pages/request-type/RequestTypePage";
 
 export const router = createBrowserRouter([
   {
@@ -46,6 +47,10 @@ export const router = createBrowserRouter([
           {
             path: "requests/create",
             element: <RequestCreatePage />,
+          },
+          {
+            path: "request-types",
+            element: <RequestTypePage />,
           },
           {
             path: "permissions",
