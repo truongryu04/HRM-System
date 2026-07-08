@@ -25,6 +25,9 @@ export class ApprovalFlow {
   isActive!: boolean;
 
   @Column({ default: false })
+  isDeleted!: boolean;
+
+  @Column({ default: false })
   isDefault!: boolean;
 
   @CreateDateColumn()

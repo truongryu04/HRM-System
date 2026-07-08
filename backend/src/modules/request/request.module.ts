@@ -15,6 +15,8 @@ import { LeaveRequestDay } from '../leave-request/entities/leave-request-day.ent
 
 import { RequestConfigService } from './request-config.service';
 import { RequestTypeController } from './request-type.controller';
+import { ApprovalFlowController } from './approval-flow.controller';
+import { ApprovalFlowStepController } from './approval-flow-step.controller';
 
 @Module({
   imports: [
@@ -31,7 +33,12 @@ import { RequestTypeController } from './request-type.controller';
       User,
     ]),
   ],
-  controllers: [RequestController, RequestTypeController],
+  controllers: [
+    RequestController,
+    RequestTypeController,
+    ApprovalFlowStepController,
+    ApprovalFlowController,
+  ],
   providers: [RequestService, RequestConfigService],
   exports: [RequestService, TypeOrmModule],
 })

@@ -1,9 +1,11 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../user/user.entity';
 import { ApprovalFlow } from './approval-flow.entity';
@@ -42,4 +44,13 @@ export class ApprovalFlowStep {
 
   @Column({ type: 'jsonb', nullable: true })
   condition?: Record<string, unknown>;
+
+  @Column({ default: false })
+  isDeleted!: boolean;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
 }
