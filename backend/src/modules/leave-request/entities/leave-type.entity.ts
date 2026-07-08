@@ -23,7 +23,7 @@ export class LeaveType {
   isDeleted!: boolean;
 
   @Column({ default: true })
-  isAction!: boolean;
+  isActive!: boolean;
 
   @CreateDateColumn()
   createdAt!: Date;

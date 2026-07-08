@@ -14,7 +14,8 @@ import { PositionModule } from './modules/position/position.module';
 import { EmployeeModule } from './modules/employee/employee.module';
 import { AttendanceModule } from './modules/attendance/attendance.module';
 import { WorkShiftsModule } from './modules/work-shifts/work-shifts.module';
-import { LeaveModule } from './modules/leave/leave.module';
+import { LeaveRequestModule } from './modules/leave-request/leave-request.module';
+import { RequestModule } from './modules/request/request.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -45,7 +46,8 @@ import { LeaveModule } from './modules/leave/leave.module';
     EmployeeModule,
     AttendanceModule,
     WorkShiftsModule,
-    LeaveModule,
+    RequestModule,
+    LeaveRequestModule,
   ],
   controllers: [AppController],
   providers: [AppService],

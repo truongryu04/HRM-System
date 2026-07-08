@@ -1,8 +1,9 @@
 import { IsDateString, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class CreateLeaveRequestDto {
+  @IsOptional()
   @IsInt()
-  employeeId!: number;
+  employeeId?: number;
 
   @IsInt()
   leaveTypeId!: number;
