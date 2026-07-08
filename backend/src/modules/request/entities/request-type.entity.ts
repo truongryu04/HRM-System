@@ -23,6 +23,9 @@ export class RequestType {
   @Column({ default: true })
   isActive!: boolean;
 
+  @Column({ default: false })
+  isDeleted!: boolean;
+
   @Column({ nullable: true })
   handlerKey?: string;
 
