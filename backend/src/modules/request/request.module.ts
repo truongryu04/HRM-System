@@ -13,6 +13,9 @@ import { RequestService } from './request.service';
 import { LeaveRequest } from '../leave-request/entities/leave-request.entity';
 import { LeaveRequestDay } from '../leave-request/entities/leave-request-day.entity';
 
+import { RequestConfigService } from './request-config.service';
+import { RequestTypeController } from './request-type.controller';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -28,8 +31,8 @@ import { LeaveRequestDay } from '../leave-request/entities/leave-request-day.ent
       User,
     ]),
   ],
-  controllers: [RequestController],
-  providers: [RequestService],
+  controllers: [RequestController, RequestTypeController],
+  providers: [RequestService, RequestConfigService],
   exports: [RequestService, TypeOrmModule],
 })
 export class RequestModule {}
