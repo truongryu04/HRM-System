@@ -1,7 +1,9 @@
 import { NavLink } from "react-router-dom";
 
 const navItems = [
+  { to: "/approval-step-templates", label: "Mẫu bước duyệt" },
   { to: "/request-types", label: "Loại yêu cầu" },
+  { to: "/approval-flows", label: "Luồng duyệt" },
   { to: "/attendance/my", label: "Lịch làm việc" },
   { to: "/attendance", label: "Quản lý chấm công" },
   { to: "/requests/my", label: "Yêu cầu của tôi" },
