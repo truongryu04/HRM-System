@@ -1,47 +1,10 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Edit, Plus, RefreshCcw, Search, Trash2 } from "lucide-react";
+import { Plus, RefreshCcw } from "lucide-react";
 import { toast } from "sonner";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "../../components/ui/alert-dialog";
-import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "../../components/ui/dialog";
-import { Input } from "../../components/ui/input";
-import { Label } from "../../components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../../components/ui/table";
-import { Textarea } from "../../components/ui/textarea";
 import {
   requestTypesQueryKey,
   useRequestTypes,
@@ -55,182 +18,15 @@ import type {
   RequestType,
   RequestTypeRequest,
 } from "@/types/request-type.type";
-
-type RequestTypeMode = "create" | "edit";
-
-const emptyRequestTypeForm: RequestTypeRequest = {
-  code: "",
-  name: "",
-  handlerKey: "",
-  isActive: true,
-  description: "",
-};
-
-const defaultRequestTypes: RequestTypeRequest[] = [
-  {
-    code: "LEAVE_REQUEST",
-    name: "Xin nghỉ phép",
-    handlerKey: "leave-request",
-    isActive: true,
-    description: "Yêu cầu nghỉ phép có phê duyệt.",
-  },
-  {
-    code: "ATTENDANCE_CORRECTION",
-    name: "Sửa chấm công",
-    handlerKey: "attendance-correction",
-    isActive: true,
-    description: "Yêu cầu điều chỉnh dữ liệu chấm công.",
-  },
-  {
-    code: "OVERTIME_REGISTRATION",
-    name: "Đăng ký OT",
-    handlerKey: "overtime-registration",
-    isActive: true,
-    description: "Yêu cầu đăng ký làm thêm giờ.",
-  },
-  {
-    code: "SHIFT_CHANGE",
-    name: "Đổi ca làm việc",
-    handlerKey: "shift-change",
-    isActive: true,
-    description: "Yêu cầu đổi ca hoặc lịch làm việc.",
-  },
-  {
-    code: "EQUIPMENT_BORROW",
-    name: "Mượn thiết bị",
-    handlerKey: "equipment-borrow",
-    isActive: true,
-    description: "Yêu cầu mượn thiết bị nội bộ.",
-  },
-];
-
-function RequestTypeDialog({
-  open,
-  onOpenChange,
-  mode,
-  form,
-  onFormChange,
-  loading,
-  onSubmit,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  mode: RequestTypeMode;
-  form: RequestTypeRequest;
-  onFormChange: (form: RequestTypeRequest) => void;
-  loading: boolean;
-  onSubmit: () => Promise<void>;
-}) {
-  const updateForm = (payload: Partial<RequestTypeRequest>) => {
-    onFormChange({ ...form, ...payload });
-  };
-
-  const handleSubmit = async () => {
-    if (!form.code.trim() || !form.name.trim() || !form.handlerKey.trim()) {
-      toast.error("Vui lòng nhập code, tên loại yêu cầu và handler key");
-      return;
-    }
-
-    await onSubmit();
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>
-            {mode === "create" ? "Thêm loại yêu cầu" : "Cập nhật loại yêu cầu"}
-          </DialogTitle>
-          <DialogDescription>
-            Thiết lập code, handler key và trạng thái sử dụng.
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="request-type-code">Code</Label>
-            <Input
-              id="request-type-code"
-              value={form.code}
-              onChange={(event) => updateForm({ code: event.target.value })}
-              placeholder="LEAVE_REQUEST"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="request-type-name">Tên loại yêu cầu</Label>
-            <Input
-              id="request-type-name"
-              value={form.name}
-              onChange={(event) => updateForm({ name: event.target.value })}
-              placeholder="Xin nghỉ phép"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="request-type-handler">Handler key</Label>
-            <Input
-              id="request-type-handler"
-              value={form.handlerKey}
-              onChange={(event) =>
-                updateForm({ handlerKey: event.target.value })
-              }
-              placeholder="leave-request"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Trạng thái</Label>
-            <Select
-              value={form.isActive.toString()}
-              onValueChange={(value) =>
-                updateForm({ isActive: value === "true" })
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Chọn trạng thái" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="true">Active</SelectItem>
-                <SelectItem value="false">Inactive</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="request-type-description">Mô tả</Label>
-            <Textarea
-              id="request-type-description"
-              value={form.description}
-              onChange={(event) =>
-                updateForm({ description: event.target.value })
-              }
-              placeholder="Mô tả mục đích sử dụng loại yêu cầu"
-            />
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Hủy
-          </Button>
-          <Button
-            onClick={() => void handleSubmit()}
-            disabled={loading}
-            className="bg-teal-500 text-white hover:bg-teal-700"
-          >
-            {loading ? "Đang lưu..." : "Lưu"}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-const getStatusClass = (isActive: boolean) =>
-  isActive
-    ? "bg-emerald-500/10 text-emerald-700"
-    : "bg-slate-500/10 text-slate-700";
+import { DefaultRequestTypesCard } from "./components/DefaultRequestTypesCard";
+import { RequestTypeDeleteDialog } from "./components/RequestTypeDeleteDialog";
+import { RequestTypeDialog } from "./components/RequestTypeDialog";
+import { RequestTypeTable } from "./components/RequestTypeTable";
+import { RequestTypeToolbar } from "./components/RequestTypeToolbar";
+import {
+  emptyRequestTypeForm,
+  type RequestTypeMode,
+} from "./request-type.constants";
 
 export default function RequestTypePage() {
   const queryClient = useQueryClient();
@@ -253,7 +49,9 @@ export default function RequestTypePage() {
   const filteredRequestTypes = useMemo(() => {
     const keyword = search.trim().toLowerCase();
 
-    if (!keyword) return requestTypes;
+    if (!keyword) {
+      return requestTypes;
+    }
 
     return requestTypes.filter((requestType) =>
       [
@@ -319,7 +117,10 @@ export default function RequestTypePage() {
       return;
     }
 
-    if (!selectedRequestType) return;
+    if (!selectedRequestType) {
+      return;
+    }
+
     await updateMutation.mutateAsync({
       id: selectedRequestType.id,
       payload,
@@ -346,9 +147,16 @@ export default function RequestTypePage() {
     setOpenDialog(true);
   };
 
-  const createDefaultType = async (payload: RequestTypeRequest) => {
-    await createMutation.mutateAsync(payload);
+  const handleDelete = () => {
+    if (!deleteTarget) {
+      return;
+    }
+
+    deleteMutation.mutate(deleteTarget.id);
   };
+
+  const showDefaultRequestTypes =
+    !isLoading && !isError && requestTypes.length === 0;
 
   return (
     <div className="space-y-6">
@@ -383,164 +191,28 @@ export default function RequestTypePage() {
 
       <Card>
         <CardContent className="space-y-4 pt-6">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div className="relative w-full md:max-w-sm">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Tìm theo code, tên, handler key"
-                className="pl-9"
-              />
-            </div>
+          <RequestTypeToolbar
+            search={search}
+            total={filteredRequestTypes.length}
+            onSearchChange={setSearch}
+          />
 
-            <div className="text-sm text-muted-foreground">
-              {filteredRequestTypes.length} loại yêu cầu
-            </div>
-          </div>
-
-          {isLoading ? (
-            <div className="py-12 text-center text-muted-foreground">
-              Đang tải danh sách loại yêu cầu...
-            </div>
-          ) : isError ? (
-            <div className="space-y-3 py-12 text-center">
-              <p className="text-destructive">
-                Không thể tải danh sách loại yêu cầu.
-              </p>
-              <Button variant="outline" onClick={() => void refetch()}>
-                Thử lại
-              </Button>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Code</TableHead>
-                    <TableHead>Tên loại yêu cầu</TableHead>
-                    <TableHead>Handler key</TableHead>
-                    <TableHead>Trạng thái</TableHead>
-                    <TableHead>Mô tả</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-
-                <TableBody>
-                  {filteredRequestTypes.length === 0 ? (
-                    <TableRow>
-                      <TableCell
-                        colSpan={6}
-                        className="py-10 text-center text-muted-foreground"
-                      >
-                        Chưa có loại yêu cầu nào.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredRequestTypes.map((requestType) => (
-                      <TableRow key={requestType.id}>
-                        <TableCell className="font-medium">
-                          {requestType.code}
-                        </TableCell>
-                        <TableCell>{requestType.name}</TableCell>
-                        <TableCell>{requestType.handlerKey}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="outline"
-                            className={getStatusClass(requestType.isActive)}
-                          >
-                            {requestType.isActive ? "Active" : "Inactive"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="min-w-64">
-                          {requestType.description ?? "-"}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              aria-label={`Sửa ${requestType.name}`}
-                              onClick={() => openEditDialog(requestType)}
-                            >
-                              <Edit className="size-4" />
-                            </Button>
-
-                            <AlertDialog
-                              open={deleteTarget?.id === requestType.id}
-                              onOpenChange={(open) =>
-                                !open && setDeleteTarget(null)
-                              }
-                            >
-                              <AlertDialogTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  aria-label={`Xóa ${requestType.name}`}
-                                  onClick={() => setDeleteTarget(requestType)}
-                                >
-                                  <Trash2 className="size-4 text-destructive" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>
-                                    Xóa loại yêu cầu?
-                                  </AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Loại yêu cầu "{requestType.name}" sẽ bị xóa
-                                    khỏi danh sách request_types.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Hủy</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() =>
-                                      deleteMutation.mutate(requestType.id)
-                                    }
-                                  >
-                                    Xác nhận
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+          <RequestTypeTable
+            requestTypes={filteredRequestTypes}
+            isLoading={isLoading}
+            isError={isError}
+            onRetry={() => void refetch()}
+            onEdit={openEditDialog}
+            onDelete={setDeleteTarget}
+          />
         </CardContent>
       </Card>
 
-      {!isLoading && !isError && requestTypes.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col gap-3 pt-6 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h2 className="font-semibold">Loại yêu cầu mặc định</h2>
-              <p className="text-sm text-muted-foreground">
-                Tạo nhanh các loại phổ biến: nghỉ phép, sửa chấm công, OT, đổi
-                ca và mượn thiết bị.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {defaultRequestTypes.map((requestType) => (
-                <Button
-                  key={requestType.code}
-                  variant="outline"
-                  size="sm"
-                  disabled={createMutation.isPending}
-                  onClick={() => void createDefaultType(requestType)}
-                >
-                  {requestType.name}
-                </Button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+      {showDefaultRequestTypes ? (
+        <DefaultRequestTypesCard
+          loading={createMutation.isPending}
+          onCreate={(payload) => void createMutation.mutateAsync(payload)}
+        />
       ) : null}
 
       <RequestTypeDialog
@@ -551,6 +223,17 @@ export default function RequestTypePage() {
         onFormChange={setForm}
         loading={createMutation.isPending || updateMutation.isPending}
         onSubmit={handleSubmit}
+      />
+
+      <RequestTypeDeleteDialog
+        requestType={deleteTarget}
+        loading={deleteMutation.isPending}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteTarget(null);
+          }
+        }}
+        onConfirm={handleDelete}
       />
     </div>
   );
