@@ -23,7 +23,7 @@ export class CreateApprovalFlowStepDto {
 
   @IsOptional()
   @IsString()
-  permissionCode?: string;
+  positionCode?: string;
 
   @IsOptional()
   @IsInt()
@@ -33,4 +33,3 @@ export class CreateApprovalFlowStepDto {
   @IsObject()
   condition?: Record<string, unknown>;
 }
-

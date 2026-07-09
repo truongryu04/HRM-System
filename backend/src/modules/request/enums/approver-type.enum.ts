@@ -1,8 +1,6 @@
 export enum ApproverType {
   DIRECT_MANAGER = 'DIRECT_MANAGER',
   ROLE = 'ROLE',
-  PERMISSION = 'PERMISSION',
+  POSITION = 'POSITION',
   SPECIFIC_USER = 'SPECIFIC_USER',
-  HR = 'HR',
-  ADMIN = 'ADMIN',
 }

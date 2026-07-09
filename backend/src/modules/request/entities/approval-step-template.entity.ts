@@ -28,7 +28,7 @@ export class ApprovalStepTemplate {
   roleCode?: string;
 
   @Column({ nullable: true })
-  permissionCode?: string;
+  positionCode?: string;
 
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'specific_user_id' })
