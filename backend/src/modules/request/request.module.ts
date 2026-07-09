@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Employee } from '../employee/employee.entity';
 import { User } from '../user/user.entity';
 import { ApprovalFlowStep } from './entities/approval-flow-step.entity';
+import { ApprovalStepTemplate } from './entities/approval-step-template.entity';
 import { ApprovalFlow } from './entities/approval-flow.entity';
 import { RequestApproval } from './entities/request-approval.entity';
 import { RequestHistory } from './entities/request-history.entity';
@@ -17,6 +18,7 @@ import { RequestConfigService } from './request-config.service';
 import { RequestTypeController } from './request-type.controller';
 import { ApprovalFlowController } from './approval-flow.controller';
 import { ApprovalFlowStepController } from './approval-flow-step.controller';
+import { ApprovalStepTemplateController } from './approval-step-template.controller';
 
 @Module({
   imports: [
@@ -24,6 +26,7 @@ import { ApprovalFlowStepController } from './approval-flow-step.controller';
       RequestType,
       ApprovalFlow,
       ApprovalFlowStep,
+      ApprovalStepTemplate,
       Request,
       RequestApproval,
       RequestHistory,
@@ -36,6 +39,7 @@ import { ApprovalFlowStepController } from './approval-flow-step.controller';
   controllers: [
     RequestController,
     RequestTypeController,
+    ApprovalStepTemplateController,
     ApprovalFlowStepController,
     ApprovalFlowController,
   ],

@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Patch,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -12,6 +13,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { JwtUser } from '../auth/jwt-user.interface';
 import { ApproveRequestDto } from './dto/approve-request.dto';
 import { RejectRequestDto } from './dto/reject-request.dto';
+import { RequestQueryDto } from './dto/request-query.dto';
 import { RequestService } from './request.service';
 
 @UseGuards(JwtAuthGuard)
@@ -20,8 +22,8 @@ export class RequestController {
   constructor(private readonly requestService: RequestService) {}
 
   @Get()
-  findAll() {
-    return this.requestService.findAll();
+  findAll(@Query() query: RequestQueryDto) {
+    return this.requestService.findAll(query);
   }
 
   @Get('my')
@@ -38,7 +40,18 @@ export class RequestController {
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const request = await this.requestService.findOne(id);
     const approvals = await this.requestService.findApprovals(id);
-    return { ...request, approvals };
+    const histories = await this.requestService.findHistories(id);
+    return { ...request, approvals, histories };
+  }
+
+  @Get(':id/approvals')
+  findApprovals(@Param('id', ParseIntPipe) id: number) {
+    return this.requestService.findApprovals(id);
+  }
+
+  @Get(':id/histories')
+  findHistories(@Param('id', ParseIntPipe) id: number) {
+    return this.requestService.findHistories(id);
   }
 
   @Patch(':id/approve')

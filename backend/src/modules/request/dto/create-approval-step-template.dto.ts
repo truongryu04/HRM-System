@@ -1,16 +1,7 @@
-import {
-  IsEnum,
-  IsInt,
-  IsObject,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsEnum, IsInt, IsObject, IsOptional, IsString } from 'class-validator';
 import { ApproverType } from '../enums/approver-type.enum';
 
-export class CreateApprovalFlowStepDto {
-  @IsInt()
-  stepOrder!: number;
-
+export class CreateApprovalStepTemplateDto {
   @IsString()
   stepName!: string;
 

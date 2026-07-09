@@ -9,8 +9,8 @@ import {
 } from 'typeorm';
 import { User } from '../../user/user.entity';
 import { ApprovalFlow } from './approval-flow.entity';
-import { ApprovalStepTemplate } from './approval-step-template.entity';
 import { ApproverType } from '../enums/approver-type.enum';
+import { ApprovalStepTemplate } from './approval-step-template.entity';
 
 @Entity('approval_flow_steps')
 export class ApprovalFlowStep {

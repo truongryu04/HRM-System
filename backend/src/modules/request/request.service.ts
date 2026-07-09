@@ -17,6 +17,7 @@ import { ApprovalFlow } from './entities/approval-flow.entity';
 import { ApproverType } from './enums/approver-type.enum';
 import { ApproveRequestDto } from './dto/approve-request.dto';
 import { RejectRequestDto } from './dto/reject-request.dto';
+import { RequestQueryDto } from './dto/request-query.dto';
 import { RequestApprovalStatus } from './enums/request-approval-status.enum';
 import { RequestApproval } from './entities/request-approval.entity';
 import { RequestHistory } from './entities/request-history.entity';
@@ -43,6 +44,12 @@ export class RequestService {
 
     @InjectRepository(RequestApproval)
     private readonly requestApprovalRepository: Repository<RequestApproval>,
+
+    @InjectRepository(RequestHistory)
+    private readonly requestHistoryRepository: Repository<RequestHistory>,
+
+    @InjectRepository(Employee)
+    private readonly employeeRepository: Repository<Employee>,
   ) {}
 
   async createBusinessRequest(
@@ -55,7 +62,7 @@ export class RequestService {
     );
     const flow = await this.ensureDefaultFlow(requestType, manager);
     const steps = await manager.find(ApprovalFlowStep, {
-      where: { flow: { id: flow.id } },
+      where: { flow: { id: flow.id }, isDeleted: false },
       relations: { specificUser: true },
       order: { stepOrder: 'ASC' },
     });
@@ -84,7 +91,7 @@ export class RequestService {
         stepName: step.stepName,
         approverType: step.approverType,
         roleCode: step.roleCode,
-        permissionCode: step.permissionCode,
+        positionCode: step.positionCode,
         specificUser: step.specificUser,
         status:
           index === 0
@@ -99,8 +106,20 @@ export class RequestService {
     return request;
   }
 
-  findAll(): Promise<Request[]> {
+  findAll(query: RequestQueryDto = {}): Promise<Request[]> {
     return this.requestRepository.find({
+      where: {
+        ...(query.status ? { status: query.status } : {}),
+        ...(query.requestTypeId
+          ? { requestType: { id: query.requestTypeId } }
+          : {}),
+        ...(query.requestTypeCode
+          ? {
+              requestType: { code: query.requestTypeCode.trim().toUpperCase() },
+            }
+          : {}),
+        ...(query.employeeId ? { employee: { id: query.employeeId } } : {}),
+      },
       relations: {
         requestType: true,
         employee: true,
@@ -171,10 +190,20 @@ export class RequestService {
   }
 
   async findApprovals(requestId: number): Promise<RequestApproval[]> {
+    await this.findOne(requestId);
     return this.requestApprovalRepository.find({
       where: { request: { id: requestId } },
       relations: { actedBy: true, specificUser: true },
       order: { stepOrder: 'ASC' },
+    });
+  }
+
+  async findHistories(requestId: number): Promise<RequestHistory[]> {
+    await this.findOne(requestId);
+    return this.requestHistoryRepository.find({
+      where: { request: { id: requestId } },
+      relations: { actor: true },
+      order: { createdAt: 'ASC' },
     });
   }
 
@@ -321,7 +350,9 @@ export class RequestService {
     code: RequestTypeCode,
     manager: EntityManager,
   ): Promise<RequestType> {
-    let requestType = await manager.findOne(RequestType, { where: { code } });
+    let requestType = await manager.findOne(RequestType, {
+      where: { code, isDeleted: false },
+    });
     if (requestType) {
       return requestType;
     }
@@ -346,34 +377,16 @@ export class RequestService {
         requestType: { id: requestType.id },
         isDefault: true,
         isActive: true,
+        isDeleted: false,
       },
     });
     if (flow) {
       return flow;
     }
 
-    flow = manager.create(ApprovalFlow, {
-      requestType,
-      name:
-        requestType.code === RequestTypeCode.LEAVE_REQUEST
-          ? 'Nghi phep 1 cap'
-          : `${requestType.name} mac dinh`,
-      isActive: true,
-      isDefault: true,
-    });
-    await manager.save(ApprovalFlow, flow);
-
-    await manager.save(
-      ApprovalFlowStep,
-      manager.create(ApprovalFlowStep, {
-        flow,
-        stepOrder: 1,
-        stepName: 'Manager duyet',
-        approverType: ApproverType.DIRECT_MANAGER,
-      }),
+    throw new BadRequestException(
+      'Request type chua co approval flow mac dinh. Hay cau hinh approval flow va tao step tu approval step template truoc',
     );
-
-    return flow;
   }
 
   private async generateRequestCode(manager: EntityManager): Promise<string> {
@@ -442,22 +455,20 @@ export class RequestService {
     request: Request,
   ): Promise<boolean> {
     const roles = (user.roles ?? []).map((role) => role.toLowerCase());
-    const permissions = user.permissions ?? [];
-
-    if (approval.approverType === ApproverType.ADMIN) {
-      return roles.includes('admin');
-    }
-
-    if (approval.approverType === ApproverType.HR) {
-      return roles.includes('hr');
-    }
-
     if (approval.approverType === ApproverType.ROLE) {
       return roles.includes((approval.roleCode ?? '').toLowerCase());
     }
 
-    if (approval.approverType === ApproverType.PERMISSION) {
-      return permissions.includes(approval.permissionCode ?? '');
+    if (approval.approverType === ApproverType.POSITION) {
+      const employee = await this.employeeRepository.findOne({
+        where: { id: user.employeeId },
+        relations: { position: true },
+      });
+
+      return (
+        employee?.position?.code?.toLowerCase() ===
+        (approval.positionCode ?? '').toLowerCase()
+      );
     }
 
     if (approval.approverType === ApproverType.SPECIFIC_USER) {

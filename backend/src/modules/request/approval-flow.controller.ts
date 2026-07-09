@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateApprovalFlowDto } from './dto/create-approval-flow.dto';
-import { CreateApprovalFlowStepDto } from './dto/create-approval-flow-step.dto';
 import { UpdateApprovalFlowDto } from './dto/update-approval-flow.dto';
 import { RequestConfigService } from './request-config.service';
 
@@ -51,16 +50,4 @@ export class ApprovalFlowController {
     return this.requestConfigService.removeApprovalFlow(id);
   }
 
-  @Post(':flowId/steps')
-  createStep(
-    @Param('flowId', ParseIntPipe) flowId: number,
-    @Body() dto: CreateApprovalFlowStepDto,
-  ) {
-    return this.requestConfigService.createApprovalFlowStep(flowId, dto);
-  }
-
-  @Get(':flowId/steps')
-  findSteps(@Param('flowId', ParseIntPipe) flowId: number) {
-    return this.requestConfigService.findStepsByFlow(flowId);
-  }
 }
