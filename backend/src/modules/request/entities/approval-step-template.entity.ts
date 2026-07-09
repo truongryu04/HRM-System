@@ -8,25 +8,12 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../user/user.entity';
-import { ApprovalFlow } from './approval-flow.entity';
-import { ApprovalStepTemplate } from './approval-step-template.entity';
 import { ApproverType } from '../enums/approver-type.enum';
 
-@Entity('approval_flow_steps')
-export class ApprovalFlowStep {
+@Entity('approval_step_templates')
+export class ApprovalStepTemplate {
   @PrimaryGeneratedColumn()
   id!: number;
-
-  @ManyToOne(() => ApprovalFlow)
-  @JoinColumn({ name: 'flow_id' })
-  flow!: ApprovalFlow;
-
-  @ManyToOne(() => ApprovalStepTemplate, { nullable: true })
-  @JoinColumn({ name: 'approval_step_template_id' })
-  approvalStepTemplate?: ApprovalStepTemplate;
-
-  @Column()
-  stepOrder!: number;
 
   @Column()
   stepName!: string;
