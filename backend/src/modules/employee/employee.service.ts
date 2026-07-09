@@ -1,5 +1,6 @@
 import { DepartmentService } from './../department/department.service';
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -15,6 +16,7 @@ import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { PositionService } from '../position/position.service';
 import { WorkShiftsService } from '../work-shifts/work-shifts.service';
+import { Department } from '../department/department.entity';
 @Injectable()
 export class EmployeeService {
   constructor(
@@ -67,6 +69,11 @@ export class EmployeeService {
       );
     }
 
+    const manager = await this.resolveManagerForCreate(
+      dto.managerId,
+      department,
+    );
+
     const employee = this.employeeRepository.create({
       employeeCode: dto.employeeCode,
       email: dto.email,
@@ -80,6 +87,7 @@ export class EmployeeService {
       avatarUrl: dto.avatarUrl,
       department,
       position,
+      manager,
     });
     employee.workShift = workShift;
     return this.employeeRepository.save(employee);
@@ -94,6 +102,7 @@ export class EmployeeService {
       relations: {
         department: true,
         position: true,
+        manager: true,
       },
       skip,
       take: limit,
@@ -116,6 +125,7 @@ export class EmployeeService {
       .leftJoinAndSelect('employee.department', 'department')
       .leftJoinAndSelect('employee.position', 'position')
       .leftJoinAndSelect('employee.workShift', 'workShift')
+      .leftJoinAndSelect('employee.manager', 'manager')
       .leftJoinAndSelect('employee.users', 'user')
       .leftJoinAndSelect('user.roles', 'role')
       .where('employee.id = :id', { id })
@@ -139,6 +149,18 @@ export class EmployeeService {
       }
 
       employee.department = department;
+    }
+
+    if (dto.managerId !== undefined) {
+      if (dto.managerId === id) {
+        throw new BadRequestException('Employee cannot be their own manager');
+      }
+
+      employee.manager = await this.findManagerById(dto.managerId);
+    } else if (!employee.manager && employee.department?.manager?.id) {
+      employee.manager = await this.findManagerById(
+        employee.department.manager.id,
+      );
     }
 
     if (dto.positionId) {
@@ -198,5 +220,35 @@ export class EmployeeService {
       },
     });
     return total;
+  }
+
+  private async resolveManagerForCreate(
+    managerId: number | undefined,
+    department: Department,
+  ) {
+    const resolvedManagerId = managerId ?? department.manager?.id;
+
+    if (!resolvedManagerId) {
+      throw new BadRequestException(
+        'Employee manager is required. Add managerId or configure department manager first',
+      );
+    }
+
+    return this.findManagerById(resolvedManagerId);
+  }
+
+  private async findManagerById(id: number) {
+    const manager = await this.employeeRepository.findOne({
+      where: {
+        id,
+        isDeleted: false,
+      },
+    });
+
+    if (!manager) {
+      throw new NotFoundException('Manager not found');
+    }
+
+    return manager;
   }
 }

@@ -53,4 +53,8 @@ export class CreateEmployeeDto {
   @IsInt()
   @IsOptional()
   workShiftId?: number;
+
+  @IsInt()
+  @IsOptional()
+  managerId?: number;
 }

@@ -96,6 +96,15 @@ export class Employee {
   })
   position!: Position;
 
+  @ManyToOne(() => Employee, (employee) => employee.subordinates, {
+    nullable: true,
+  })
+  @JoinColumn({ name: 'manager_id' })
+  manager?: Employee;
+
+  @OneToMany(() => Employee, (employee) => employee.manager)
+  subordinates!: Employee[];
+
   @CreateDateColumn()
   createdAt!: Date;
 
