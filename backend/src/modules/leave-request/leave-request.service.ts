@@ -3,10 +3,16 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  OnModuleInit,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { Employee } from '../employee/employee.entity';
+import { Request } from '../request/entities/request.entity';
+import {
+  RequestApprovedHandler,
+  RequestApprovedHandlerRegistry,
+} from '../request/request-approved-handler.registry';
 import { RequestService } from '../request/request.service';
 import { RequestStatus } from '../request/enums/request-status.enum';
 import { RequestTypeCode } from '../request/enums/request-type-code.enum';
@@ -14,14 +20,19 @@ import { User } from '../user/user.entity';
 import type { JwtUser } from '../auth/jwt-user.interface';
 import { CreateLeaveRequestDto } from './dto/create-leave-request.dto';
 import { UpdateLeaveRequestDto } from './dto/update-leave-request.dto';
+import { LeaveSession } from './enums/leave-session.enum';
+import { LeaveRequestDay } from './entities/leave-request-day.entity';
 import { LeaveRequest } from './entities/leave-request.entity';
 import { LeaveType } from './entities/leave-type.entity';
 
 @Injectable()
-export class LeaveRequestService {
+export class LeaveRequestService
+  implements OnModuleInit, RequestApprovedHandler
+{
   constructor(
     private readonly dataSource: DataSource,
     private readonly requestService: RequestService,
+    private readonly approvedHandlerRegistry: RequestApprovedHandlerRegistry,
 
     @InjectRepository(LeaveRequest)
     private readonly leaveRequestRepository: Repository<LeaveRequest>,
@@ -29,6 +40,11 @@ export class LeaveRequestService {
     @InjectRepository(LeaveType)
     private readonly leaveTypeRepository: Repository<LeaveType>,
   ) {}
+
+  onModuleInit(): void {
+    this.approvedHandlerRegistry.register('leave-request', this);
+    this.approvedHandlerRegistry.register(RequestTypeCode.LEAVE_REQUEST, this);
+  }
 
   async create(dto: CreateLeaveRequestDto, user?: JwtUser): Promise<unknown> {
     const startDate = this.parseDate(dto.startDate);
@@ -135,6 +151,27 @@ export class LeaveRequestService {
 
   findMy(user: JwtUser): Promise<unknown[]> {
     return this.findByEmployee(user.employeeId);
+  }
+
+  async handle(request: Request, manager: EntityManager): Promise<void> {
+    const leaveRequest = await manager.findOne(LeaveRequest, {
+      where: { request: { id: request.id } },
+      relations: { request: { employee: true }, leaveType: true },
+    });
+
+    if (!leaveRequest) {
+      throw new NotFoundException('Khong tim thay don nghi phep');
+    }
+
+    const existingDays = await manager.count(LeaveRequestDay, {
+      where: { leaveRequest: { id: leaveRequest.id } },
+    });
+    if (existingDays > 0) {
+      return;
+    }
+
+    const days = this.buildLeaveDays(leaveRequest, manager);
+    await manager.save(LeaveRequestDay, days);
   }
 
   async update(
@@ -284,6 +321,32 @@ export class LeaveRequestService {
 
   private toDateOnly(date: Date): string {
     return date.toISOString().slice(0, 10);
+  }
+
+  private buildLeaveDays(
+    leaveRequest: LeaveRequest,
+    manager: EntityManager,
+  ): LeaveRequestDay[] {
+    const days: LeaveRequestDay[] = [];
+    const current = new Date(leaveRequest.startDate);
+    const end = new Date(leaveRequest.endDate);
+
+    while (current <= end) {
+      days.push(
+        manager.create(LeaveRequestDay, {
+          leaveRequest,
+          employee: leaveRequest.request.employee,
+          date: current.toISOString().slice(0, 10),
+          value: 1,
+          session: LeaveSession.FULL,
+          isPaid: leaveRequest.leaveType.isPaid,
+          deductFromBalance: true,
+        }),
+      );
+      current.setDate(current.getDate() + 1);
+    }
+
+    return days;
   }
 
   private toResponse(leaveRequest: LeaveRequest) {

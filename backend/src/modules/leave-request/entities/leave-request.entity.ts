@@ -4,6 +4,7 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  Index,
   CreateDateColumn,
   UpdateDateColumn,
   OneToOne,
@@ -13,6 +14,7 @@ import { Request } from '../../request/entities/request.entity';
 import { LeaveType } from './leave-type.entity';
 
 @Entity('leave_requests')
+@Index('UQ_leave_requests_request_id', ['request'], { unique: true })
 export class LeaveRequest {
   @PrimaryGeneratedColumn()
   id!: number;

@@ -7,9 +7,6 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Like, Repository } from 'typeorm';
 import { Employee } from '../employee/employee.entity';
-import { LeaveRequestDay } from '../leave-request/entities/leave-request-day.entity';
-import { LeaveRequest } from '../leave-request/entities/leave-request.entity';
-import { LeaveSession } from '../leave-request/enums/leave-session.enum';
 import { User } from '../user/user.entity';
 import type { JwtUser } from '../auth/jwt-user.interface';
 import { ApprovalFlowStep } from './entities/approval-flow-step.entity';
@@ -25,6 +22,7 @@ import { RequestStatus } from './enums/request-status.enum';
 import { Request } from './entities/request.entity';
 import { RequestTypeCode } from './enums/request-type-code.enum';
 import { RequestType } from './entities/request-type.entity';
+import { RequestApprovedHandlerRegistry } from './request-approved-handler.registry';
 
 interface CreateBusinessRequestInput {
   requestTypeCode: RequestTypeCode;
@@ -50,6 +48,8 @@ export class RequestService {
 
     @InjectRepository(Employee)
     private readonly employeeRepository: Repository<Employee>,
+
+    private readonly approvedHandlerRegistry: RequestApprovedHandlerRegistry,
   ) {}
 
   async createBusinessRequest(
@@ -261,7 +261,7 @@ export class RequestService {
       request.finalApprovedAt = new Date();
       const saved = await manager.save(Request, request);
 
-      await this.runAfterApprovedHandler(saved, manager);
+      await this.approvedHandlerRegistry.handle(saved, manager);
       await this.addHistory(
         manager,
         saved,
@@ -345,27 +345,19 @@ export class RequestService {
       return saved;
     });
   }
-
   private async ensureRequestType(
     code: RequestTypeCode,
     manager: EntityManager,
   ): Promise<RequestType> {
-    let requestType = await manager.findOne(RequestType, {
-      where: { code, isDeleted: false },
+    const requestType = await manager.findOne(RequestType, {
+      where: { code, isDeleted: false, isActive: true },
     });
-    if (requestType) {
-      return requestType;
+
+    if (!requestType) {
+      throw new BadRequestException(`Request type ${code} chưa có`);
     }
 
-    requestType = manager.create(RequestType, {
-      code,
-      name: code === RequestTypeCode.LEAVE_REQUEST ? 'Xin nghi phep' : code,
-      handlerKey:
-        code === RequestTypeCode.LEAVE_REQUEST ? 'leave-request' : undefined,
-      isActive: true,
-    });
-
-    return manager.save(RequestType, requestType);
+    return requestType;
   }
 
   private async ensureDefaultFlow(
@@ -480,57 +472,6 @@ export class RequestService {
     }
 
     return false;
-  }
-
-  private async runAfterApprovedHandler(
-    request: Request,
-    manager: EntityManager,
-  ): Promise<void> {
-    if (request.requestType.code !== RequestTypeCode.LEAVE_REQUEST) {
-      return;
-    }
-
-    const leaveRequest = await manager.findOne(LeaveRequest, {
-      where: { request: { id: request.id } },
-      relations: { request: { employee: true }, leaveType: true },
-    });
-
-    if (!leaveRequest) {
-      throw new NotFoundException('Khong tim thay don nghi phep');
-    }
-
-    const existingDays = await manager.count(LeaveRequestDay, {
-      where: { leaveRequest: { id: leaveRequest.id } },
-    });
-    if (existingDays > 0) {
-      return;
-    }
-
-    const days = this.buildLeaveDays(leaveRequest);
-    await manager.save(LeaveRequestDay, days);
-  }
-
-  private buildLeaveDays(leaveRequest: LeaveRequest): LeaveRequestDay[] {
-    const days: LeaveRequestDay[] = [];
-    const current = new Date(leaveRequest.startDate);
-    const end = new Date(leaveRequest.endDate);
-
-    while (current <= end) {
-      days.push(
-        this.requestRepository.manager.create(LeaveRequestDay, {
-          leaveRequest,
-          employee: leaveRequest.request.employee,
-          date: current.toISOString().slice(0, 10),
-          value: 1,
-          session: LeaveSession.FULL,
-          isPaid: leaveRequest.leaveType.isPaid,
-          deductFromBalance: true,
-        }),
-      );
-      current.setDate(current.getDate() + 1);
-    }
-
-    return days;
   }
 
   private addHistory(

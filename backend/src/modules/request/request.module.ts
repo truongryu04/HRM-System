@@ -11,14 +11,13 @@ import { Request } from './entities/request.entity';
 import { RequestType } from './entities/request-type.entity';
 import { RequestController } from './request.controller';
 import { RequestService } from './request.service';
-import { LeaveRequest } from '../leave-request/entities/leave-request.entity';
-import { LeaveRequestDay } from '../leave-request/entities/leave-request-day.entity';
 
 import { RequestConfigService } from './request-config.service';
 import { RequestTypeController } from './request-type.controller';
 import { ApprovalFlowController } from './approval-flow.controller';
 import { ApprovalFlowStepController } from './approval-flow-step.controller';
 import { ApprovalStepTemplateController } from './approval-step-template.controller';
+import { RequestApprovedHandlerRegistry } from './request-approved-handler.registry';
 
 @Module({
   imports: [
@@ -30,8 +29,6 @@ import { ApprovalStepTemplateController } from './approval-step-template.control
       Request,
       RequestApproval,
       RequestHistory,
-      LeaveRequest,
-      LeaveRequestDay,
       Employee,
       User,
     ]),
@@ -43,7 +40,11 @@ import { ApprovalStepTemplateController } from './approval-step-template.control
     ApprovalFlowStepController,
     ApprovalFlowController,
   ],
-  providers: [RequestService, RequestConfigService],
-  exports: [RequestService, TypeOrmModule],
+  providers: [
+    RequestService,
+    RequestConfigService,
+    RequestApprovedHandlerRegistry,
+  ],
+  exports: [RequestService, RequestApprovedHandlerRegistry, TypeOrmModule],
 })
 export class RequestModule {}
