@@ -6,6 +6,7 @@ const navItems = [
   { to: "/attendance/my", label: "Lịch làm việc" },
   { to: "/attendance", label: "Quản lý chấm công" },
   { to: "/requests/my", label: "Yêu cầu của tôi" },
+  { to: "/requests/approval", label: "Yêu cầu cần duyệt" },
   { to: "/permissions", label: "Phân quyền" },
   { to: "/roles", label: "Vai trò" },
   { to: "/employees", label: "Nhân viên" },

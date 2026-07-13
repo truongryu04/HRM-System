@@ -18,6 +18,7 @@ import AttendancePage from "../pages/attendance/AttendancePage";
 import AttendanceManagementPage from "../pages/attendance/AttendanceManagementPage";
 import RequestPage from "../pages/request/RequestPage";
 import RequestCreatePage from "../pages/request/RequestCreatePage";
+import RequestApprovalPage from "../pages/request-approval/RequestApprovalPage";
 import RequestTypePage from "../pages/request-type/RequestTypePage";
 import ApprovalFlowManagementPage from "../pages/approval-flow/ApprovalFlowManagementPage";
 import ApprovalStepTemplatePage from "../pages/approval-step-template/ApprovalStepTemplatePage";
@@ -45,6 +46,10 @@ export const router = createBrowserRouter([
           {
             path: "requests/my",
             element: <RequestPage />,
+          },
+          {
+            path: "requests/approval",
+            element: <RequestApprovalPage />,
           },
           {
             path: "requests/create",
