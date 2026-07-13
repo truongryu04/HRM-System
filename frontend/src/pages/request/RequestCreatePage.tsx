@@ -5,6 +5,7 @@ import {
   useCreateLeaveRequest,
   useLeaveTypes,
 } from "../../hooks/useLeaveRequests";
+import { useRequestTypes } from "../../hooks/useRequestTypes";
 import { useAuthStore } from "../../store/auth.store";
 import type { CreateLeaveRequest } from "@/types/leave.type";
 import { RequestForm } from "./components/RequestForm";
@@ -14,6 +15,7 @@ export default function RequestCreatePage() {
   const navigate = useNavigate();
   const authUser = useAuthStore((state) => state.user);
   const employeeId = authUser?.employeeId ?? getEmployeeIdFromAccessToken();
+  const { data: requestTypes = [] } = useRequestTypes();
   const { data: leaveTypes = [] } = useLeaveTypes();
   const createLeaveRequestMutation = useCreateLeaveRequest();
 
@@ -27,6 +29,9 @@ export default function RequestCreatePage() {
   return (
     <RequestForm
       employeeId={employeeId}
+      requestTypes={requestTypes.filter(
+        (requestType) => requestType.isActive !== false,
+      )}
       leaveTypes={leaveTypes.filter(
         (leaveType) => !leaveType.isDeleted && leaveType.isActive !== false,
       )}

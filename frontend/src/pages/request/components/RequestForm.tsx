@@ -21,16 +21,19 @@ import {
 } from "../../../components/ui/select";
 import { Textarea } from "../../../components/ui/textarea";
 import type { CreateLeaveRequest, LeaveType } from "@/types/leave.type";
+import type { RequestType } from "@/types/request-type.type";
 import { calculateLeaveDays } from "../../../utils/leave.utils";
 
 interface RequestFormProps {
   employeeId: number | null;
+  requestTypes: RequestType[];
   leaveTypes: LeaveType[];
   loading: boolean;
   onSubmit: (payload: CreateLeaveRequest) => Promise<void>;
 }
 
 const emptyForm = {
+  requestTypeId: "",
   leaveTypeId: "",
   startDate: "",
   endDate: "",
@@ -40,12 +43,20 @@ const emptyForm = {
 
 export function RequestForm({
   employeeId,
+  requestTypes,
   leaveTypes,
   loading,
   onSubmit,
 }: RequestFormProps) {
   const navigate = useNavigate();
   const [form, setForm] = useState(emptyForm);
+
+  const selectedRequestType = requestTypes.find(
+    (requestType) => String(requestType.id) === form.requestTypeId,
+  );
+  const isLeaveRequest =
+    selectedRequestType?.handlerKey === "leave-request" ||
+    selectedRequestType?.code === "LEAVE_REQUEST";
 
   const totalDays = useMemo(
     () => calculateLeaveDays(form.startDate, form.endDate),
@@ -58,8 +69,18 @@ export function RequestForm({
       return;
     }
 
-    if (!form.leaveTypeId) {
+    if (!form.requestTypeId) {
       toast.error("Vui lòng chọn loại yêu cầu");
+      return;
+    }
+
+    if (!isLeaveRequest) {
+      toast.error("Loại yêu cầu này chưa hỗ trợ tạo từ màn hình này");
+      return;
+    }
+
+    if (!form.leaveTypeId) {
+      toast.error("Vui lòng chọn loại nghỉ phép");
       return;
     }
 
@@ -107,7 +128,7 @@ export function RequestForm({
               Thêm yêu cầu mới
             </h1>
             <p className="text-muted-foreground">
-              Điền thông tin cần thiết để gửi yêu cầu nghỉ phép.
+              Điền thông tin cần thiết để gửi yêu cầu.
             </p>
           </div>
 
@@ -139,9 +160,13 @@ export function RequestForm({
               <div className="space-y-2">
                 <Label>Loại yêu cầu</Label>
                 <Select
-                  value={form.leaveTypeId}
+                  value={form.requestTypeId}
                   onValueChange={(value) =>
-                    setForm((prev) => ({ ...prev, leaveTypeId: value }))
+                    setForm((prev) => ({
+                      ...prev,
+                      requestTypeId: value,
+                      leaveTypeId: "",
+                    }))
                   }
                   disabled={!employeeId || loading}
                 >
@@ -149,17 +174,44 @@ export function RequestForm({
                     <SelectValue placeholder="Chọn loại yêu cầu" />
                   </SelectTrigger>
                   <SelectContent>
-                    {leaveTypes.map((leaveType) => (
+                    {requestTypes.map((requestType) => (
                       <SelectItem
-                        key={leaveType.id}
-                        value={String(leaveType.id)}
+                        key={requestType.id}
+                        value={String(requestType.id)}
                       >
-                        {leaveType.name}
+                        {requestType.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
+
+              {isLeaveRequest ? (
+                <div className="space-y-2">
+                  <Label>Loại nghỉ phép</Label>
+                  <Select
+                    value={form.leaveTypeId}
+                    onValueChange={(value) =>
+                      setForm((prev) => ({ ...prev, leaveTypeId: value }))
+                    }
+                    disabled={!employeeId || loading}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Chọn loại nghỉ phép" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {leaveTypes.map((leaveType) => (
+                        <SelectItem
+                          key={leaveType.id}
+                          value={String(leaveType.id)}
+                        >
+                          {leaveType.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : null}
 
               <div className="space-y-2">
                 <Label htmlFor="request-total-days">Số ngày dự kiến</Label>

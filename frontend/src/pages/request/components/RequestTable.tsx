@@ -55,8 +55,8 @@ export function RequestTable({
             requests.map((request) => {
               const statusMeta = getLeaveStatusMeta(request.status);
               const canCancel =
-                request.status === "PENDING" ||
-                request.status === "IN_PROGRESS";
+                request.status === "pending" ||
+                request.status === "confirmed";
 
               return (
                 <TableRow key={request.id}>

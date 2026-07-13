@@ -2,11 +2,11 @@ import type { EmployeeSummary } from "./employee.type";
 import type { User } from "./user.type";
 
 export type RequestStatus =
-  | "PENDING"
-  | "IN_PROGRESS"
-  | "APPROVED"
-  | "REJECTED"
-  | "CANCELLED";
+  | "pending"
+  | "confirmed"
+  | "approved"
+  | "rejected"
+  | "canceled";
 
 export type LeaveStatus = RequestStatus;
 

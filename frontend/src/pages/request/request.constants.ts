@@ -6,27 +6,27 @@ export const leaveStatusOptions: Array<{
   className: string;
 }> = [
   {
-    value: "PENDING",
+    value: "pending",
     label: "Chờ duyệt",
     className: "border-amber-200 bg-amber-50 text-amber-700",
   },
   {
-    value: "IN_PROGRESS",
-    label: "Đang duyệt",
+    value: "confirmed",
+    label: "Đã xác nhận",
     className: "border-sky-200 bg-sky-50 text-sky-700",
   },
   {
-    value: "APPROVED",
+    value: "approved",
     label: "Đã duyệt",
     className: "border-emerald-200 bg-emerald-50 text-emerald-700",
   },
   {
-    value: "REJECTED",
+    value: "rejected",
     label: "Từ chối",
     className: "border-red-200 bg-red-50 text-red-700",
   },
   {
-    value: "CANCELLED",
+    value: "canceled",
     label: "Đã hủy",
     className: "border-slate-200 bg-slate-50 text-slate-700",
   },
