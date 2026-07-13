@@ -11,6 +11,12 @@ export const getLeaveRequests = async () => {
   return data as LeaveRequest[];
 };
 
+export const getLeaveRequestByRequestId = async (requestId: number) => {
+  const { data } = await apiClient.get(`/leave-requests/by-request/${requestId}`);
+
+  return data as LeaveRequest;
+};
+
 export const createLeaveRequest = async (payload: CreateLeaveRequest) => {
   const { data } = await apiClient.post("/leave-requests", payload);
 
