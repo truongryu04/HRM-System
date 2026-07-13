@@ -32,6 +32,12 @@ interface CreateBusinessRequestInput {
   note?: string;
 }
 
+export interface RequestDetailResponse {
+  request: Request;
+  approvals: RequestApproval[];
+  histories: RequestHistory[];
+}
+
 @Injectable()
 export class RequestService {
   constructor(
@@ -122,7 +128,10 @@ export class RequestService {
       },
       relations: {
         requestType: true,
-        employee: true,
+        employee: {
+          department: true,
+          position: true,
+        },
         createdBy: true,
         finalApprovedBy: true,
         rejectedBy: true,
@@ -136,7 +145,10 @@ export class RequestService {
       where: { employee: { id: user.employeeId } },
       relations: {
         requestType: true,
-        employee: true,
+        employee: {
+          department: true,
+          position: true,
+        },
         createdBy: true,
         finalApprovedBy: true,
         rejectedBy: true,
@@ -151,7 +163,10 @@ export class RequestService {
       relations: {
         request: {
           requestType: true,
-          employee: true,
+          employee: {
+            department: true,
+            position: true,
+          },
           createdBy: true,
         },
         specificUser: true,
@@ -169,12 +184,54 @@ export class RequestService {
     return allowed;
   }
 
+  async findApprovalRequests(user: JwtUser): Promise<Request[]> {
+    const approvals = await this.requestApprovalRepository.find({
+      relations: {
+        request: {
+          requestType: true,
+          employee: {
+            department: true,
+            position: true,
+          },
+          createdBy: true,
+          finalApprovedBy: true,
+          rejectedBy: true,
+        },
+        actedBy: true,
+        specificUser: true,
+      },
+    });
+
+    const requestMap = new Map<number, Request>();
+    for (const approval of approvals) {
+      const isHandledByUser = approval.actedBy?.id === user.id;
+      const isAssignedToUser = await this.canUserApproveStep(
+        user,
+        approval,
+        approval.request,
+      );
+      const isPendingForUser =
+        approval.status === RequestApprovalStatus.PENDING && isAssignedToUser;
+
+      if (isPendingForUser || isHandledByUser) {
+        requestMap.set(approval.request.id, approval.request);
+      }
+    }
+
+    return [...requestMap.values()].sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+    );
+  }
+
   async findOne(id: number): Promise<Request> {
     const request = await this.requestRepository.findOne({
       where: { id },
       relations: {
         requestType: true,
-        employee: true,
+        employee: {
+          department: true,
+          position: true,
+        },
         createdBy: true,
         finalApprovedBy: true,
         rejectedBy: true,
@@ -187,6 +244,18 @@ export class RequestService {
     }
 
     return request;
+  }
+
+  async findDetail(id: number): Promise<RequestDetailResponse> {
+    const request = await this.findOne(id);
+    const approvals = await this.findApprovals(id);
+    const histories = await this.findHistories(id);
+
+    return {
+      request,
+      approvals,
+      histories,
+    };
   }
 
   async findApprovals(requestId: number): Promise<RequestApproval[]> {

@@ -36,12 +36,14 @@ export class RequestController {
     return this.requestService.findPendingApproval(user);
   }
 
+  @Get('approval')
+  findApprovalRequests(@CurrentUser() user: JwtUser) {
+    return this.requestService.findApprovalRequests(user);
+  }
+
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    const request = await this.requestService.findOne(id);
-    const approvals = await this.requestService.findApprovals(id);
-    const histories = await this.requestService.findHistories(id);
-    return { ...request, approvals, histories };
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.requestService.findDetail(id);
   }
 
   @Get(':id/approvals')
