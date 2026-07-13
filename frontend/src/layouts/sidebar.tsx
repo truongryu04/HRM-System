@@ -16,15 +16,19 @@ type NavGroup = {
 
 const navItems: Array<NavItem | NavGroup> = [
   { to: "/", label: "Lịch làm việc" },
-  { to: "/request-types", label: "Loại yêu cầu" },
-  { to: "/approval-flows", label: "Luồng duyệt" },
-
   { to: "/attendance", label: "Quản lý chấm công" },
   {
     label: "Các yêu cầu",
     children: [
       { to: "/requests/my", label: "Yêu cầu của tôi" },
       { to: "/requests/approval", label: "Yêu cầu cần duyệt" },
+    ],
+  },
+  {
+    label: "Cấu hình",
+    children: [
+      { to: "/request-types", label: "Loại yêu cầu" },
+      { to: "/approval-flows", label: "Luồng duyệt" },
     ],
   },
   { to: "/permissions", label: "Phân quyền" },
@@ -39,10 +43,6 @@ function isNavGroup(item: NavItem | NavGroup): item is NavGroup {
   return "children" in item;
 }
 
-function isRequestRoute(pathname: string) {
-  return pathname.startsWith("/requests");
-}
-
 function isSidebarLinkActive(pathname: string, to: string) {
   if (to === "/requests/approval") {
     return pathname === to || pathname.startsWith(`${to}/`);
@@ -51,12 +51,26 @@ function isSidebarLinkActive(pathname: string, to: string) {
   return pathname === to;
 }
 
+function isSidebarGroupActive(pathname: string, group: NavGroup) {
+  return group.children.some((child) =>
+    isSidebarLinkActive(pathname, child.to),
+  );
+}
+
+function getActiveGroupLabel(pathname: string) {
+  const activeGroup = navItems.find(
+    (item): item is NavGroup =>
+      isNavGroup(item) && isSidebarGroupActive(pathname, item),
+  );
+
+  return activeGroup?.label ?? null;
+}
+
 export function Sidebar() {
   const location = useLocation();
-  const [requestsOpen, setRequestsOpen] = useState(() =>
-    isRequestRoute(location.pathname),
+  const [openGroupLabel, setOpenGroupLabel] = useState<string | null>(() =>
+    getActiveGroupLabel(location.pathname),
   );
-  const showRequestsGroup = requestsOpen || isRequestRoute(location.pathname);
 
   return (
     <aside className="w-64 border-r bg-background">
@@ -68,27 +82,34 @@ export function Sidebar() {
             return <SidebarLink key={item.to} item={item} />;
           }
 
+          const isOpen = openGroupLabel === item.label;
+          const isActive = isSidebarGroupActive(location.pathname, item);
+
           return (
             <div key={item.label}>
               <button
                 type="button"
                 className={cn(
                   "flex w-full items-center justify-between rounded-md px-3 py-2 text-left hover:bg-muted",
-                  isRequestRoute(location.pathname) && "bg-muted font-medium",
+                  isActive && "bg-muted font-medium",
                 )}
-                onClick={() => setRequestsOpen((open) => !open)}
-                aria-expanded={showRequestsGroup}
+                onClick={() =>
+                  setOpenGroupLabel((currentLabel) =>
+                    currentLabel === item.label ? null : item.label,
+                  )
+                }
+                aria-expanded={isOpen}
               >
                 <span>{item.label}</span>
                 <ChevronDown
                   className={cn(
                     "size-4 transition-transform",
-                    showRequestsGroup && "rotate-180",
+                    isOpen && "rotate-180",
                   )}
                 />
               </button>
 
-              {showRequestsGroup ? (
+              {isOpen ? (
                 <div className="mt-1 space-y-1 pl-4">
                   {item.children.map((child) => (
                     <SidebarLink key={child.to} item={child} nested />
