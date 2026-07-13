@@ -34,11 +34,11 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Navigate to="/attendance/my" replace />,
+            element: <AttendancePage />,
           },
           {
             path: "attendance/my",
-            element: <AttendancePage />,
+            element: <Navigate to="/" replace />,
           },
           {
             path: "attendance",
