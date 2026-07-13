@@ -1,5 +1,5 @@
 import { apiClient } from "./api-client";
-import type { RequestType } from "@/types/leave.type";
+import type { RequestType } from "@/types/request.type";
 import type {
   ApprovalFlow,
   ApprovalFlowStep,

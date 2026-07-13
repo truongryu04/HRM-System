@@ -1,4 +1,4 @@
-import type { RequestType } from "./leave.type";
+import type { RequestType } from "./request.type";
 import type { User } from "./user.type";
 
 export type ApproverType =

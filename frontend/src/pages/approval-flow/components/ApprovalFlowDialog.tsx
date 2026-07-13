@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../../components/ui/select";
-import type { RequestType } from "@/types/leave.type";
+import type { RequestType } from "@/types/request.type";
 import type {
   ApprovalFlow,
   CreateApprovalFlowRequest,
