@@ -40,6 +40,11 @@ export class LeaveRequestController {
     return this.leaveRequestService.findByEmployee(employeeId);
   }
 
+  @Get('by-request/:requestId')
+  findByRequestId(@Param('requestId', ParseIntPipe) requestId: number) {
+    return this.leaveRequestService.findByRequestId(requestId);
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.leaveRequestService.findOne(id);

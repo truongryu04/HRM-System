@@ -89,7 +89,7 @@ export class LeaveRequestService
           requestTypeCode: RequestTypeCode.LEAVE_REQUEST,
           employee,
           createdBy,
-          title: `Xin nghi phep ${dto.startDate} - ${dto.endDate}`,
+          title: `Xin nghỉ phép ${dto.startDate} đến ${dto.endDate}`,
         },
         manager,
       );
@@ -147,6 +147,27 @@ export class LeaveRequestService
     });
 
     return requests.map((request) => this.toResponse(request));
+  }
+
+  async findByRequestId(requestId: number): Promise<unknown> {
+    const request = await this.leaveRequestRepository.findOne({
+      where: { request: { id: requestId } },
+      relations: {
+        request: {
+          employee: true,
+          createdBy: true,
+          finalApprovedBy: true,
+          rejectedBy: true,
+        },
+        leaveType: true,
+      },
+    });
+
+    if (!request) {
+      throw new NotFoundException('Khong tim thay don nghi phep');
+    }
+
+    return this.toResponse(request);
   }
 
   findMy(user: JwtUser): Promise<unknown[]> {
