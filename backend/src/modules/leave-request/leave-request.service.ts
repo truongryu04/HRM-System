@@ -230,7 +230,7 @@ export class LeaveRequestService {
       .andWhere('request.status IN (:...statuses)', {
         statuses: [
           RequestStatus.PENDING,
-          RequestStatus.IN_PROGRESS,
+          RequestStatus.CONFIRMED,
           RequestStatus.APPROVED,
         ],
       });

@@ -251,7 +251,7 @@ export class RequestService {
         nextApproval.status = RequestApprovalStatus.PENDING;
         await manager.save(RequestApproval, nextApproval);
 
-        request.status = RequestStatus.IN_PROGRESS;
+        request.status = RequestStatus.CONFIRMED;
         request.currentStepOrder = nextApproval.stepOrder;
         return manager.save(Request, request);
       }
@@ -325,7 +325,7 @@ export class RequestService {
       }
 
       if (
-        ![RequestStatus.PENDING, RequestStatus.IN_PROGRESS].includes(
+        ![RequestStatus.PENDING, RequestStatus.CONFIRMED].includes(
           request.status,
         )
       ) {
@@ -421,9 +421,7 @@ export class RequestService {
 
   private assertRequestCanBeProcessed(request: Request): void {
     if (
-      ![RequestStatus.PENDING, RequestStatus.IN_PROGRESS].includes(
-        request.status,
-      )
+      ![RequestStatus.PENDING, RequestStatus.CONFIRMED].includes(request.status)
     ) {
       throw new BadRequestException('Yeu cau khong con o trang thai cho duyet');
     }
