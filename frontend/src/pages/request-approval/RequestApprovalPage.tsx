@@ -1,149 +1,145 @@
-import { RefreshCcw } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
-import { Badge } from "../../components/ui/badge";
+import { Pagination } from "../../components/Pagination";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
-import { Pagination } from "../../components/Pagination";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../../components/ui/table";
-import { usePendingApprovalRequests } from "../../hooks/useApprovalRequests";
-import { cn } from "../../lib/utils";
-import type { BusinessRequest, RequestStatus } from "@/types/leave.type";
-import { formatDateTime } from "../../utils/employee.utils";
+  useApproveRequest,
+  usePendingApprovalRequests,
+  useRejectRequest,
+} from "../../hooks/useApprovalRequests";
+import type { BusinessRequest } from "@/types/request.type";
+import { ApprovalActionDialog } from "./components/ApprovalActionDialog";
+import { RequestApprovalTable } from "./components/RequestApprovalTable";
+import { RequestApprovalTabs } from "./components/RequestApprovalTabs";
+import type { ApprovalQueueTab } from "@/types/request.type";
+import { canProcess, isHandled } from "../../utils/request-approval.utils";
 
 const PAGE_SIZE = 10;
 
-const approvalStatusTabs: Array<{
-  value: RequestStatus;
-  label: string;
-  badgeClassName: string;
-}> = [
-  {
-    value: "pending",
-    label: "Đang chờ duyệt",
-    badgeClassName: "border-amber-200 bg-amber-50 text-amber-700",
-  },
-  {
-    value: "confirmed",
-    label: "Đã xác nhận",
-    badgeClassName: "border-sky-200 bg-sky-50 text-sky-700",
-  },
-  {
-    value: "approved",
-    label: "Đã chấp nhận",
-    badgeClassName: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  },
-  {
-    value: "rejected",
-    label: "Đã từ chối",
-    badgeClassName: "border-red-200 bg-red-50 text-red-700",
-  },
-  {
-    value: "canceled",
-    label: "Đã huỷ",
-    badgeClassName: "border-slate-200 bg-slate-50 text-slate-700",
-  },
-];
-
-function getStatusMeta(status: RequestStatus) {
-  return (
-    approvalStatusTabs.find((item) => item.value === status) ??
-    approvalStatusTabs[0]
-  );
-}
-
-function RequestApprovalTable({ requests }: { requests: BusinessRequest[] }) {
-  if (requests.length === 0) {
-    return (
-      <div className="flex min-h-28 items-center justify-center text-2xl text-muted-foreground">
-        Không có dữ liệu
-      </div>
-    );
-  }
-
-  return (
-    <div className="overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Mã yêu cầu</TableHead>
-            <TableHead>Loại yêu cầu</TableHead>
-            <TableHead>Nhân viên</TableHead>
-            <TableHead>Tiêu đề</TableHead>
-            <TableHead>Bước hiện tại</TableHead>
-            <TableHead>Trạng thái</TableHead>
-            <TableHead>Ngày gửi</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {requests.map((request) => {
-            const statusMeta = getStatusMeta(request.status);
-
-            return (
-              <TableRow key={request.id}>
-                <TableCell className="font-medium">{request.code}</TableCell>
-                <TableCell>{request.requestType?.name ?? "-"}</TableCell>
-                <TableCell>
-                  <div className="font-medium">
-                    {request.employee?.fullName ?? "-"}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {request.employee?.employeeCode ?? ""}
-                  </div>
-                </TableCell>
-                <TableCell className="max-w-[320px] truncate">
-                  {request.title}
-                </TableCell>
-                <TableCell>{request.currentStepOrder}</TableCell>
-                <TableCell>
-                  <Badge variant="outline" className={statusMeta.badgeClassName}>
-                    {statusMeta.label}
-                  </Badge>
-                </TableCell>
-                <TableCell>{formatDateTime(request.createdAt)}</TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
-  );
-}
-
 export default function RequestApprovalPage() {
-  const [activeStatus, setActiveStatus] = useState<RequestStatus>("pending");
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<ApprovalQueueTab>("pending");
   const [page, setPage] = useState(1);
+  const [actionRequest, setActionRequest] = useState<BusinessRequest | null>(
+    null,
+  );
+  const [actionType, setActionType] = useState<"approve" | "reject" | null>(
+    null,
+  );
+  const [note, setNote] = useState("");
 
   const {
     data: requests = [],
     isLoading,
     isError,
-    isFetching,
     refetch,
   } = usePendingApprovalRequests();
+  const approveMutation = useApproveRequest();
+  const rejectMutation = useRejectRequest();
 
-  const filteredRequests = useMemo(
-    () => requests.filter((request) => request.status === activeStatus),
-    [activeStatus, requests],
+  const pendingRequests = useMemo(
+    () => requests.filter((request) => canProcess(request)),
+    [requests],
   );
 
-  const totalPages = Math.max(1, Math.ceil(filteredRequests.length / PAGE_SIZE));
+  const recentlyHandledRequests = useMemo(
+    () =>
+      requests
+        .filter((request) => isHandled(request))
+        .sort(
+          (left, right) =>
+            new Date(right.updatedAt).getTime() -
+            new Date(left.updatedAt).getTime(),
+        ),
+    [requests],
+  );
+
+  const tabCounts = useMemo(
+    () => ({
+      pending: pendingRequests.length,
+      "recently-handled": recentlyHandledRequests.length,
+    }),
+    [pendingRequests, recentlyHandledRequests],
+  );
+
+  const filteredRequests = useMemo(() => {
+    if (activeTab === "recently-handled") {
+      return recentlyHandledRequests;
+    }
+
+    return pendingRequests;
+  }, [activeTab, pendingRequests, recentlyHandledRequests]);
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredRequests.length / PAGE_SIZE),
+  );
   const currentPage = Math.min(page, totalPages);
   const paginatedRequests = filteredRequests.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE,
   );
 
-  const handleStatusChange = (status: RequestStatus) => {
-    setActiveStatus(status);
+  const processingId =
+    approveMutation.variables?.id ?? rejectMutation.variables?.id;
+  const isSubmitting = approveMutation.isPending || rejectMutation.isPending;
+
+  const handleTabChange = (tab: ApprovalQueueTab) => {
+    setActiveTab(tab);
     setPage(1);
+  };
+
+  const openActionDialog = (
+    request: BusinessRequest,
+    type: "approve" | "reject",
+  ) => {
+    setActionRequest(request);
+    setActionType(type);
+    setNote("");
+  };
+
+  const closeActionDialog = () => {
+    if (isSubmitting) {
+      return;
+    }
+
+    setActionRequest(null);
+    setActionType(null);
+    setNote("");
+  };
+
+  const handleSubmitAction = async () => {
+    if (!actionRequest || !actionType) {
+      return;
+    }
+
+    if (actionType === "reject" && !note.trim()) {
+      toast.error("Vui lòng nhập lý do từ chối");
+      return;
+    }
+
+    try {
+      if (actionType === "approve") {
+        await approveMutation.mutateAsync({
+          id: actionRequest.id,
+          payload: { note: note.trim() || undefined },
+        });
+        toast.success("Đã duyệt yêu cầu");
+      } else {
+        await rejectMutation.mutateAsync({
+          id: actionRequest.id,
+          payload: { reason: note.trim() },
+        });
+        toast.success("Đã từ chối yêu cầu");
+      }
+
+      closeActionDialog();
+    } catch {
+      toast.error("Không thể cập nhật yêu cầu. Vui lòng thử lại.");
+    }
   };
 
   return (
@@ -154,42 +150,22 @@ export default function RequestApprovalPage() {
             Yêu cầu cần duyệt
           </h1>
           <p className="text-muted-foreground">
-            Theo dõi các yêu cầu đang chờ bạn xử lý theo từng trạng thái.
+            Theo dõi và xử lý các yêu cầu đang chờ bạn phê duyệt.
           </p>
         </div>
-
-        <Button
-          variant="outline"
-          onClick={() => void refetch()}
-          disabled={isFetching}
-        >
-          <RefreshCcw className="size-4" />
-          Làm mới
-        </Button>
       </div>
 
-      <Card className="rounded-md py-0">
-        <CardContent className="px-5 py-0">
-          <div className="flex min-h-20 flex-wrap items-end gap-1 border-b">
-            {approvalStatusTabs.map((tab) => (
-              <button
-                key={tab.value}
-                type="button"
-                onClick={() => handleStatusChange(tab.value)}
-                className={cn(
-                  "h-20 px-5 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground",
-                  activeStatus === tab.value &&
-                    "border-b border-teal-500 text-foreground",
-                )}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+      <Card>
+        <CardContent className="pt-6">
+          <RequestApprovalTabs
+            activeTab={activeTab}
+            counts={tabCounts}
+            onTabChange={handleTabChange}
+          />
 
           {isLoading ? (
-            <div className="flex min-h-28 items-center justify-center text-muted-foreground">
-              Đang tải danh sách yêu cầu...
+            <div className="py-12 text-center text-muted-foreground">
+              Đang tải danh sách yêu cầu cần duyệt...
             </div>
           ) : isError ? (
             <div className="space-y-3 py-12 text-center">
@@ -201,7 +177,16 @@ export default function RequestApprovalPage() {
               </Button>
             </div>
           ) : (
-            <RequestApprovalTable requests={paginatedRequests} />
+            <RequestApprovalTable
+              requests={paginatedRequests}
+              mode={activeTab}
+              processingId={processingId}
+              onViewDetail={(request) =>
+                navigate(`/requests/approval/${request.id}`)
+              }
+              onOpenApprove={(request) => openActionDialog(request, "approve")}
+              onOpenReject={(request) => openActionDialog(request, "reject")}
+            />
           )}
         </CardContent>
       </Card>
@@ -216,6 +201,16 @@ export default function RequestApprovalPage() {
           itemName="yêu cầu"
         />
       ) : null}
+
+      <ApprovalActionDialog
+        actionRequest={actionRequest}
+        actionType={actionType}
+        note={note}
+        isSubmitting={isSubmitting}
+        onNoteChange={setNote}
+        onClose={closeActionDialog}
+        onSubmit={() => void handleSubmitAction()}
+      />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Plus, RefreshCcw } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { Button } from "../../components/ui/button";
@@ -14,30 +14,19 @@ export default function RequestPage() {
     isLoading,
     isError,
     refetch,
-    isFetching,
   } = useLeaveRequests();
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Yêu cầu của tôi
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight">Yêu cầu của tôi</h1>
           <p className="text-muted-foreground">
             Theo dõi các yêu cầu đã gửi và trạng thái phê duyệt.
           </p>
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            onClick={() => void refetch()}
-            disabled={isFetching}
-          >
-            <RefreshCcw className="size-4" />
-            Làm mới
-          </Button>
           <Button
             onClick={() => navigate("/requests/create")}
             className="bg-teal-500 text-white hover:bg-teal-700"
