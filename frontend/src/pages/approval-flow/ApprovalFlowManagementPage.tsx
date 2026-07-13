@@ -1,5 +1,13 @@
 import { useMemo, useState } from "react";
-import { CheckCircle2, Pencil, Plus, Settings2, Trash2 } from "lucide-react";
+import {
+  CheckCircle2,
+  FileText,
+  Pencil,
+  Plus,
+  Settings2,
+  Trash2,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { Badge } from "../../components/ui/badge";
@@ -43,6 +51,7 @@ import { ApprovalFlowStepDialog } from "./components/ApprovalFlowStepDialog";
 import { ApprovalFlowStepsPanel } from "./components/ApprovalFlowStepsPanel";
 
 export default function ApprovalFlowManagementPage() {
+  const navigate = useNavigate();
   const [requestTypeFilter, setRequestTypeFilter] = useState("all");
   const [flowDialogOpen, setFlowDialogOpen] = useState(false);
   const [stepDialogOpen, setStepDialogOpen] = useState(false);
@@ -66,7 +75,8 @@ export default function ApprovalFlowManagementPage() {
   const createFlowMutation = useCreateApprovalFlow();
   const updateFlowMutation = useUpdateApprovalFlow();
   const deleteFlowMutation = useDeleteApprovalFlow();
-  const createStepFromTemplateMutation = useCreateApprovalFlowStepFromTemplate();
+  const createStepFromTemplateMutation =
+    useCreateApprovalFlowStepFromTemplate();
   const updateStepMutation = useUpdateApprovalFlowStep();
 
   const activeFlows = useMemo(
@@ -170,21 +180,30 @@ export default function ApprovalFlowManagementPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h3 className="text-3xl font-bold tracking-tight">
             Quản lý luồng duyệt
-          </h1>
+          </h3>
           <p className="text-muted-foreground">
-            Quản lý approval_flows cho từng loại request trong hệ thống.
+            Quản lý luồng duyệt cho từng yêu cầu trong hệ thống.
           </p>
         </div>
 
-        <Button
-          onClick={handleOpenCreateFlow}
-          className="bg-teal-500 text-white hover:bg-teal-700"
-        >
-          <Plus className="size-4" />
-          Thêm flow
-        </Button>
+        <div className="flex flex-wrap justify-end gap-2">
+          <Button
+            className="bg-teal-500 text-white hover:bg-teal-700"
+            onClick={() => navigate("/approval-step-templates")}
+          >
+            <FileText className="size-4" />
+            Mẫu duyệt
+          </Button>
+          <Button
+            onClick={handleOpenCreateFlow}
+            className="bg-teal-500 text-white hover:bg-teal-700"
+          >
+            <Plus className="size-4" />
+            Thêm flow
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -221,7 +240,10 @@ export default function ApprovalFlowManagementPage() {
               <SelectContent>
                 <SelectItem value="all">Tất cả loại request</SelectItem>
                 {requestTypes.map((requestType) => (
-                  <SelectItem key={requestType.id} value={String(requestType.id)}>
+                  <SelectItem
+                    key={requestType.id}
+                    value={String(requestType.id)}
+                  >
                     {requestType.name}
                   </SelectItem>
                 ))}
