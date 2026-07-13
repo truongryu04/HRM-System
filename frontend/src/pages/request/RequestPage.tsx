@@ -1,13 +1,9 @@
 import { Plus, RefreshCcw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
-import {
-  useCancelLeaveRequest,
-  useLeaveRequests,
-} from "../../hooks/useLeaveRequests";
+import { useLeaveRequests } from "../../hooks/useLeaveRequests";
 import { RequestTable } from "./components/RequestTable";
 
 export default function RequestPage() {
@@ -21,13 +17,6 @@ export default function RequestPage() {
     isFetching,
   } = useLeaveRequests();
 
-  const cancelLeaveRequestMutation = useCancelLeaveRequest();
-
-  const handleCancelRequest = async (requestId: number) => {
-    await cancelLeaveRequestMutation.mutateAsync(requestId);
-    toast.success("Đã hủy yêu cầu");
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -36,7 +25,7 @@ export default function RequestPage() {
             Yêu cầu của tôi
           </h1>
           <p className="text-muted-foreground">
-            Theo dõi các yêu cầu nghỉ phép đã gửi và trạng thái phê duyệt.
+            Theo dõi các yêu cầu đã gửi và trạng thái phê duyệt.
           </p>
         </div>
 
@@ -75,11 +64,7 @@ export default function RequestPage() {
               </Button>
             </div>
           ) : (
-            <RequestTable
-              requests={requests}
-              cancellingRequestId={cancelLeaveRequestMutation.variables}
-              onCancel={(request) => void handleCancelRequest(request.requestId)}
-            />
+            <RequestTable requests={requests} />
           )}
         </CardContent>
       </Card>
