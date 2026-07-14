@@ -1,5 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getUsers, updateUser } from "../services/user.api";
+import {
+  getUsers,
+  resetUserPasswords,
+  updateUser,
+} from "../services/user.api";
 import type { UpdateUserRequest, UserListResponse } from "@/types/user.type";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
@@ -53,3 +57,8 @@ export const useUpdateUser = () => {
     },
   });
 };
+
+export const useResetUserPasswords = () =>
+  useMutation({
+    mutationFn: resetUserPasswords,
+  });

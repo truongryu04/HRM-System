@@ -45,3 +45,10 @@ export interface UpdateUserRequest {
   employeeId: number;
   roleIds: number[];
 }
+
+export interface BulkPasswordResetResponse {
+  total: number;
+  queued: number;
+  failed: number;
+  missingUserIds: number[];
+}

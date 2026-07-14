@@ -9,18 +9,56 @@ import {
 
 import UserActionDropdown from "./UserActionDropdown";
 import type { User } from "@/types/user.type";
+import { Checkbox } from "../../components/ui/checkbox";
 
 interface UserTableProps {
   users: User[];
   onEdit: (user: User) => void;
+  onResetPassword: (user: User) => void;
+  selectedUserIds: Set<number>;
+  onSelectionChange: (userIds: Set<number>) => void;
 }
 
-export function UserTable({ users, onEdit }: UserTableProps) {
+export function UserTable({
+  users,
+  onEdit,
+  onResetPassword,
+  selectedUserIds,
+  onSelectionChange,
+}: UserTableProps) {
+  const pageUserIds = users.map((user) => user.id);
+  const selectedOnPage = pageUserIds.filter((id) => selectedUserIds.has(id));
+  const allOnPageSelected =
+    pageUserIds.length > 0 && selectedOnPage.length === pageUserIds.length;
+
+  const toggleAll = (checked: boolean) => {
+    const next = new Set(selectedUserIds);
+    pageUserIds.forEach((id) => (checked ? next.add(id) : next.delete(id)));
+    onSelectionChange(next);
+  };
+
+  const toggleUser = (userId: number, checked: boolean) => {
+    const next = new Set(selectedUserIds);
+    if (checked) next.add(userId);
+    else next.delete(userId);
+    onSelectionChange(next);
+  };
+
   return (
     <div className="space-y-4">
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-10">
+              <Checkbox
+                aria-label="Chọn tất cả tài khoản trên trang"
+                checked={
+                  allOnPageSelected ||
+                  (selectedOnPage.length > 0 ? "indeterminate" : false)
+                }
+                onCheckedChange={(checked) => toggleAll(checked === true)}
+              />
+            </TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Employee</TableHead>
             <TableHead>Role</TableHead>
@@ -34,7 +72,7 @@ export function UserTable({ users, onEdit }: UserTableProps) {
           {users.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={6}
+                colSpan={7}
                 className="py-10 text-center text-muted-foreground"
               >
                 Không có người dùng phù hợp.
@@ -43,6 +81,15 @@ export function UserTable({ users, onEdit }: UserTableProps) {
           ) : (
             users.map((u) => (
               <TableRow key={u.id}>
+                <TableCell>
+                  <Checkbox
+                    aria-label={`Chọn tài khoản ${u.email}`}
+                    checked={selectedUserIds.has(u.id)}
+                    onCheckedChange={(checked) =>
+                      toggleUser(u.id, checked === true)
+                    }
+                  />
+                </TableCell>
                 <TableCell>{u.email}</TableCell>
                 <TableCell>{u.employee?.fullName ?? "Chưa liên kết"}</TableCell>
                 <TableCell>{u.roles?.map((r) => r.name).join(", ")}</TableCell>
@@ -57,7 +104,11 @@ export function UserTable({ users, onEdit }: UserTableProps) {
 
                 {/* Actions */}
                 <TableCell className="text-right">
-                  <UserActionDropdown user={u} onEdit={onEdit} />
+                  <UserActionDropdown
+                    user={u}
+                    onEdit={onEdit}
+                    onResetPassword={onResetPassword}
+                  />
                 </TableCell>
               </TableRow>
             ))

@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { UserTable } from "./UserTable";
 import { UserFilterBar } from "./UserFilterBar";
-import { useUsers } from "../../hooks/useUsers";
+import { useResetUserPasswords, useUsers } from "../../hooks/useUsers";
 import { useRoles } from "../../hooks/useRoles";
 import { Button } from "../../components/ui/button";
 import UserCreateDialog from "./UserCreateDialog";
 import { Pagination } from "../../components/Pagination";
 import type { User } from "@/types/user.type";
 import UserEditDialog from "./UserEditDialog";
+import { KeyRound } from "lucide-react";
+import { toast } from "sonner";
+import { getApiErrorMessage } from "../../utils/api-error";
+import { ResetPasswordDialog } from "./ResetPasswordDialog";
 
 export default function UserManagementPage() {
   const [page, setPage] = useState(1);
@@ -21,6 +25,11 @@ export default function UserManagementPage() {
   const { data: roles = [] } = useRoles();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUserIds, setSelectedUserIds] = useState<Set<number>>(
+    () => new Set(),
+  );
+  const [resetTargets, setResetTargets] = useState<User[]>([]);
+  const resetPasswordMutation = useResetUserPasswords();
 
   const handleEditUser = (user: User) => {
     setSelectedUser(user);
@@ -29,6 +38,16 @@ export default function UserManagementPage() {
   const handleSearch = (value: string) => {
     setPage(1);
     setSearch(value);
+    setSelectedUserIds(new Set());
+  };
+
+  const changeFilter = (
+    setter: (value: string) => void,
+    value: string,
+  ) => {
+    setter(value);
+    setPage(1);
+    setSelectedUserIds(new Set());
   };
 
   const normalizedLinkedEmployee =
@@ -47,6 +66,40 @@ export default function UserManagementPage() {
     linkedEmployee: normalizedLinkedEmployee,
   });
   const pagination = data?.pagination;
+  const users = data?.data ?? [];
+
+  const openSingleReset = (user: User) => setResetTargets([user]);
+  const openBulkReset = () => {
+    const selectedUsers = users.filter((user) => selectedUserIds.has(user.id));
+    if (selectedUsers.length === 0) {
+      toast.error("Vui lòng chọn ít nhất một tài khoản trên trang hiện tại");
+      return;
+    }
+    setResetTargets(selectedUsers);
+  };
+
+  const handleResetPasswords = async () => {
+    try {
+      const result = await resetPasswordMutation.mutateAsync(
+        resetTargets.map((user) => user.id),
+      );
+      if (result.failed > 0) {
+        toast.warning(
+          `Đã gửi ${result.queued}/${result.total} liên kết đặt lại mật khẩu`,
+        );
+      } else {
+        toast.success(
+          `Đã gửi liên kết đặt lại mật khẩu cho ${result.queued} tài khoản`,
+        );
+      }
+      setSelectedUserIds(new Set());
+      setResetTargets([]);
+    } catch (error) {
+      toast.error(
+        getApiErrorMessage(error, "Không thể gửi liên kết đặt lại mật khẩu"),
+      );
+    }
+  };
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -61,12 +114,19 @@ export default function UserManagementPage() {
           </p>
         </div>
 
-        <Button
-          onClick={() => setOpenCreateDialog(true)}
-          className="bg-teal-500 text-white hover:bg-teal-700"
-        >
-          Thêm tài khoản
-        </Button>
+        <div className="flex flex-wrap justify-end gap-2">
+          {selectedUserIds.size > 0 && (
+            <Button variant="outline" onClick={openBulkReset}>
+              <KeyRound /> Đặt lại mật khẩu ({selectedUserIds.size})
+            </Button>
+          )}
+          <Button
+            onClick={() => setOpenCreateDialog(true)}
+            className="bg-teal-500 text-white hover:bg-teal-700"
+          >
+            Thêm tài khoản
+          </Button>
+        </div>
       </div>
 
       <UserFilterBar
@@ -74,21 +134,30 @@ export default function UserManagementPage() {
         setSearchInput={setSearchInput}
         onSearch={handleSearch}
         role={role}
-        setRole={setRole}
+        setRole={(value) => changeFilter(setRole, value)}
         status={status}
-        setStatus={setStatus}
+        setStatus={(value) => changeFilter(setStatus, value)}
         linkedEmployee={linkedEmployee}
-        setLinkedEmployee={setLinkedEmployee}
+        setLinkedEmployee={(value) => changeFilter(setLinkedEmployee, value)}
         roles={roles}
       />
 
-      <UserTable users={data?.data ?? []} onEdit={handleEditUser} />
+      <UserTable
+        users={users}
+        onEdit={handleEditUser}
+        onResetPassword={openSingleReset}
+        selectedUserIds={selectedUserIds}
+        onSelectionChange={setSelectedUserIds}
+      />
       <Pagination
         page={pagination?.page ?? 1}
         totalPages={pagination?.totalPages ?? 1}
         totalItems={pagination?.total ?? 0}
         pageSize={pagination?.limit ?? 10}
-        setPage={setPage}
+        setPage={(nextPage) => {
+          setPage(nextPage);
+          setSelectedUserIds(new Set());
+        }}
         itemName="tài khoản"
       />
       <UserCreateDialog
@@ -102,6 +171,13 @@ export default function UserManagementPage() {
         onOpenChange={setOpenEditDialog}
         user={selectedUser}
         roles={roles}
+      />
+      <ResetPasswordDialog
+        open={resetTargets.length > 0}
+        onOpenChange={(open) => !open && setResetTargets([])}
+        users={resetTargets}
+        loading={resetPasswordMutation.isPending}
+        onConfirm={() => void handleResetPasswords()}
       />
     </div>
   );

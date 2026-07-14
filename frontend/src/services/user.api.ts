@@ -1,5 +1,9 @@
 import { apiClient } from "./api-client";
-import type { UpdateUserRequest, UserListResponse } from "@/types/user.type";
+import type {
+  BulkPasswordResetResponse,
+  UpdateUserRequest,
+  UserListResponse,
+} from "@/types/user.type";
 import type { CreateUserRequest } from "@/types/user.type";
 interface UserQuery {
   page: number;
@@ -26,6 +30,15 @@ export const createUser = async (payload: CreateUserRequest) => {
 
 export const updateUser = async (id: number, payload: UpdateUserRequest) => {
   const { data } = await apiClient.patch(`/users/${id}`, payload);
+
+  return data;
+};
+
+export const resetUserPasswords = async (userIds: number[]) => {
+  const { data } = await apiClient.post<BulkPasswordResetResponse>(
+    "/users/bulk-password-reset",
+    { userIds },
+  );
 
   return data;
 };
