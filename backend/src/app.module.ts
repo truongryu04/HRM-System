@@ -18,6 +18,7 @@ import { LeaveRequestModule } from './modules/leave-request/leave-request.module
 import { RequestModule } from './modules/request/request.module';
 import { MailModule } from './modules/mail/mail.module';
 import { UserTokenModule } from './modules/user-token/user-token.module';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -52,6 +53,7 @@ import { UserTokenModule } from './modules/user-token/user-token.module';
     LeaveRequestModule,
     MailModule,
     UserTokenModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
