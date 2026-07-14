@@ -7,6 +7,7 @@ import LoginPage from "../pages/auth/LoginPage";
 import ActivateAccountPage from "../pages/auth/ActivateAccountPage";
 import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
 import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
+import WorkShiftPage from "../pages/work-shift/WorkShiftPage";
 
 import ProtectedRoute from "../guards/ProtectedRoute";
 import UserManagementPage from "../pages/user/UserManagementPage";
@@ -109,6 +110,10 @@ export const router = createBrowserRouter([
           {
             path: "positions",
             element: <PositionPage />,
+          },
+          {
+            path: "work-shifts",
+            element: <WorkShiftPage />,
           },
         ],
       },

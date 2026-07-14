@@ -29,6 +29,7 @@ const navItems: Array<NavItem | NavGroup> = [
     children: [
       { to: "/request-types", label: "Loại yêu cầu" },
       { to: "/approval-flows", label: "Luồng duyệt" },
+      { to: "/work-shifts", label: "Ca làm việc" },
     ],
   },
   { to: "/permissions", label: "Phân quyền" },
