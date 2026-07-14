@@ -5,6 +5,17 @@ export const login = async (email: string, password: string) => {
 
   return response.data;
 };
+
+export const activateAccount = async (payload: {
+  token: string;
+  newPassword: string;
+  confirmPassword: string;
+}) => {
+  const response = await apiClient.post("/auth/activate-account", payload);
+
+  return response.data;
+};
+
 export const logoutApi = async () => {
   const response = await apiClient.post("/auth/logout", {
     refreshToken: localStorage.getItem("refreshToken"),

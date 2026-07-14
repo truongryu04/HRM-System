@@ -1,10 +1,10 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
-import TestPage from "../pages/TestPage";
 import { MainLayout } from "../layouts/main-layout";
 import PermissionPage from "../pages/permission/PermissionPage";
 import RolePage from "../pages/role/RolePage";
 import LoginPage from "../pages/auth/LoginPage";
+import ActivateAccountPage from "../pages/auth/ActivateAccountPage";
 
 import ProtectedRoute from "../guards/ProtectedRoute";
 import UserManagementPage from "../pages/user/UserManagementPage";
@@ -110,17 +110,16 @@ export const router = createBrowserRouter([
           },
         ],
       },
-
-      {
-        path: "/test",
-        element: <TestPage />,
-      },
     ],
   },
 
   {
     path: "/login",
     element: <LoginPage />,
+  },
+  {
+    path: "/activate-account",
+    element: <ActivateAccountPage />,
   },
 
   {
