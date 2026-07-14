@@ -54,7 +54,7 @@ export class UserService {
       throw new BadRequestException('One or more roles do not exist');
     }
 
-    const initialPassword = user.password ?? randomBytes(32).toString('hex');
+    const initialPassword = this.getInitialPassword(user.password);
     const hashedPassword = await hashPassword(initialPassword);
     const newUser = this.userRepository.create({
       email: user.email,
@@ -388,5 +388,13 @@ export class UserService {
     const value = Number(this.configService.get<string>(configKey));
 
     return Number.isFinite(value) && value > 0 ? value : fallback;
+  }
+
+  private getInitialPassword(inputPassword?: string) {
+    const defaultPassword = this.configService
+      .get<string>('DEFAULT_INITIAL_USER_PASSWORD')
+      ?.trim();
+
+    return inputPassword ?? defaultPassword ?? randomBytes(32).toString('hex');
   }
 }
