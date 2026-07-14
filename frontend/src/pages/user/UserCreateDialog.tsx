@@ -40,7 +40,6 @@ export default function UserCreateDialog({
     useEmployees({ page: 1, limit: 1000 }, open);
 
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [status, setStatus] = useState("PENDING");
   const [employeeId, setEmployeeId] = useState("");
   const [roleIds, setRoleIds] = useState<number[]>([]);
@@ -80,14 +79,13 @@ export default function UserCreateDialog({
   };
 
   const handleSubmit = async () => {
-    if (!email || !password || !employeeId || roleIds.length === 0) {
+    if (!email || !employeeId || roleIds.length === 0) {
       toast.error("Vui lòng nhập đầy đủ thông tin bắt buộc");
       return;
     }
 
     await createUserMutation.mutateAsync({
       email: email.trim(),
-      password,
       status,
       employeeId: Number(employeeId),
       roleIds,
@@ -113,17 +111,6 @@ export default function UserCreateDialog({
               placeholder="name@company.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="user-password">Mật khẩu</Label>
-            <Input
-              id="user-password"
-              type="password"
-              placeholder="Nhập mật khẩu"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 

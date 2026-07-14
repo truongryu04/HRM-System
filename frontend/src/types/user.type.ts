@@ -34,7 +34,7 @@ export interface UserListResponse {
 
 export interface CreateUserRequest {
   email: string;
-  password: string;
+  password?: string;
   status?: string;
   employeeId: number;
   roleIds: number[];
