@@ -6,7 +6,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-
+import { Type } from 'class-transformer';
 import { EmployeeStatus, Gender } from '../employee.entity';
 
 export class CreateEmployeeDto {
@@ -45,16 +45,20 @@ export class CreateEmployeeDto {
   avatarUrl?: string;
 
   @IsInt()
+  @Type(() => Number)
   departmentId!: number;
 
   @IsInt()
+  @Type(() => Number)
   positionId!: number;
 
   @IsInt()
   @IsOptional()
+  @Type(() => Number)
   workShiftId?: number;
 
   @IsInt()
   @IsOptional()
+  @Type(() => Number)
   managerId?: number;
 }

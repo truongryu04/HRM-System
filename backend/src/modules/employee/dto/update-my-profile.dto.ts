@@ -1,4 +1,6 @@
 import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsBoolean } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { Gender } from '../employee.entity';
 
 export class UpdateMyProfileDto {
@@ -25,4 +27,9 @@ export class UpdateMyProfileDto {
   @IsOptional()
   @IsString()
   avatarUrl?: string;
+
+  @IsOptional()
+  @Transform(({ value }) => value === true || value === 'true')
+  @IsBoolean()
+  removeAvatar?: boolean;
 }

@@ -80,9 +80,17 @@ export class Employee {
   status!: EmployeeStatus;
 
   @Column({
+    type: 'varchar',
     nullable: true,
   })
-  avatarUrl?: string;
+  avatarUrl!: string | null;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+    name: 'avatar_public_id',
+  })
+  avatarPublicId!: string | null;
 
   @ManyToOne(() => Department)
   @JoinColumn({
