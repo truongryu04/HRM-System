@@ -17,6 +17,7 @@ import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { PositionService } from '../position/position.service';
 import { WorkShiftsService } from '../work-shifts/work-shifts.service';
 import { Department } from '../department/department.entity';
+import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 @Injectable()
 export class EmployeeService {
   constructor(
@@ -138,6 +139,14 @@ export class EmployeeService {
 
     return employee;
   }
+  async findMyProfile(employeeId: number | undefined) {
+    if (!employeeId) {
+      throw new BadRequestException(
+        'Tài khoản chưa được liên kết với nhân viên',
+      );
+    }
+    return this.findOne(employeeId);
+  }
   async update(id: number, dto: UpdateEmployeeDto) {
     const employee = await this.findOne(id);
 
@@ -220,6 +229,12 @@ export class EmployeeService {
       },
     });
     return total;
+  }
+  async updateMyProfile(id: number | undefined, dto: UpdateMyProfileDto) {
+    const employee = await this.findMyProfile(id);
+
+    Object.assign(employee, dto);
+    return this.employeeRepository.save(employee);
   }
 
   private async resolveManagerForCreate(
