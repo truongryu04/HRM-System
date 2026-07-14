@@ -16,6 +16,8 @@ import { AttendanceModule } from './modules/attendance/attendance.module';
 import { WorkShiftsModule } from './modules/work-shifts/work-shifts.module';
 import { LeaveRequestModule } from './modules/leave-request/leave-request.module';
 import { RequestModule } from './modules/request/request.module';
+import { MailModule } from './modules/mail/mail.module';
+import { UserTokenModule } from './modules/user-token/user-token.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -48,6 +50,8 @@ import { RequestModule } from './modules/request/request.module';
     WorkShiftsModule,
     RequestModule,
     LeaveRequestModule,
+    MailModule,
+    UserTokenModule,
   ],
   controllers: [AppController],
   providers: [AppService],

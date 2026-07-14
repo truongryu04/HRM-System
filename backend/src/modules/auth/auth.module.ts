@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config/dist/config.module';
 import { RefreshToken } from './refresh-token.entity';
 import { TypeOrmModule } from '@nestjs/typeorm/dist/typeorm.module';
 import { ConfigService } from '@nestjs/config/dist/config.service';
+import { UserTokenModule } from '../user-token/user-token.module';
 
 @Module({
   controllers: [AuthController],
@@ -16,6 +17,7 @@ import { ConfigService } from '@nestjs/config/dist/config.service';
   imports: [
     TypeOrmModule.forFeature([RefreshToken]),
     UserModule,
+    UserTokenModule,
     RoleModule,
     ConfigModule,
     JwtModule.registerAsync({
