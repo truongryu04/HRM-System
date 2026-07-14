@@ -5,6 +5,8 @@ import PermissionPage from "../pages/permission/PermissionPage";
 import RolePage from "../pages/role/RolePage";
 import LoginPage from "../pages/auth/LoginPage";
 import ActivateAccountPage from "../pages/auth/ActivateAccountPage";
+import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
+import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
 
 import ProtectedRoute from "../guards/ProtectedRoute";
 import UserManagementPage from "../pages/user/UserManagementPage";
@@ -120,6 +122,14 @@ export const router = createBrowserRouter([
   {
     path: "/activate-account",
     element: <ActivateAccountPage />,
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPasswordPage />,
+  },
+  {
+    path: "/forgot-password",
+    element: <ForgotPasswordPage />,
   },
 
   {
