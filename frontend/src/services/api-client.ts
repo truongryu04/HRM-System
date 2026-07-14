@@ -8,9 +8,6 @@ if (!apiBaseUrl) {
 
 export const apiClient = axios.create({
   baseURL: apiBaseUrl,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 // Request Interceptor

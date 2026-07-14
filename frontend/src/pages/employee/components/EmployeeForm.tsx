@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Camera, ImageUp, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -7,7 +7,6 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "../../../components/ui/avatar";
-import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { Label } from "../../../components/ui/label";
@@ -49,21 +48,21 @@ interface EmployeeFormDialogProps {
   loading: boolean;
 }
 
-const emptyState = {
-  employeeCode: "",
-  fullName: "",
-  email: "",
-  phone: "",
-  address: "",
-  gender: "MALE" as EmployeeGender,
-  dob: "",
-  joinDate: "",
-  status: "ACTIVE" as EmployeeStatus,
-  departmentId: "",
-  positionId: "",
-  avatarUrl: "",
-  avatarFileName: "",
-};
+interface EmployeeFormState {
+  employeeCode: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  gender: EmployeeGender;
+  dob: string;
+  joinDate: string;
+  status: EmployeeStatus;
+  departmentId: string;
+  positionId: string;
+  avatarUrl: string;
+  avatarFileName: string;
+}
 
 export function EmployeeForm({
   mode,
@@ -76,25 +75,11 @@ export function EmployeeForm({
   const navigate = useNavigate();
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [form, setForm] = useState({
-    employeeCode: "",
-    fullName: "",
-    email: "",
-    phone: "",
-    address: "",
-    gender: "MALE" as EmployeeGender,
-    dob: "",
-    joinDate: "",
-    status: "ACTIVE" as EmployeeStatus,
-    departmentId: "",
-    positionId: "",
-    avatarUrl: "",
-    avatarFileName: "",
-  });
-
-  useEffect(() => {
-    if (mode === "edit" && employee) {
-      setForm({
+  const [avatarFile, setAvatarFile] = useState<File>();
+  const [removeAvatar, setRemoveAvatar] = useState(false);
+  const [form, setForm] = useState<EmployeeFormState>(() =>
+    mode === "edit" && employee
+      ? {
         employeeCode: employee.employeeCode ?? "",
         fullName: employee.fullName ?? "",
         email: employee.email ?? "",
@@ -110,9 +95,8 @@ export function EmployeeForm({
         positionId: employee.position?.id ? String(employee.position.id) : "",
         avatarUrl: employee.avatarUrl ?? "",
         avatarFileName: "",
-      });
-    } else {
-      setForm({
+      }
+      : {
         employeeCode: "",
         fullName: "",
         email: "",
@@ -126,20 +110,12 @@ export function EmployeeForm({
         positionId: "",
         avatarUrl: "",
         avatarFileName: "",
-      });
-    }
-  }, [employee?.id, mode]);
+      },
+  );
 
   const handleFileSelect = () => {
     fileInputRef.current?.click();
   };
-  useEffect(() => {
-    setForm((prev) => ({
-      ...prev,
-      departmentId: prev.departmentId ? String(prev.departmentId) : "",
-      positionId: prev.positionId ? String(prev.positionId) : "",
-    }));
-  }, [departments, positions]);
   const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
 
@@ -147,8 +123,14 @@ export function EmployeeForm({
       return;
     }
 
-    if (!file.type.startsWith("image/")) {
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
       toast.error("Vui lòng chọn một file ảnh hợp lệ");
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Ảnh đại diện không được vượt quá 5 MB");
       event.target.value = "";
       return;
     }
@@ -162,6 +144,8 @@ export function EmployeeForm({
           avatarUrl: reader.result as string,
           avatarFileName: file.name,
         }));
+        setAvatarFile(file);
+        setRemoveAvatar(false);
       }
     };
 
@@ -174,6 +158,8 @@ export function EmployeeForm({
       avatarUrl: "",
       avatarFileName: "",
     }));
+    setAvatarFile(undefined);
+    setRemoveAvatar(Boolean(employee?.avatarUrl));
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -226,9 +212,11 @@ export function EmployeeForm({
       dob: form.dob,
       joinDate: form.joinDate,
       status: form.status,
-      avatarUrl: form.avatarUrl.trim() || undefined,
+      avatarUrl: avatarFile ? undefined : form.avatarUrl.trim() || undefined,
       departmentId: Number(form.departmentId),
       positionId: Number(form.positionId),
+      avatar: avatarFile,
+      removeAvatar,
     });
   };
 
@@ -535,7 +523,7 @@ export function EmployeeForm({
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg,image/png,image/webp"
                       className="hidden"
                       onChange={handleAvatarChange}
                     />

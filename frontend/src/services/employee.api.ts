@@ -8,6 +8,22 @@ import type {
   EmployeeProfileUpdateRequest,
 } from "@/types/employee.type";
 
+const toEmployeeFormData = (
+  payload:
+    | EmployeeCreateRequest
+    | EmployeeUpdateRequest
+    | EmployeeProfileUpdateRequest,
+) => {
+  const formData = new FormData();
+
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === "") return;
+    formData.append(key, value instanceof File ? value : String(value));
+  });
+
+  return formData;
+};
+
 export const getEmployees = async (params?: {
   page?: number;
   limit?: number;
@@ -29,7 +45,10 @@ export const getEmployee = async (id: number) => {
 };
 
 export const createEmployee = async (payload: EmployeeCreateRequest) => {
-  const { data } = await apiClient.post("/employees", payload);
+  const { data } = await apiClient.post(
+    "/employees",
+    toEmployeeFormData(payload),
+  );
 
   return data as EmployeeSummary;
 };
@@ -38,7 +57,10 @@ export const updateEmployee = async (
   id: number,
   payload: EmployeeUpdateRequest,
 ) => {
-  const { data } = await apiClient.put(`/employees/${id}`, payload);
+  const { data } = await apiClient.put(
+    `/employees/${id}`,
+    toEmployeeFormData(payload),
+  );
 
   return data as EmployeeSummary;
 };
@@ -69,7 +91,7 @@ export const updateMyEmployeeProfile = async (
 ) => {
   const { data } = await apiClient.patch<EmployeeSummary>(
     "/employees/me/profile",
-    payload,
+    toEmployeeFormData(payload),
   );
   return data;
 };

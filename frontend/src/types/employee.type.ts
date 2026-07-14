@@ -50,6 +50,8 @@ export interface EmployeeUpdateRequest {
   avatarUrl?: string;
   departmentId?: number;
   positionId?: number;
+  avatar?: File;
+  removeAvatar?: boolean;
 }
 
 export interface EmployeeProfileUpdateRequest {
@@ -59,6 +61,8 @@ export interface EmployeeProfileUpdateRequest {
   gender?: EmployeeGender;
   dob?: string;
   avatarUrl?: string;
+  avatar?: File;
+  removeAvatar?: boolean;
 }
 
 export interface EmployeeCreateRequest {
@@ -74,4 +78,6 @@ export interface EmployeeCreateRequest {
   avatarUrl?: string;
   departmentId: number;
   positionId: number;
+  avatar?: File;
+  removeAvatar?: boolean;
 }
