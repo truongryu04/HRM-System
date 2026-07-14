@@ -10,8 +10,14 @@ import {
   Put,
   Query,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -23,11 +29,22 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
   @Post()
+  @UseInterceptors(FileInterceptor('avatar'))
   create(
     @Body()
     dto: CreateEmployeeDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        fileIsRequired: false,
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: /^image\/(jpeg|png|webp)$/ }),
+        ],
+      }),
+    )
+    avatar?: Express.Multer.File,
   ) {
-    return this.employeeService.create(dto);
+    return this.employeeService.create(dto, avatar);
   }
 
   @Get()
@@ -43,11 +60,22 @@ export class EmployeeController {
 
   @Patch('me/profile')
   @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(FileInterceptor('avatar'))
   updateMyProfile(
     @CurrentUser('employeeId') employeeId: number | undefined,
     @Body() dto: UpdateMyProfileDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        fileIsRequired: false,
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: /^image\/(jpeg|png|webp)$/ }),
+        ],
+      }),
+    )
+    avatar?: Express.Multer.File,
   ) {
-    return this.employeeService.updateMyProfile(employeeId, dto);
+    return this.employeeService.updateMyProfile(employeeId, dto, avatar);
   }
 
   @Get(':id')
@@ -59,14 +87,25 @@ export class EmployeeController {
   }
 
   @Put(':id')
+  @UseInterceptors(FileInterceptor('avatar'))
   update(
     @Param('id', ParseIntPipe)
     id: number,
 
     @Body()
     dto: UpdateEmployeeDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        fileIsRequired: false,
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: /^image\/(jpeg|png|webp)$/ }),
+        ],
+      }),
+    )
+    avatar?: Express.Multer.File,
   ) {
-    return this.employeeService.update(id, dto);
+    return this.employeeService.update(id, dto, avatar);
   }
   @Delete(':id')
   remove(
