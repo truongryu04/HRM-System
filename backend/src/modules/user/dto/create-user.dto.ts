@@ -16,9 +16,10 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Email không được để trống ' })
   email!: string;
 
+  @IsOptional()
   @IsString()
   @Length(8, 255, { message: 'Mật khẩu phải có độ dài tối thiểu 8 ký tự' })
-  password!: string;
+  password?: string;
 
   @IsOptional()
   @IsEnum(UserStatus)

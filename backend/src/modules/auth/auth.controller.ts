@@ -7,10 +7,13 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+
 import { AuthService } from './auth.service';
-import LoginDto from './dto/login.dto';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import LoginDto from './dto/login.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -24,9 +27,10 @@ export class AuthController {
       refresh_token: refresh_token,
       permissions: permissions,
     } = await this.authService.login(loginData);
+
     return {
       statusCode: HttpStatus.OK,
-      message: 'Đăng nhập thành công',
+      message: 'Login successfully',
       data: {
         user,
         permissions: permissions,
@@ -35,9 +39,25 @@ export class AuthController {
       },
     };
   }
+
   @Post('logout')
   async logout(@Body('refreshToken') refreshToken: string) {
     return this.authService.logout(refreshToken);
+  }
+
+  @Post('forgot-password')
+  forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto);
+  }
+
+  @Post('reset-password')
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
+  }
+
+  @Post('activate-account')
+  activateAccount(@Body() dto: ResetPasswordDto) {
+    return this.authService.activateAccount(dto);
   }
 
   @UseGuards(JwtAuthGuard)

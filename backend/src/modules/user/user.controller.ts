@@ -14,6 +14,7 @@ import { GetUsersDto } from './dto/get-user.dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 import { AssignRolesDto } from './dto/assign-roles.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { BulkPasswordResetDto } from './dto/bulk-password-reset.dto';
 
 @Controller('users')
 export class UserController {
@@ -30,6 +31,11 @@ export class UserController {
   @Get()
   findAll(@Query() query: GetUsersDto) {
     return this.userService.findAll(query);
+  }
+
+  @Post('bulk-password-reset')
+  bulkPasswordReset(@Body() dto: BulkPasswordResetDto) {
+    return this.userService.bulkSendPasswordReset(dto);
   }
 
   @Patch(':id/status')
