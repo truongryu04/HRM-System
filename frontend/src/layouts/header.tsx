@@ -10,6 +10,12 @@ import { Button } from "../components/ui/button";
 import { Bell, User, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { logoutApi } from "../services/auth.api";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "../components/ui/avatar";
+import { useEmployeeProfile } from "../hooks/useEmployeeProfile";
 
 export function Header() {
   const navigate = useNavigate();
@@ -24,6 +30,7 @@ export function Header() {
     }
   };
   const token = localStorage.getItem("accessToken");
+  const { data: employee } = useEmployeeProfile(Boolean(token));
   return (
     <header className="flex h-16 items-center justify-between border-b px-6">
       <h1 className="font-semibold text-base">HRM System</h1>
@@ -37,14 +44,21 @@ export function Header() {
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            {/* <Button size="icon">
-              <User />
-            </Button> */}
-            <Button className="flex items-center gap-2">
-              {/* <Avatar className="h-8 w-8">
-                <AvatarFallback>TN</AvatarFallback>
-              </Avatar> */}
-              <User />
+            <Button
+              size="icon"
+              variant="ghost"
+              aria-label="Mở menu tài khoản"
+              className="rounded-full"
+            >
+              <Avatar className="size-9">
+                <AvatarImage
+                  src={employee?.avatarUrl ?? undefined}
+                  alt={employee?.fullName ?? "Tài khoản"}
+                />
+                <AvatarFallback>
+                  <User className="size-5" />
+                </AvatarFallback>
+              </Avatar>
             </Button>
           </DropdownMenuTrigger>
 

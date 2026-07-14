@@ -4,10 +4,11 @@ import {
   updateMyEmployeeProfile,
 } from "../services/employee.api";
 
-export const useEmployeeProfile = () =>
+export const useEmployeeProfile = (enabled = true) =>
   useQuery({
     queryKey: ["employee-profile"],
     queryFn: getMyEmployeeProfile,
+    enabled,
   });
 
 export const useUpdateEmployeeProfile = () => {
