@@ -7,6 +7,7 @@ import DeleteRoleDialog from "./DeleteRoleDialog";
 import { toast } from "sonner";
 import { createRole, deleteRole, updateRole } from "../../services/role.api";
 import { useQueryClient } from "@tanstack/react-query";
+import { getApiErrorMessage } from "../../utils/api-error";
 
 export default function RolePage() {
   const queryClient = useQueryClient();
@@ -27,9 +28,7 @@ export default function RolePage() {
     setOpenDeleteDialog(true);
   };
   const handleDeleteRole = async () => {
-    console.log("handleDeleteRole", selectedRole);
     if (!selectedRole) return;
-    console.log("handleDeleteRole", selectedRole);
     try {
       await deleteRole(selectedRole.id);
       await queryClient.invalidateQueries({
@@ -40,8 +39,7 @@ export default function RolePage() {
       setOpenDeleteDialog(false);
       setSelectedRole(null);
     } catch (error) {
-      toast.error("Xóa vai trò thất bại");
-      console.error(error);
+      toast.error(getApiErrorMessage(error, "Xóa vai trò thất bại"));
     }
   };
   const handleSaveRole = async (data: {
@@ -58,12 +56,19 @@ export default function RolePage() {
       }
       if (mode === "create") {
         await createRole(data);
+        await queryClient.invalidateQueries({ queryKey: ["roles"] });
         toast.success("Tạo vai trò thành công");
       }
       setOpenRoleDialog(false);
     } catch (error) {
-      toast.error("Cập nhật vai trò thất bại");
-      console.error(error);
+      toast.error(
+        getApiErrorMessage(
+          error,
+          mode === "create"
+            ? "Tạo vai trò thất bại"
+            : "Cập nhật vai trò thất bại",
+        ),
+      );
     }
   };
   return (

@@ -84,5 +84,5 @@ export interface AttendanceListResponse {
 export interface UpdateAttendanceRequest {
   checkInTime?: string | null;
   checkOutTime?: string | null;
-  note?: string;
+  note?: string | null;
 }

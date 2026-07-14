@@ -12,9 +12,14 @@ import {
 import { useDepartments } from "../../hooks/useDepartments";
 import { usePositions } from "../../hooks/usePositions";
 import { Pagination } from "../../components/Pagination";
-import type { Attendance } from "@/types/attendance.type";
+import type {
+  Attendance,
+  UpdateAttendanceRequest,
+} from "@/types/attendance.type";
 import { AttendanceEditDialog } from "./AttendanceEditDialog";
 import { attendanceApi } from "../../services/attendance.api";
+import { toast } from "sonner";
+import { getApiErrorMessage } from "../../utils/api-error";
 export default function AttendanceManagementPage() {
   const today = new Date().toISOString().split("T")[0];
 
@@ -40,7 +45,6 @@ export default function AttendanceManagementPage() {
     useState<Attendance | null>(null);
   const {
     data: attendanceResponse,
-    isLoading,
     refetch,
   } = useAttendances({
     search,
@@ -66,9 +70,17 @@ export default function AttendanceManagementPage() {
     setPositionId("all");
     setStatus("all");
   };
-  const handleUpdateAttendance = async (data: any) => {
-    await attendanceApi.updateAttendance(selectedAttendance!.id, data);
-    refetch();
+  const handleUpdateAttendance = async (data: UpdateAttendanceRequest) => {
+    if (!selectedAttendance) return;
+
+    try {
+      await attendanceApi.updateAttendance(selectedAttendance.id, data);
+      await refetch();
+      toast.success("Cập nhật chấm công thành công");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Cập nhật chấm công thất bại"));
+      throw error;
+    }
   };
 
   return (

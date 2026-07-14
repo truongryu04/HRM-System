@@ -13,6 +13,7 @@ import { Button } from "../../components/ui/button";
 import { toDateTimeLocalValue } from "../../utils/toDateTimeLocalValue";
 
 import type { Attendance } from "../../types/attendance.type";
+import { toast } from "sonner";
 interface AttendanceEditDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -41,19 +42,25 @@ export function AttendanceEditDialog({
   );
 
   const [note, setNote] = useState(() => attendance?.note ?? "");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    await onSubmit({
-      checkInTime: checkInTime || null,
-      checkOutTime: checkOutTime || null,
-      note,
-    });
-    console.log("Submit", {
-      checkInTime,
-      checkOutTime,
-      note,
-    });
-    onOpenChange(false);
+    if (checkInTime && checkOutTime && checkOutTime < checkInTime) {
+      toast.error("Giờ ra phải sau hoặc bằng giờ vào");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      await onSubmit({
+        checkInTime: checkInTime || null,
+        checkOutTime: checkOutTime || null,
+        note: note.trim() || null,
+      });
+      onOpenChange(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -110,7 +117,9 @@ export function AttendanceEditDialog({
               Hủy
             </Button>
 
-            <Button onClick={handleSubmit}>Lưu</Button>
+            <Button onClick={handleSubmit} disabled={isSubmitting}>
+              {isSubmitting ? "Đang lưu..." : "Lưu"}
+            </Button>
           </div>
         </div>
       </DialogContent>

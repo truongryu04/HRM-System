@@ -8,6 +8,7 @@ import { useDepartments } from "../../hooks/useDepartments";
 import { usePositions } from "../../hooks/usePositions";
 import { useEmployee } from "../../hooks/useEmployees";
 import { useUpdateEmployee } from "../../hooks/useEmployees";
+import { getApiErrorMessage } from "../../utils/api-error";
 
 export default function EmployeeEditPage() {
   const { id } = useParams();
@@ -29,13 +30,16 @@ export default function EmployeeEditPage() {
   const handleSubmit = async (payload: EmployeeCreateRequest) => {
     if (!employeeId) return;
 
-    await updateEmployeeMutation.mutateAsync({
-      id: employeeId,
-      data: payload,
-    });
-
-    toast.success("Cập nhật nhân viên thành công");
-    navigate("/employees");
+    try {
+      await updateEmployeeMutation.mutateAsync({
+        id: employeeId,
+        data: payload,
+      });
+      toast.success("Cập nhật nhân viên thành công");
+      navigate("/employees");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Cập nhật nhân viên thất bại"));
+    }
   };
 
   if (loadingEmployee) {

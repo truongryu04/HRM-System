@@ -5,6 +5,7 @@ import { useCreateEmployee } from "../../hooks/useEmployees";
 import type { EmployeeCreateRequest } from "@/types/employee.type";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { getApiErrorMessage } from "../../utils/api-error";
 export default function EmployeeCreatePage() {
   const { data: departments = [] } = useDepartments();
   const { data: positions = [] } = usePositions();
@@ -13,11 +14,13 @@ export default function EmployeeCreatePage() {
 
   const navigate = useNavigate();
   const handleSubmit = async (payload: EmployeeCreateRequest) => {
-    await createEmployeeMutation.mutateAsync(payload);
-
-    toast.success("Tạo nhân viên thành công");
-
-    navigate("/employees");
+    try {
+      await createEmployeeMutation.mutateAsync(payload);
+      toast.success("Tạo nhân viên thành công");
+      navigate("/employees");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Tạo nhân viên thất bại"));
+    }
   };
   return (
     <EmployeeForm

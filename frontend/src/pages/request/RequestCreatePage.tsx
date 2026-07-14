@@ -10,6 +10,7 @@ import { useAuthStore } from "../../store/auth.store";
 import type { CreateLeaveRequest } from "@/types/leave.type";
 import { RequestForm } from "./components/RequestForm";
 import { getEmployeeIdFromAccessToken } from "./request.helpers";
+import { getApiErrorMessage } from "../../utils/api-error";
 
 export default function RequestCreatePage() {
   const navigate = useNavigate();
@@ -20,10 +21,13 @@ export default function RequestCreatePage() {
   const createLeaveRequestMutation = useCreateLeaveRequest();
 
   const handleSubmit = async (payload: CreateLeaveRequest) => {
-    await createLeaveRequestMutation.mutateAsync(payload);
-
-    toast.success("Tạo yêu cầu thành công");
-    navigate("/requests/my");
+    try {
+      await createLeaveRequestMutation.mutateAsync(payload);
+      toast.success("Tạo yêu cầu thành công");
+      navigate("/requests/my");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Tạo yêu cầu thất bại"));
+    }
   };
 
   return (
