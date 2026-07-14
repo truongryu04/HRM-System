@@ -52,6 +52,15 @@ export interface EmployeeUpdateRequest {
   positionId?: number;
 }
 
+export interface EmployeeProfileUpdateRequest {
+  fullName?: string;
+  phone?: string;
+  address?: string;
+  gender?: EmployeeGender;
+  dob?: string;
+  avatarUrl?: string;
+}
+
 export interface EmployeeCreateRequest {
   employeeCode: string;
   fullName: string;

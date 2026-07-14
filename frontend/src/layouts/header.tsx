@@ -8,7 +8,6 @@ import {
 } from "../components/ui/dropdown-menu";
 import { Button } from "../components/ui/button";
 import { Bell, User, Settings } from "lucide-react";
-import { Avatar, AvatarFallback } from "../components/ui/avatar";
 import { useNavigate } from "react-router-dom";
 import { logoutApi } from "../services/auth.api";
 
@@ -54,7 +53,9 @@ export function Header() {
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem>Thông tin cá nhân</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/profile")}>
+              Thông tin cá nhân
+            </DropdownMenuItem>
 
             <DropdownMenuItem>Đổi mật khẩu</DropdownMenuItem>
 

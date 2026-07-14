@@ -8,6 +8,8 @@ import ActivateAccountPage from "../pages/auth/ActivateAccountPage";
 import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
 import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
 import WorkShiftPage from "../pages/work-shift/WorkShiftPage";
+import EmployeeProfilePage from "../pages/profile/EmployeeProfilePage";
+import EmployeeProfileEditPage from "../pages/profile/EmployeeProfileEditPage";
 
 import ProtectedRoute from "../guards/ProtectedRoute";
 import UserManagementPage from "../pages/user/UserManagementPage";
@@ -114,6 +116,14 @@ export const router = createBrowserRouter([
           {
             path: "work-shifts",
             element: <WorkShiftPage />,
+          },
+          {
+            path: "profile",
+            element: <EmployeeProfilePage />,
+          },
+          {
+            path: "profile/edit",
+            element: <EmployeeProfileEditPage />,
           },
         ],
       },

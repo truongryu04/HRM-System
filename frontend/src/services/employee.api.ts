@@ -5,6 +5,7 @@ import type {
   EmployeeStatus,
   EmployeeSummary,
   EmployeeUpdateRequest,
+  EmployeeProfileUpdateRequest,
 } from "@/types/employee.type";
 
 export const getEmployees = async (params?: {
@@ -54,4 +55,21 @@ export const updateEmployeeStatus = async (
   const { data } = await apiClient.patch(`/employees/${id}/status`, { status });
 
   return data as EmployeeSummary;
+};
+
+export const getMyEmployeeProfile = async () => {
+  const { data } = await apiClient.get<EmployeeSummary>(
+    "/employees/me/profile",
+  );
+  return data;
+};
+
+export const updateMyEmployeeProfile = async (
+  payload: EmployeeProfileUpdateRequest,
+) => {
+  const { data } = await apiClient.patch<EmployeeSummary>(
+    "/employees/me/profile",
+    payload,
+  );
+  return data;
 };
