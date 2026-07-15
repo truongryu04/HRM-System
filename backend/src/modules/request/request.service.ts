@@ -166,6 +166,7 @@ export class RequestService {
           employee: {
             department: true,
             position: true,
+            manager: true,
           },
           createdBy: true,
         },
@@ -192,6 +193,7 @@ export class RequestService {
           employee: {
             department: true,
             position: true,
+            manager: true,
           },
           createdBy: true,
           finalApprovedBy: true,
@@ -468,7 +470,7 @@ export class RequestService {
       where: { id: requestId },
       relations: {
         requestType: true,
-        employee: true,
+        employee: { manager: true },
         createdBy: true,
       },
     });
@@ -535,9 +537,7 @@ export class RequestService {
     }
 
     if (approval.approverType === ApproverType.DIRECT_MANAGER) {
-      return (
-        roles.includes('manager') && request.employee.id !== user.employeeId
-      );
+      return request.employee.manager?.id === user.employeeId;
     }
 
     return false;
