@@ -1,10 +1,10 @@
 import {
   Body,
   Controller,
+  Get,
   HttpStatus,
   Patch,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 
@@ -14,10 +14,27 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import LoginDto from './dto/login.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { CurrentUser } from './decorators/current-user.decorator';
+import type { JwtUser } from './jwt-user.interface';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  getCurrentUser(@CurrentUser() currentUser: JwtUser) {
+    const { permissions, ...user } = currentUser;
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Get current user successfully',
+      data: {
+        user,
+        permissions,
+      },
+    };
+  }
 
   @Post('/login')
   async login(@Body() loginData: LoginDto) {
@@ -62,7 +79,10 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Patch('change-password')
-  changePassword(@Req() req: any, @Body() dto: ChangePasswordDto) {
-    return this.authService.changePassword(req.user.id as number, dto);
+  changePassword(
+    @CurrentUser('id') userId: number,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    return this.authService.changePassword(userId, dto);
   }
 }
