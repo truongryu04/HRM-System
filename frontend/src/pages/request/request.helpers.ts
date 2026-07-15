@@ -4,7 +4,7 @@ interface JwtPayload {
 }
 
 export function getEmployeeIdFromAccessToken() {
-  const token = localStorage.getItem("accessToken");
+  const token = useAuthStore.getState().accessToken;
 
   if (!token) {
     return null;
@@ -25,3 +25,4 @@ export function getEmployeeIdFromAccessToken() {
     return null;
   }
 }
+import { useAuthStore } from "../../store/auth.store";

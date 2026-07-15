@@ -16,20 +16,20 @@ import {
   AvatarImage,
 } from "../components/ui/avatar";
 import { useEmployeeProfile } from "../hooks/useEmployeeProfile";
+import { useAuthStore } from "../store/auth.store";
 
 export function Header() {
   const navigate = useNavigate();
+  const token = useAuthStore((state) => state.accessToken);
+  const clearAuth = useAuthStore((state) => state.logout);
   const handleLogout = async () => {
     try {
       await logoutApi();
     } finally {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-
+      clearAuth();
       navigate("/login");
     }
   };
-  const token = localStorage.getItem("accessToken");
   const { data: employee } = useEmployeeProfile(Boolean(token));
   return (
     <header className="flex h-16 items-center justify-between border-b px-6">

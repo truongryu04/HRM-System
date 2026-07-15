@@ -1,9 +1,10 @@
 import { Navigate } from "react-router-dom";
 import LoginForm from "./LoginForm";
 import LoginHeader from "./LoginHeader";
+import { useAuthStore } from "../../store/auth.store";
 
 export default function LoginPage() {
-  const token = localStorage.getItem("accessToken");
+  const token = useAuthStore((state) => state.accessToken);
 
   if (token) {
     return <Navigate to="/" replace />;

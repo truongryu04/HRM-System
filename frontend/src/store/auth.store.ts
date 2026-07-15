@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface AuthState {
   user: {
@@ -24,25 +25,43 @@ interface AuthState {
   logout: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+const initialAuthState = {
   user: null,
   permissions: [],
   accessToken: null,
   refreshToken: null,
+} satisfies Pick<
+  AuthState,
+  "user" | "permissions" | "accessToken" | "refreshToken"
+>;
 
-  login: (user, permissions, accessToken, refreshToken) =>
-    set({
-      user,
-      permissions,
-      accessToken,
-      refreshToken,
-    }),
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      ...initialAuthState,
 
-  logout: () =>
-    set({
-      user: null,
-      permissions: [],
-      accessToken: null,
-      refreshToken: null,
+      login: (user, permissions, accessToken, refreshToken) => {
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+
+        set({ user, permissions, accessToken, refreshToken });
+      },
+
+      logout: () => {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        set(initialAuthState);
+      },
     }),
-}));
+    {
+      name: "hrm-auth",
+      version: 1,
+      partialize: (state) => ({
+        user: state.user,
+        permissions: state.permissions,
+        accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
+      }),
+    },
+  ),
+);

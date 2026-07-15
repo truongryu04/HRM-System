@@ -7,8 +7,10 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { useActivateAccount } from "../../hooks/useActivateAccount";
+import { useAuthStore } from "../../store/auth.store";
 
 export default function ActivateAccountPage() {
+  const accessToken = useAuthStore((state) => state.accessToken);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const activateMutation = useActivateAccount();
@@ -16,7 +18,7 @@ export default function ActivateAccountPage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  if (localStorage.getItem("accessToken")) {
+  if (accessToken) {
     return <Navigate to="/" replace />;
   }
 

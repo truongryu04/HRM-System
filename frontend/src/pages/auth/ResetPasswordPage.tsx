@@ -8,11 +8,13 @@ import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { useResetPassword } from "../../hooks/useResetPassword";
 import { getApiErrorMessage } from "../../utils/api-error";
+import { useAuthStore } from "../../store/auth.store";
 
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const resetMutation = useResetPassword();
+  const logout = useAuthStore((state) => state.logout);
   const token = searchParams.get("token")?.trim() ?? "";
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -40,8 +42,7 @@ export default function ResetPasswordPage() {
         newPassword,
         confirmPassword,
       });
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      logout();
       toast.success("Đặt lại mật khẩu thành công. Vui lòng đăng nhập lại.");
       navigate("/login", { replace: true });
     } catch (error) {

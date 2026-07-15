@@ -14,7 +14,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const loginMutation = useLogin();
 
-  const authStore = useAuthStore();
+  const login = useAuthStore((state) => state.login);
 
   const navigate = useNavigate();
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,11 +33,7 @@ export default function LoginForm() {
 
       const { user, permissions, access_token, refresh_token } = response.data;
 
-      authStore.login(user, permissions, access_token, refresh_token);
-
-      localStorage.setItem("accessToken", access_token);
-
-      localStorage.setItem("refreshToken", refresh_token);
+      login(user, permissions, access_token, refresh_token);
 
       toast.success("Đăng nhập thành công");
       navigate("/");

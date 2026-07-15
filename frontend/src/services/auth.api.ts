@@ -1,4 +1,5 @@
 import { apiClient } from "./api-client";
+import { useAuthStore } from "../store/auth.store";
 
 export const login = async (email: string, password: string) => {
   const response = await apiClient.post("/auth/login", { email, password });
@@ -34,7 +35,7 @@ export const forgotPassword = async (email: string) => {
 
 export const logoutApi = async () => {
   const response = await apiClient.post("/auth/logout", {
-    refreshToken: localStorage.getItem("refreshToken"),
+    refreshToken: useAuthStore.getState().refreshToken,
   });
   return response.data;
 };
