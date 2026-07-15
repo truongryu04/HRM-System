@@ -1,9 +1,9 @@
-import { format, isSameDay, isWeekend } from "date-fns";
+import { format, isBefore, isSameDay, isWeekend, startOfDay } from "date-fns";
 
-import { Badge } from "../../components/ui/badge";
+import type { AttendanceCalendarDay } from "../../types/attendance.type";
 interface Props {
   date: Date;
-  attendance?: any;
+  attendance?: AttendanceCalendarDay;
 }
 
 export function CalendarCell({ date, attendance }: Props) {
@@ -17,6 +17,19 @@ export function CalendarCell({ date, attendance }: Props) {
   const checkOutTime = attendance?.checkOutTime
     ? format(new Date(attendance.checkOutTime), "HH:mm")
     : null;
+  const isAbsent =
+    !weekend &&
+    isBefore(startOfDay(date), startOfDay(new Date())) &&
+    !checkInTime &&
+    !checkOutTime;
+
+  const checkInClass = attendance?.isLate
+    ? "bg-[#fd3995] text-white ring-1 ring-rose-200"
+    : "bg-teal-500 text-white";
+  const checkOutClass = attendance?.isEarlyLeave
+    ? "bg-[#fd3995] text-white ring-1 ring-rose-200"
+    : "bg-teal-500 text-white";
+
   return (
     <div
       className={`
@@ -34,14 +47,29 @@ export function CalendarCell({ date, attendance }: Props) {
 
       <div className="mt-2 flex flex-wrap justify-center gap-1">
         {checkInTime && (
-          <span className=" rounded bg-green-100 px-1.5 py-0.5 text-[14px] font-medium text-green-700">
+          <span
+            className={`inline-flex min-w-12 items-center justify-center rounded-full px-1.5 py-0.5 text-sm font-medium ${checkInClass}`}
+            title={attendance?.isLate ? "Check-in muộn" : "Giờ check-in"}
+          >
             {checkInTime}
           </span>
         )}
 
         {checkOutTime && (
-          <span className="rounded bg-blue-100 px-1.5 py-0.5 text-[14px] font-medium text-blue-700">
+          <span
+            className={`inline-flex min-w-12 items-center justify-center rounded-full px-1.5 py-0.5 text-sm font-medium ${checkOutClass}`}
+            title={attendance?.isEarlyLeave ? "Check-out sớm" : "Giờ check-out"}
+          >
             {checkOutTime}
+          </span>
+        )}
+
+        {isAbsent && (
+          <span
+            className="inline-flex min-w-12 items-center justify-center rounded-full bg-[#fd3995] px-1.5 py-0.5 text-sm font-medium text-white"
+            aria-label="Không có dữ liệu check-in và check-out"
+          >
+            K
           </span>
         )}
       </div>

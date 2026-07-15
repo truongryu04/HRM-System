@@ -1,10 +1,11 @@
 import { format } from "date-fns";
 
 import { CalendarCell } from "./CalendarCell";
+import type { AttendanceCalendarDay } from "../../types/attendance.type";
 
 interface Props {
   days: Date[];
-  calendarData: Record<string, any>;
+  calendarData: Record<string, AttendanceCalendarDay>;
 }
 
 const weekDays = [
