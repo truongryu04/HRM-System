@@ -28,6 +28,9 @@ import RequestApprovalDetailPage from "../pages/request-approval/RequestApproval
 import RequestTypePage from "../pages/request-type/RequestTypePage";
 import ApprovalFlowManagementPage from "../pages/approval-flow/ApprovalFlowManagementPage";
 import ApprovalStepTemplatePage from "../pages/approval-step-template/ApprovalStepTemplatePage";
+import PermissionRoute from "../guards/PermissionRoute";
+import ForbiddenPage from "../pages/error/ForbiddenPage";
+import { PERMISSIONS } from "../constants/permissions";
 
 export const router = createBrowserRouter([
   {
@@ -47,7 +50,11 @@ export const router = createBrowserRouter([
           },
           {
             path: "attendance",
-            element: <AttendanceManagementPage />,
+            element: (
+              <PermissionRoute allPermissions={[PERMISSIONS.ATTENDANCE.READ]}>
+                <AttendanceManagementPage />
+              </PermissionRoute>
+            ),
           },
           {
             path: "requests/my",
@@ -55,67 +62,138 @@ export const router = createBrowserRouter([
           },
           {
             path: "requests/approval",
-            element: <RequestApprovalPage />,
+            element: (
+              <PermissionRoute allPermissions={[PERMISSIONS.REQUEST.READ]}>
+                <RequestApprovalPage />
+              </PermissionRoute>
+            ),
           },
           {
             path: "requests/approval/:id",
-            element: <RequestApprovalDetailPage />,
+            element: (
+              <PermissionRoute allPermissions={[PERMISSIONS.REQUEST.READ]}>
+                <RequestApprovalDetailPage />
+              </PermissionRoute>
+            ),
           },
           {
             path: "requests/create",
-            element: <RequestCreatePage />,
+            element: (
+              <PermissionRoute allPermissions={[PERMISSIONS.REQUEST.CREATE]}>
+                <RequestCreatePage />
+              </PermissionRoute>
+            ),
           },
           {
             path: "request-types",
-            element: <RequestTypePage />,
+            element: (
+              <PermissionRoute allPermissions={[PERMISSIONS.REQUEST_TYPE.READ]}>
+                <RequestTypePage />
+              </PermissionRoute>
+            ),
           },
           {
             path: "approval-flows",
-            element: <ApprovalFlowManagementPage />,
+            element: (
+              <PermissionRoute allPermissions={[PERMISSIONS.APPROVAL_FLOW.READ]}>
+                <ApprovalFlowManagementPage />
+              </PermissionRoute>
+            ),
           },
           {
             path: "approval-step-templates",
-            element: <ApprovalStepTemplatePage />,
+            element: (
+              <PermissionRoute
+                allPermissions={[PERMISSIONS.APPROVAL_STEP_TEMPLATE.READ]}
+              >
+                <ApprovalStepTemplatePage />
+              </PermissionRoute>
+            ),
           },
           {
             path: "permissions",
-            element: <PermissionPage />,
+            element: (
+              <PermissionRoute
+                allPermissions={[
+                  PERMISSIONS.PERMISSION.READ,
+                  PERMISSIONS.ROLE.READ,
+                ]}
+              >
+                <PermissionPage />
+              </PermissionRoute>
+            ),
           },
           {
             path: "roles",
-            element: <RolePage />,
+            element: (
+              <PermissionRoute allPermissions={[PERMISSIONS.ROLE.READ]}>
+                <RolePage />
+              </PermissionRoute>
+            ),
           },
           {
             path: "users",
-            element: <UserManagementPage />,
+            element: (
+              <PermissionRoute allPermissions={[PERMISSIONS.USER.READ]}>
+                <UserManagementPage />
+              </PermissionRoute>
+            ),
           },
           {
             path: "departments",
-            element: <DepartmentPage />,
+            element: (
+              <PermissionRoute allPermissions={[PERMISSIONS.DEPARTMENT.READ]}>
+                <DepartmentPage />
+              </PermissionRoute>
+            ),
           },
           {
             path: "employees",
-            element: <EmployeePage />,
+            element: (
+              <PermissionRoute allPermissions={[PERMISSIONS.EMPLOYEE.READ]}>
+                <EmployeePage />
+              </PermissionRoute>
+            ),
           },
           {
             path: "employees/:id",
-            element: <EmployeeDetailPage />,
+            element: (
+              <PermissionRoute allPermissions={[PERMISSIONS.EMPLOYEE.READ]}>
+                <EmployeeDetailPage />
+              </PermissionRoute>
+            ),
           },
           {
             path: "employees/:id/edit",
-            element: <EmployeeEditPage />,
+            element: (
+              <PermissionRoute allPermissions={[PERMISSIONS.EMPLOYEE.UPDATE]}>
+                <EmployeeEditPage />
+              </PermissionRoute>
+            ),
           },
           {
             path: "employees/create",
-            element: <EmployeeCreatePage />,
+            element: (
+              <PermissionRoute allPermissions={[PERMISSIONS.EMPLOYEE.CREATE]}>
+                <EmployeeCreatePage />
+              </PermissionRoute>
+            ),
           },
           {
             path: "positions",
-            element: <PositionPage />,
+            element: (
+              <PermissionRoute allPermissions={[PERMISSIONS.POSITION.READ]}>
+                <PositionPage />
+              </PermissionRoute>
+            ),
           },
           {
             path: "work-shifts",
-            element: <WorkShiftPage />,
+            element: (
+              <PermissionRoute allPermissions={[PERMISSIONS.WORK_SHIFT.READ]}>
+                <WorkShiftPage />
+              </PermissionRoute>
+            ),
           },
           {
             path: "profile",
@@ -124,6 +202,10 @@ export const router = createBrowserRouter([
           {
             path: "profile/edit",
             element: <EmployeeProfileEditPage />,
+          },
+          {
+            path: "forbidden",
+            element: <ForbiddenPage />,
           },
         ],
       },

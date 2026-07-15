@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useAuthStore } from "../store/auth.store";
+import { queryClient } from "../app/query-client";
 
 const apiBaseUrl = import.meta.env.VITE_API_URL;
 
@@ -32,6 +33,10 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       useAuthStore.getState().logout();
       window.location.href = "/login";
+    }
+
+    if (error.response?.status === 403) {
+      void queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
     }
 
     return Promise.reject(error);
