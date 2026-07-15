@@ -7,15 +7,21 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { DepartmentService } from './department.service';
 
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
+import { Permissions } from '../auth/decorators/permission.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+@UseGuards(AuthGuard('jwt'), PermissionsGuard)
 @Controller('departments')
 export class DepartmentController {
   constructor(private readonly departmentService: DepartmentService) {}
   @Post()
+  @Permissions('department:create')
   create(
     @Body()
     createDepartmentDto: CreateDepartmentDto,
@@ -24,11 +30,13 @@ export class DepartmentController {
   }
 
   @Get()
+  @Permissions('department:read')
   findAll() {
     return this.departmentService.findAll();
   }
 
   @Get(':id')
+  @Permissions('department:read')
   findOne(
     @Param('id', ParseIntPipe)
     id: number,
@@ -37,6 +45,7 @@ export class DepartmentController {
   }
 
   @Put(':id')
+  @Permissions('department:update')
   update(
     @Param('id', ParseIntPipe)
     id: number,
@@ -48,6 +57,7 @@ export class DepartmentController {
   }
 
   @Delete(':id')
+  @Permissions('department:delete')
   remove(
     @Param('id', ParseIntPipe)
     id: number,

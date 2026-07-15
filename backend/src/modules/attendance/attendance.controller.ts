@@ -17,6 +17,7 @@ import { AttendanceCalendarDto } from './dto/attendance-calendar.dto';
 import { AttendanceQueryDto } from './dto/attendance-query.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import type { JwtUser } from '../auth/jwt-user.interface';
+import { Permissions } from '../auth/decorators/permission.decorator';
 @UseGuards(AuthGuard('jwt'), PermissionsGuard)
 @Controller('attendances')
 export class AttendanceController {
@@ -49,16 +50,19 @@ export class AttendanceController {
   }
 
   @Get('dashboard')
+  @Permissions('attendance:read-dashboard')
   getDashboard() {
     return this.attendanceService.getDashboard();
   }
 
   @Get()
+  @Permissions('attendance:read')
   findAll(@Query() query: AttendanceQueryDto) {
     return this.attendanceService.findAll(query);
   }
 
   @Patch(':id')
+  @Permissions('attendance:update')
   update(
     @Param('id', ParseIntPipe)
     id: number,

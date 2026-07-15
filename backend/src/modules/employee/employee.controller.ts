@@ -25,10 +25,14 @@ import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { UpdateEmployeeStatusDto } from './dto/update-status.dto';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { Permissions } from '../auth/decorators/permission.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+@UseGuards(AuthGuard('jwt'), PermissionsGuard)
 @Controller('employees')
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
   @Post()
+  @Permissions('employee:create')
   @UseInterceptors(FileInterceptor('avatar'))
   create(
     @Body()
@@ -48,18 +52,17 @@ export class EmployeeController {
   }
 
   @Get()
+  @Permissions('employee:read')
   findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
     return this.employeeService.findAll(Number(page) || 1, Number(limit) || 10);
   }
 
   @Get('me/profile')
-  @UseGuards(AuthGuard('jwt'))
   getMyProfile(@CurrentUser('employeeId') employeeId: number | undefined) {
     return this.employeeService.findMyProfile(employeeId);
   }
 
   @Patch('me/profile')
-  @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FileInterceptor('avatar'))
   updateMyProfile(
     @CurrentUser('employeeId') employeeId: number | undefined,
@@ -79,6 +82,7 @@ export class EmployeeController {
   }
 
   @Get(':id')
+  @Permissions('employee:read')
   findOne(
     @Param('id', ParseIntPipe)
     id: number,
@@ -87,6 +91,7 @@ export class EmployeeController {
   }
 
   @Put(':id')
+  @Permissions('employee:update')
   @UseInterceptors(FileInterceptor('avatar'))
   update(
     @Param('id', ParseIntPipe)
@@ -108,6 +113,7 @@ export class EmployeeController {
     return this.employeeService.update(id, dto, avatar);
   }
   @Delete(':id')
+  @Permissions('employee:delete')
   remove(
     @Param('id', ParseIntPipe)
     id: number,
@@ -116,6 +122,7 @@ export class EmployeeController {
   }
 
   @Patch(':id/status')
+  @Permissions('employee:update-status')
   async updateStatus(
     @Param('id') id: number,
     @Body() dto: UpdateEmployeeStatusDto,
