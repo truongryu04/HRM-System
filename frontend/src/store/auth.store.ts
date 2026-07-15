@@ -1,13 +1,9 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { AuthUser } from "../types/auth.type";
 
 interface AuthState {
-  user: {
-    id: number;
-    email: string;
-    employeeId?: number;
-    roles: string[];
-  } | null;
+  user: AuthUser | null;
 
   permissions: string[];
 
@@ -21,6 +17,8 @@ interface AuthState {
     accessToken: string,
     refreshToken: string,
   ) => void;
+
+  updateSession: (user: AuthUser, permissions: string[]) => void;
 
   logout: () => void;
 }
@@ -46,6 +44,8 @@ export const useAuthStore = create<AuthState>()(
 
         set({ user, permissions, accessToken, refreshToken });
       },
+
+      updateSession: (user, permissions) => set({ user, permissions }),
 
       logout: () => {
         localStorage.removeItem("accessToken");
