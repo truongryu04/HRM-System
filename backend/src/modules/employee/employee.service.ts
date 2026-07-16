@@ -2,6 +2,7 @@ import { DepartmentService } from './../department/department.service';
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -170,6 +171,31 @@ export class EmployeeService {
     console.log('employee', employee);
     if (!employee) {
       throw new NotFoundException('Employee not found');
+    }
+
+    return employee;
+  }
+  async findOneAccessible(id: number, user: JwtUser) {
+    const access = await this.departmentAccessService.resolve(
+      user,
+      'employee:read-all',
+    );
+
+    if (!access.canAccessAll && !access.departmentId) {
+      throw new ForbiddenException(
+        'You do not have permission to access this employee',
+      );
+    }
+
+    const employee = await this.findOne(id);
+
+    if (
+      !access.canAccessAll &&
+      employee.department.id !== access.departmentId
+    ) {
+      throw new ForbiddenException(
+        'You do not have permission to access this employee',
+      );
     }
 
     return employee;

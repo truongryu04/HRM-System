@@ -93,10 +93,11 @@ export class EmployeeController {
   @Get(':id')
   @Permissions('employee:read')
   findOne(
+    @CurrentUser() user: JwtUser,
     @Param('id', ParseIntPipe)
     id: number,
   ) {
-    return this.employeeService.findOne(id);
+    return this.employeeService.findOneAccessible(id, user);
   }
 
   @Put(':id')
