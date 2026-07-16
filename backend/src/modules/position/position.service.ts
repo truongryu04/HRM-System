@@ -48,6 +48,23 @@ export class PositionService {
       },
     });
   }
+
+  async findEmployeeUpdateOptions() {
+    return this.positionRepository.find({
+      select: {
+        id: true,
+        code: true,
+        name: true,
+      },
+      where: {
+        is_active: true,
+      },
+      order: {
+        id: 'ASC',
+      },
+    });
+  }
+
   async findOne(id: number) {
     const position = await this.positionRepository.findOne({
       where: {
