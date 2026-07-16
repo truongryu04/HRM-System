@@ -45,6 +45,8 @@ import type {
   WorkShiftRequest,
 } from "../../types/work-shift.type";
 import { getApiErrorMessage } from "../../utils/api-error";
+import { PERMISSIONS } from "../../constants/permissions";
+import { usePermissionAccess } from "../../hooks/usePermissionAccess";
 
 const EMPTY_FORM: WorkShiftRequest = {
   name: "",
@@ -210,6 +212,10 @@ function WorkShiftDialog({
 }
 
 export default function WorkShiftPage() {
+  const { can } = usePermissionAccess();
+  const canCreate = can(PERMISSIONS.WORK_SHIFT.CREATE);
+  const canUpdate = can(PERMISSIONS.WORK_SHIFT.UPDATE);
+  const canDelete = can(PERMISSIONS.WORK_SHIFT.DELETE);
   const { data: workShifts = [], isLoading, isError, refetch } = useWorkShifts();
   const createMutation = useCreateWorkShift();
   const updateMutation = useUpdateWorkShift();
@@ -259,9 +265,9 @@ export default function WorkShiftPage() {
             Quản lý khung giờ và công chuẩn của nhân viên.
           </p>
         </div>
-        <Button onClick={openCreate} className="bg-teal-500 text-white hover:bg-teal-700">
+        {canCreate ? <Button onClick={openCreate} className="bg-teal-500 text-white hover:bg-teal-700">
           <Plus /> Thêm ca làm việc
-        </Button>
+        </Button> : null}
       </div>
 
       <Card>
@@ -302,8 +308,8 @@ export default function WorkShiftPage() {
                       <TableCell><Badge variant={shift.isActive ? "default" : "outline"}>{shift.isActive ? "Hoạt động" : "Ngừng hoạt động"}</Badge></TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button size="icon-sm" variant="ghost" aria-label={`Sửa ${shift.name}`} onClick={() => { setEditingShift(shift); setDialogOpen(true); }}><Pencil /></Button>
-                          <Button size="icon-sm" variant="ghost" className="text-destructive" aria-label={`Xóa ${shift.name}`} disabled={shift.isDefault} onClick={() => setDeleteTarget(shift)}><Trash2 /></Button>
+                          {canUpdate ? <Button size="icon-sm" variant="ghost" aria-label={`Sửa ${shift.name}`} onClick={() => { setEditingShift(shift); setDialogOpen(true); }}><Pencil /></Button> : null}
+                          {canDelete ? <Button size="icon-sm" variant="ghost" className="text-destructive" aria-label={`Xóa ${shift.name}`} disabled={shift.isDefault} onClick={() => setDeleteTarget(shift)}><Trash2 /></Button> : null}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -315,13 +321,13 @@ export default function WorkShiftPage() {
         </CardContent>
       </Card>
 
-      <WorkShiftDialog key={`${dialogOpen}-${editingShift?.id ?? "new"}`} open={dialogOpen} onOpenChange={setDialogOpen} workShift={editingShift} loading={createMutation.isPending || updateMutation.isPending} onSubmit={handleSubmit} />
-      <AlertDialog open={Boolean(deleteTarget)} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+      {canCreate || canUpdate ? <WorkShiftDialog key={`${dialogOpen}-${editingShift?.id ?? "new"}`} open={dialogOpen} onOpenChange={setDialogOpen} workShift={editingShift} loading={createMutation.isPending || updateMutation.isPending} onSubmit={handleSubmit} /> : null}
+      {canDelete ? <AlertDialog open={Boolean(deleteTarget)} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader><AlertDialogTitle>Xóa ca làm việc?</AlertDialogTitle><AlertDialogDescription>Ca “{deleteTarget?.name}” sẽ bị xóa vĩnh viễn. Không thể xóa ca đang được gán cho nhân viên.</AlertDialogDescription></AlertDialogHeader>
           <AlertDialogFooter><AlertDialogCancel disabled={deleteMutation.isPending}>Hủy</AlertDialogCancel><AlertDialogAction variant="destructive" disabled={deleteMutation.isPending} onClick={(event) => { event.preventDefault(); void handleDelete(); }}>{deleteMutation.isPending ? "Đang xóa..." : "Xóa"}</AlertDialogAction></AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
+      </AlertDialog> : null}
     </div>
   );
 }
