@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -10,6 +11,8 @@ import { EmployeeService } from '../employee/employee.service';
 import { Between } from 'typeorm/browser/find-options/operator/Between.js';
 import { AttendanceQueryDto } from './dto/attendance-query.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
+import { DepartmentAccessService } from '../department/department-access.service';
+import type { JwtUser } from '../auth/jwt-user.interface';
 
 @Injectable()
 export class AttendanceService {
@@ -17,6 +20,7 @@ export class AttendanceService {
     @InjectRepository(Attendance)
     private readonly attendanceRepository: Repository<Attendance>,
     private readonly employeeService: EmployeeService,
+    private readonly departmentAccessService: DepartmentAccessService,
   ) {}
   private timeStringToDate(baseDate: Date, time: string): Date {
     const [hour, minute] = time.split(':').map(Number);
@@ -286,7 +290,7 @@ export class AttendanceService {
     });
     return attendance;
   }
-  async getDashboard() {
+  async getDashboard(user: JwtUser) {
     const now = new Date();
 
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
@@ -294,26 +298,51 @@ export class AttendanceService {
       '0',
     )}-${String(now.getDate()).padStart(2, '0')}`;
 
-    const totalEmployees = await this.employeeService.totalEmployee();
+    const access = await this.departmentAccessService.resolve(
+      user,
+      'attendance:read-all',
+    );
 
-    const present = await this.attendanceRepository.count({
-      where: {
-        attendanceDate: today,
-      },
-    });
+    if (!access.canAccessAll && !access.departmentId) {
+      return {
+        totalEmployees: 0,
+        present: 0,
+        late: 0,
+        absent: 0,
+        working: 0,
+      };
+    }
 
-    const late = await this.attendanceRepository.count({
-      where: {
-        attendanceDate: today,
-        isLate: true,
-      },
-    });
+    const managedDepartmentId = access.canAccessAll
+      ? undefined
+      : access.departmentId!;
+    const totalEmployees =
+      await this.employeeService.totalEmployee(managedDepartmentId);
 
-    const absent = totalEmployees - present;
-
-    const working = await this.attendanceRepository
+    const attendanceQb = this.attendanceRepository
       .createQueryBuilder('attendance')
+      .leftJoin('attendance.employee', 'employee')
+      .leftJoin('employee.department', 'department')
       .where('attendance.attendanceDate = :today', { today })
+      .andWhere('employee.isDeleted = false');
+
+    if (managedDepartmentId) {
+      attendanceQb.andWhere('department.id = :managedDepartmentId', {
+        managedDepartmentId,
+      });
+    }
+
+    const present = await attendanceQb.clone().getCount();
+
+    const late = await attendanceQb
+      .clone()
+      .andWhere('attendance.isLate = true')
+      .getCount();
+
+    const absent = Math.max(totalEmployees - present, 0);
+
+    const working = await attendanceQb
+      .clone()
       .andWhere('attendance.checkInTime IS NOT NULL')
       .andWhere('attendance.checkOutTime IS NULL')
       .getCount();
@@ -326,7 +355,7 @@ export class AttendanceService {
       working,
     };
   }
-  async findAll(query: AttendanceQueryDto) {
+  async findAll(query: AttendanceQueryDto, user: JwtUser) {
     const {
       page = '1',
       limit = '10',
@@ -342,6 +371,29 @@ export class AttendanceService {
       .leftJoinAndSelect('attendance.employee', 'employee')
       .leftJoinAndSelect('employee.department', 'department')
       .leftJoinAndSelect('employee.position', 'position');
+
+    const access = await this.departmentAccessService.resolve(
+      user,
+      'attendance:read-all',
+    );
+
+    if (!access.canAccessAll && !access.departmentId) {
+      return {
+        data: [],
+        meta: {
+          page: +page,
+          limit: +limit,
+          total: 0,
+          totalPages: 0,
+        },
+      };
+    }
+
+    if (!access.canAccessAll) {
+      qb.andWhere('department.id = :managedDepartmentId', {
+        managedDepartmentId: access.departmentId,
+      });
+    }
 
     if (search) {
       qb.andWhere(
@@ -390,18 +442,39 @@ export class AttendanceService {
       },
     };
   }
-  async update(id: number, dto: UpdateAttendanceDto) {
+  async update(id: number, dto: UpdateAttendanceDto, user: JwtUser) {
+    const access = await this.departmentAccessService.resolve(
+      user,
+      'attendance:read-all',
+    );
+
+    if (!access.canAccessAll && !access.departmentId) {
+      throw new ForbiddenException(
+        'You do not have permission to update this attendance',
+      );
+    }
+
     const attendance = await this.attendanceRepository.findOne({
       where: { id },
       relations: {
         employee: {
           workShift: true,
+          department: true,
         },
       },
     });
 
     if (!attendance) {
       throw new NotFoundException('Attendance not found');
+    }
+
+    if (
+      !access.canAccessAll &&
+      attendance.employee.department.id !== access.departmentId
+    ) {
+      throw new ForbiddenException(
+        'You do not have permission to update this attendance',
+      );
     }
 
     if (dto.checkInTime !== undefined) {

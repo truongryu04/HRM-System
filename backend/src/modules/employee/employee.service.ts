@@ -307,10 +307,11 @@ export class EmployeeService {
 
     return this.employeeRepository.save(employee);
   }
-  async totalEmployee() {
+  async totalEmployee(departmentId?: number) {
     const total = await this.employeeRepository.count({
       where: {
         isDeleted: false,
+        ...(departmentId ? { department: { id: departmentId } } : {}),
       },
     });
     return total;

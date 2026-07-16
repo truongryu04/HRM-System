@@ -51,25 +51,26 @@ export class AttendanceController {
 
   @Get('dashboard')
   @Permissions('attendance:read-dashboard')
-  getDashboard() {
-    return this.attendanceService.getDashboard();
+  getDashboard(@CurrentUser() user: JwtUser) {
+    return this.attendanceService.getDashboard(user);
   }
 
   @Get()
   @Permissions('attendance:read')
-  findAll(@Query() query: AttendanceQueryDto) {
-    return this.attendanceService.findAll(query);
+  findAll(@CurrentUser() user: JwtUser, @Query() query: AttendanceQueryDto) {
+    return this.attendanceService.findAll(query, user);
   }
 
   @Patch(':id')
   @Permissions('attendance:update')
   update(
+    @CurrentUser() user: JwtUser,
     @Param('id', ParseIntPipe)
     id: number,
 
     @Body()
     dto: UpdateAttendanceDto,
   ) {
-    return this.attendanceService.update(id, dto);
+    return this.attendanceService.update(id, dto, user);
   }
 }
