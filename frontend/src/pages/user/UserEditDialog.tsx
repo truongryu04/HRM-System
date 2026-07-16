@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "../../components/ui/button";
 import { Checkbox } from "../../components/ui/checkbox";
 import {
@@ -22,6 +22,8 @@ import { useEmployees } from "../../hooks/useEmployees";
 import type { Role } from "@/types/role.type";
 import type { UpdateUserRequest, User } from "@/types/user.type";
 import { useUpdateUser } from "../../hooks/useUsers";
+import { PERMISSIONS } from "../../constants/permissions";
+import { usePermissionAccess } from "../../hooks/usePermissionAccess";
 
 interface UserEditDialogProps {
   open: boolean;
@@ -36,26 +38,25 @@ export default function UserEditDialog({
   user,
   roles,
 }: UserEditDialogProps) {
+  const { can } = usePermissionAccess();
+  const canReadEmployees = can(PERMISSIONS.EMPLOYEE.READ);
+  const canAssignRole = can(PERMISSIONS.USER.ASSIGN_ROLE);
+  const canUpdateStatus = can(PERMISSIONS.USER.UPDATE_STATUS);
   const updateUserMutation = useUpdateUser();
 
   const { data: employeeResponse, isLoading: isEmployeesLoading } =
-    useEmployees({ page: 1, limit: 1000 }, open);
+    useEmployees({ page: 1, limit: 1000 }, open && canReadEmployees);
 
   const employees = employeeResponse?.data ?? [];
 
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState("PENDING");
-  const [employeeId, setEmployeeId] = useState("");
-  const [roleIds, setRoleIds] = useState<number[]>([]);
-
-  useEffect(() => {
-    if (!open || !user) return;
-    console.log(user);
-    setEmail(user.email ?? "");
-    setStatus(user.status ?? "PENDING");
-    setEmployeeId(String(user.employee?.id ?? ""));
-    setRoleIds(user.roles?.map((role) => role.id) ?? []);
-  }, [open, user]);
+  const [email, setEmail] = useState(() => user?.email ?? "");
+  const [status, setStatus] = useState(() => user?.status ?? "PENDING");
+  const [employeeId, setEmployeeId] = useState(() =>
+    String(user?.employee?.id ?? ""),
+  );
+  const [roleIds, setRoleIds] = useState<number[]>(
+    () => user?.roles?.map((role) => role.id) ?? [],
+  );
 
   const selectedRoleLabel = useMemo(() => {
     return roleIds.length ? `${roleIds.length} vai trò đã chọn` : "Chưa chọn";
@@ -108,7 +109,11 @@ export default function UserEditDialog({
           <div className="space-y-2">
             <Label htmlFor="user-status">Trạng thái</Label>
 
-            <Select value={status} onValueChange={setStatus}>
+            <Select
+              value={status}
+              onValueChange={setStatus}
+              disabled={!canUpdateStatus}
+            >
               <SelectTrigger id="user-status" className="w-full">
                 <SelectValue />
               </SelectTrigger>
@@ -126,7 +131,11 @@ export default function UserEditDialog({
           <div className="space-y-2">
             <Label htmlFor="employee-select">Nhân viên</Label>
 
-            <Select value={employeeId} onValueChange={setEmployeeId}>
+            <Select
+              value={employeeId}
+              onValueChange={setEmployeeId}
+              disabled={!canReadEmployees}
+            >
               <SelectTrigger id="employee-select" className="w-full">
                 <SelectValue
                   placeholder={
@@ -168,6 +177,7 @@ export default function UserEditDialog({
                 >
                   <Checkbox
                     checked={checked}
+                    disabled={!canAssignRole}
                     onCheckedChange={(value) =>
                       handleRoleToggle(role.id, value === true)
                     }

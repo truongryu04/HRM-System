@@ -17,6 +17,8 @@ interface UserTableProps {
   onResetPassword: (user: User) => void;
   selectedUserIds: Set<number>;
   onSelectionChange: (userIds: Set<number>) => void;
+  canEdit: boolean;
+  canResetPassword: boolean;
 }
 
 export function UserTable({
@@ -25,6 +27,8 @@ export function UserTable({
   onResetPassword,
   selectedUserIds,
   onSelectionChange,
+  canEdit,
+  canResetPassword,
 }: UserTableProps) {
   const pageUserIds = users.map((user) => user.id);
   const selectedOnPage = pageUserIds.filter((id) => selectedUserIds.has(id));
@@ -49,7 +53,7 @@ export function UserTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-10">
+            {canResetPassword ? <TableHead className="w-10">
               <Checkbox
                 aria-label="Chọn tất cả tài khoản trên trang"
                 checked={
@@ -58,7 +62,7 @@ export function UserTable({
                 }
                 onCheckedChange={(checked) => toggleAll(checked === true)}
               />
-            </TableHead>
+            </TableHead> : null}
             <TableHead>Email</TableHead>
             <TableHead>Employee</TableHead>
             <TableHead>Role</TableHead>
@@ -72,7 +76,7 @@ export function UserTable({
           {users.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={7}
+                colSpan={canResetPassword ? 7 : 6}
                 className="py-10 text-center text-muted-foreground"
               >
                 Không có người dùng phù hợp.
@@ -81,7 +85,7 @@ export function UserTable({
           ) : (
             users.map((u) => (
               <TableRow key={u.id}>
-                <TableCell>
+                {canResetPassword ? <TableCell>
                   <Checkbox
                     aria-label={`Chọn tài khoản ${u.email}`}
                     checked={selectedUserIds.has(u.id)}
@@ -89,7 +93,7 @@ export function UserTable({
                       toggleUser(u.id, checked === true)
                     }
                   />
-                </TableCell>
+                </TableCell> : null}
                 <TableCell>{u.email}</TableCell>
                 <TableCell>{u.employee?.fullName ?? "Chưa liên kết"}</TableCell>
                 <TableCell>{u.roles?.map((r) => r.name).join(", ")}</TableCell>
@@ -108,6 +112,8 @@ export function UserTable({
                     user={u}
                     onEdit={onEdit}
                     onResetPassword={onResetPassword}
+                    canEdit={canEdit}
+                    canResetPassword={canResetPassword}
                   />
                 </TableCell>
               </TableRow>

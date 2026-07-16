@@ -14,12 +14,18 @@ interface UserActionDropdownProps {
   user: User;
   onEdit: (user: User) => void;
   onResetPassword: (user: User) => void;
+  canEdit: boolean;
+  canResetPassword: boolean;
 }
 export default function UserActionDropdown({
   user,
   onEdit,
   onResetPassword,
+  canEdit,
+  canResetPassword,
 }: UserActionDropdownProps) {
+  if (!canEdit && !canResetPassword) return null;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -29,15 +35,13 @@ export default function UserActionDropdown({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => onEdit(user)}>
+        {canEdit ? <DropdownMenuItem onClick={() => onEdit(user)}>
           <Pencil /> Sửa
-        </DropdownMenuItem>
+        </DropdownMenuItem> : null}
 
-        <DropdownMenuItem onClick={() => onResetPassword(user)}>
+        {canResetPassword ? <DropdownMenuItem onClick={() => onResetPassword(user)}>
           <KeyRound /> Đặt lại mật khẩu
-        </DropdownMenuItem>
-
-        <DropdownMenuItem>Khóa tài khoản</DropdownMenuItem>
+        </DropdownMenuItem> : null}
       </DropdownMenuContent>
     </DropdownMenu>
   );

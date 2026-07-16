@@ -8,13 +8,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../../components/ui/alert-dialog";
+import type { Role } from "../../types/role.type";
+
+type DeleteRoleDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  role: Role | null;
+  onConfirm: () => void;
+};
 
 export default function DeleteRoleDialog({
   open,
   onOpenChange,
   role,
   onConfirm,
-}) {
+}: DeleteRoleDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>

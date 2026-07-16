@@ -8,7 +8,16 @@ import {
 import { Card, CardContent } from "../../components/ui/card";
 import { useRoles } from "../../hooks/useRoles";
 import { RoleRow } from "./RoleRow";
-export function RoleTable({ onEdit, onDelete }) {
+import type { Role } from "../../types/role.type";
+
+type RoleTableProps = {
+  onEdit: (role: Role) => void;
+  onDelete: (role: Role) => void;
+  canEdit: boolean;
+  canDelete: boolean;
+};
+
+export function RoleTable({ onEdit, onDelete, canEdit, canDelete }: RoleTableProps) {
   const { data: roles = [] } = useRoles();
   return (
     <Card>
@@ -30,6 +39,8 @@ export function RoleTable({ onEdit, onDelete }) {
                 role={role}
                 onEdit={onEdit}
                 onDelete={onDelete}
+                canEdit={canEdit}
+                canDelete={canDelete}
               />
             ))}
           </TableBody>

@@ -12,8 +12,15 @@ import { KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "../../utils/api-error";
 import { ResetPasswordDialog } from "./ResetPasswordDialog";
+import { PERMISSIONS } from "../../constants/permissions";
+import { usePermissionAccess } from "../../hooks/usePermissionAccess";
 
 export default function UserManagementPage() {
+  const { can } = usePermissionAccess();
+  const canCreate = can(PERMISSIONS.USER.CREATE);
+  const canUpdate = can(PERMISSIONS.USER.UPDATE);
+  const canResetPassword = can(PERMISSIONS.USER.RESET_PASSWORD);
+  const canReadRoles = can(PERMISSIONS.ROLE.READ);
   const [page, setPage] = useState(1);
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
 
@@ -22,7 +29,7 @@ export default function UserManagementPage() {
   const [role, setRole] = useState("all");
   const [status, setStatus] = useState("all");
   const [linkedEmployee, setLinkedEmployee] = useState("all");
-  const { data: roles = [] } = useRoles();
+  const { data: roles = [] } = useRoles(canReadRoles);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedUserIds, setSelectedUserIds] = useState<Set<number>>(
@@ -115,17 +122,17 @@ export default function UserManagementPage() {
         </div>
 
         <div className="flex flex-wrap justify-end gap-2">
-          {selectedUserIds.size > 0 && (
+          {canResetPassword && selectedUserIds.size > 0 && (
             <Button variant="outline" onClick={openBulkReset}>
               <KeyRound /> Đặt lại mật khẩu ({selectedUserIds.size})
             </Button>
           )}
-          <Button
+          {canCreate ? <Button
             onClick={() => setOpenCreateDialog(true)}
             className="bg-teal-500 text-white hover:bg-teal-700"
           >
             Thêm tài khoản
-          </Button>
+          </Button> : null}
         </div>
       </div>
 
@@ -148,6 +155,8 @@ export default function UserManagementPage() {
         onResetPassword={openSingleReset}
         selectedUserIds={selectedUserIds}
         onSelectionChange={setSelectedUserIds}
+        canEdit={canUpdate}
+        canResetPassword={canResetPassword}
       />
       <Pagination
         page={pagination?.page ?? 1}
@@ -160,25 +169,26 @@ export default function UserManagementPage() {
         }}
         itemName="tài khoản"
       />
-      <UserCreateDialog
+      {canCreate ? <UserCreateDialog
         key={openCreateDialog ? "open" : "closed"}
         open={openCreateDialog}
         onOpenChange={setOpenCreateDialog}
         roles={roles}
-      />
-      <UserEditDialog
+      /> : null}
+      {canUpdate ? <UserEditDialog
+        key={`${openEditDialog}-${selectedUser?.id ?? "none"}`}
         open={openEditDialog}
         onOpenChange={setOpenEditDialog}
         user={selectedUser}
         roles={roles}
-      />
-      <ResetPasswordDialog
+      /> : null}
+      {canResetPassword ? <ResetPasswordDialog
         open={resetTargets.length > 0}
         onOpenChange={(open) => !open && setResetTargets([])}
         users={resetTargets}
         loading={resetPasswordMutation.isPending}
         onConfirm={() => void handleResetPasswords()}
-      />
+      /> : null}
     </div>
   );
 }

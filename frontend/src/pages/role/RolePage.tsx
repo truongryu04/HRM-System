@@ -8,8 +8,14 @@ import { toast } from "sonner";
 import { createRole, deleteRole, updateRole } from "../../services/role.api";
 import { useQueryClient } from "@tanstack/react-query";
 import { getApiErrorMessage } from "../../utils/api-error";
+import { PERMISSIONS } from "../../constants/permissions";
+import { usePermissionAccess } from "../../hooks/usePermissionAccess";
 
 export default function RolePage() {
+  const { can } = usePermissionAccess();
+  const canCreate = can(PERMISSIONS.ROLE.CREATE);
+  const canEdit = can(PERMISSIONS.ROLE.UPDATE);
+  const canDelete = can(PERMISSIONS.ROLE.DELETE);
   const queryClient = useQueryClient();
   const [openRoleDialog, setOpenRoleDialog] = useState(false);
 
@@ -79,7 +85,7 @@ export default function RolePage() {
 
           <p className="text-muted-foreground">Manage roles in the system.</p>
         </div>
-        <Button
+        {canCreate ? <Button
           className="bg-teal-500 text-white hover:bg-teal-700 hover:text-white "
           variant="outline"
           onClick={() => {
@@ -89,11 +95,13 @@ export default function RolePage() {
           }}
         >
           Thêm vai trò
-        </Button>
+        </Button> : null}
       </div>
       <RoleTable
         onEdit={handleEditClick}
         onDelete={handleDeleteClick}
+        canEdit={canEdit}
+        canDelete={canDelete}
       ></RoleTable>
       <RoleDialog
         open={openRoleDialog}
