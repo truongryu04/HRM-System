@@ -32,10 +32,9 @@ export class PositionController {
     return this.positionService.findAll();
   }
 
-  @Get('employee-update-options')
-  @Permissions('employee:update')
-  findEmployeeUpdateOptions() {
-    return this.positionService.findEmployeeUpdateOptions();
+  @Get('options')
+  findOptions() {
+    return this.positionService.findOptions();
   }
 
   @Get(':id')

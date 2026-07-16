@@ -49,7 +49,7 @@ export class PositionService {
     });
   }
 
-  async findEmployeeUpdateOptions() {
+  async findOptions() {
     return this.positionRepository.find({
       select: {
         id: true,
