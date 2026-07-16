@@ -34,10 +34,11 @@ export const requestConfigKeys = {
     [...requestConfigKeys.all, "approval-step-templates"] as const,
 };
 
-export const useRequestTypes = () => {
+export const useRequestTypes = (enabled = true) => {
   return useQuery({
     queryKey: requestConfigKeys.requestTypes(),
     queryFn: getRequestTypes,
+    enabled,
   });
 };
 
@@ -48,18 +49,19 @@ export const useApprovalFlows = (requestTypeId?: number) => {
   });
 };
 
-export const useApprovalFlowSteps = (flowId?: number) => {
+export const useApprovalFlowSteps = (flowId?: number, enabled = true) => {
   return useQuery({
     queryKey: requestConfigKeys.steps(flowId),
     queryFn: () => getApprovalFlowSteps(flowId!),
-    enabled: Boolean(flowId),
+    enabled: Boolean(flowId) && enabled,
   });
 };
 
-export const useApprovalStepTemplates = () => {
+export const useApprovalStepTemplates = (enabled = true) => {
   return useQuery({
     queryKey: requestConfigKeys.stepTemplates(),
     queryFn: getApprovalStepTemplates,
+    enabled,
   });
 };
 

@@ -15,10 +15,11 @@ interface UserQuery {
   status?: string;
   linkedEmployee?: string;
 }
-export const useUsers = (params: UserQuery) => {
+export const useUsers = (params: UserQuery, enabled = true) => {
   return useQuery<UserListResponse>({
     queryKey: ["users", params],
     queryFn: () => getUsers(params),
+    enabled,
   });
 };
 export const useUpdateUser = () => {

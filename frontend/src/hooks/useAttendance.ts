@@ -11,10 +11,11 @@ export const attendanceKeys = {
   list: (params?: unknown) => [...attendanceKeys.all, "list", params] as const,
 };
 
-export function useAttendanceDashboard() {
+export function useAttendanceDashboard(enabled = true) {
   return useQuery({
     queryKey: attendanceKeys.dashboard(),
     queryFn: attendanceApi.getDashboard,
+    enabled,
   });
 }
 

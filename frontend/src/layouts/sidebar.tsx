@@ -3,41 +3,89 @@ import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 
 import { cn } from "../lib/utils";
+import { PERMISSIONS, type PermissionCode } from "../constants/permissions";
+import { usePermissionAccess } from "../hooks/usePermissionAccess";
 
-type NavItem = {
+type PermissionRequirement = {
+  anyPermissions?: readonly PermissionCode[];
+  allPermissions?: readonly PermissionCode[];
+};
+
+type NavItem = PermissionRequirement & {
   to: string;
   label: string;
 };
 
-type NavGroup = {
+type NavGroup = PermissionRequirement & {
   label: string;
   children: NavItem[];
 };
 
 const navItems: Array<NavItem | NavGroup> = [
   { to: "/", label: "Lịch làm việc" },
-  { to: "/attendance", label: "Quản lý chấm công" },
+  {
+    to: "/attendance",
+    label: "Quản lý chấm công",
+    allPermissions: [PERMISSIONS.ATTENDANCE.READ],
+  },
   {
     label: "Các yêu cầu",
     children: [
       { to: "/requests/my", label: "Yêu cầu của tôi" },
-      { to: "/requests/approval", label: "Yêu cầu cần duyệt" },
+      {
+        to: "/requests/approval",
+        label: "Yêu cầu cần duyệt",
+        allPermissions: [PERMISSIONS.REQUEST.READ],
+      },
     ],
   },
   {
     label: "Cấu hình",
     children: [
-      { to: "/request-types", label: "Loại yêu cầu" },
-      { to: "/approval-flows", label: "Luồng duyệt" },
-      { to: "/work-shifts", label: "Ca làm việc" },
+      {
+        to: "/request-types",
+        label: "Loại yêu cầu",
+        allPermissions: [PERMISSIONS.REQUEST_TYPE.READ],
+      },
+      {
+        to: "/approval-flows",
+        label: "Luồng duyệt",
+        allPermissions: [PERMISSIONS.APPROVAL_FLOW.READ],
+      },
+      {
+        to: "/approval-step-templates",
+        label: "Mẫu bước duyệt",
+        allPermissions: [PERMISSIONS.APPROVAL_STEP_TEMPLATE.READ],
+      },
+      {
+        to: "/work-shifts",
+        label: "Ca làm việc",
+        allPermissions: [PERMISSIONS.WORK_SHIFT.READ],
+      },
     ],
   },
-  { to: "/permissions", label: "Phân quyền" },
-  { to: "/roles", label: "Vai trò" },
-  { to: "/employees", label: "Nhân viên" },
-  { to: "/users", label: "Tài khoản" },
-  { to: "/departments", label: "Phòng ban" },
-  { to: "/positions", label: "Vị trí" },
+  {
+    to: "/permissions",
+    label: "Phân quyền",
+    allPermissions: [PERMISSIONS.PERMISSION.READ, PERMISSIONS.ROLE.READ],
+  },
+  { to: "/roles", label: "Vai trò", allPermissions: [PERMISSIONS.ROLE.READ] },
+  {
+    to: "/employees",
+    label: "Nhân viên",
+    allPermissions: [PERMISSIONS.EMPLOYEE.READ],
+  },
+  { to: "/users", label: "Tài khoản", allPermissions: [PERMISSIONS.USER.READ] },
+  {
+    to: "/departments",
+    label: "Phòng ban",
+    allPermissions: [PERMISSIONS.DEPARTMENT.READ],
+  },
+  {
+    to: "/positions",
+    label: "Vị trí",
+    allPermissions: [PERMISSIONS.POSITION.READ],
+  },
 ];
 
 function isNavGroup(item: NavItem | NavGroup): item is NavGroup {
@@ -69,6 +117,20 @@ function getActiveGroupLabel(pathname: string) {
 
 export function Sidebar() {
   const location = useLocation();
+  const { canAll, canAny } = usePermissionAccess();
+  const isAllowed = (item: PermissionRequirement) =>
+    (!item.allPermissions?.length || canAll(item.allPermissions)) &&
+    (!item.anyPermissions?.length || canAny(item.anyPermissions));
+  const visibleNavItems = navItems.reduce<Array<NavItem | NavGroup>>(
+    (items, item) => {
+      if (!isAllowed(item)) return items;
+      if (!isNavGroup(item)) return [...items, item];
+
+      const children = item.children.filter(isAllowed);
+      return children.length ? [...items, { ...item, children }] : items;
+    },
+    [],
+  );
   const [openGroupLabel, setOpenGroupLabel] = useState<string | null>(() =>
     getActiveGroupLabel(location.pathname),
   );
@@ -78,7 +140,7 @@ export function Sidebar() {
       <div className="p-4 text-xl font-bold">HRM System</div>
 
       <nav className="space-y-1 p-2">
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           if (!isNavGroup(item)) {
             return <SidebarLink key={item.to} item={item} />;
           }
