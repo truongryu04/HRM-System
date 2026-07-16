@@ -20,6 +20,7 @@ interface AttendanceTableProps {
   setSelectedAttendance: (attendance: Attendance | null) => void;
 
   setOpenEditDialog: (open: boolean) => void;
+  canUpdate: boolean;
 }
 
 const formatDate = (date: string) => {
@@ -64,6 +65,7 @@ export function AttendanceTable({
   data,
   setSelectedAttendance,
   setOpenEditDialog,
+  canUpdate,
 }: AttendanceTableProps) {
   return (
     <Card>
@@ -81,14 +83,14 @@ export function AttendanceTable({
               <TableHead>Check Out</TableHead>
               <TableHead>Giờ làm</TableHead>
               <TableHead>Trạng thái</TableHead>
-              <TableHead className="text-right">Thao tác</TableHead>
+              {canUpdate ? <TableHead className="text-right">Thao tác</TableHead> : null}
             </TableRow>
           </TableHeader>
 
           <TableBody>
             {data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={11} className="text-center py-8">
+                <TableCell colSpan={canUpdate ? 11 : 10} className="text-center py-8">
                   Không có dữ liệu
                 </TableCell>
               </TableRow>
@@ -123,7 +125,7 @@ export function AttendanceTable({
                     />
                   </TableCell>
 
-                  <TableCell className="text-right">
+                  {canUpdate ? <TableCell className="text-right">
                     <Button
                       size="icon"
                       variant="ghost"
@@ -134,7 +136,7 @@ export function AttendanceTable({
                     >
                       <Pencil className="size-4" />
                     </Button>
-                  </TableCell>
+                  </TableCell> : null}
                 </TableRow>
               ))
             )}

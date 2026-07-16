@@ -50,6 +50,8 @@ import {
   approverTypeOptions,
   getApproverTypeLabel,
 } from "../approval-flow/approval-flow.constants";
+import { PERMISSIONS } from "../../constants/permissions";
+import { usePermissionAccess } from "../../hooks/usePermissionAccess";
 
 const ALL_APPROVER_TYPES = "ALL";
 
@@ -72,6 +74,13 @@ function getSpecificUserLabel(template: ApprovalStepTemplate) {
 }
 
 export default function ApprovalStepTemplatePage() {
+  const { can } = usePermissionAccess();
+  const canCreate = can(PERMISSIONS.APPROVAL_STEP_TEMPLATE.CREATE);
+  const canUpdate = can(PERMISSIONS.APPROVAL_STEP_TEMPLATE.UPDATE);
+  const canDelete = can(PERMISSIONS.APPROVAL_STEP_TEMPLATE.DELETE);
+  const canReadRoles = can(PERMISSIONS.ROLE.READ);
+  const canReadPositions = can(PERMISSIONS.POSITION.READ);
+  const canReadUsers = can(PERMISSIONS.USER.READ);
   const [search, setSearch] = useState("");
   const [approverTypeFilter, setApproverTypeFilter] =
     useState<ApproverType | typeof ALL_APPROVER_TYPES>(ALL_APPROVER_TYPES);
@@ -87,9 +96,12 @@ export default function ApprovalStepTemplatePage() {
     isError,
     refetch,
   } = useApprovalStepTemplates();
-  const { data: roles = [] } = useRoles();
-  const { data: positions = [] } = usePositions();
-  const { data: usersResponse } = useUsers({ page: 1, limit: 100 });
+  const { data: roles = [] } = useRoles(canReadRoles);
+  const { data: positions = [] } = usePositions(canReadPositions);
+  const { data: usersResponse } = useUsers(
+    { page: 1, limit: 100 },
+    canReadUsers,
+  );
   const users = usersResponse?.data ?? [];
 
   const createTemplateMutation = useCreateApprovalStepTemplate();
@@ -161,13 +173,13 @@ export default function ApprovalStepTemplatePage() {
           </p>
         </div>
 
-        <Button
+        {canCreate ? <Button
           onClick={handleOpenCreate}
           className="bg-teal-500 text-white hover:bg-teal-700"
         >
           <Plus className="size-4" />
           Tạo mẫu
-        </Button>
+        </Button> : null}
       </div>
 
       <Card>
@@ -234,14 +246,14 @@ export default function ApprovalStepTemplatePage() {
                     <TableHead>User cụ thể</TableHead>
                     <TableHead>Condition</TableHead>
                     <TableHead>Trạng thái</TableHead>
-                    <TableHead className="text-right">Thao tác</TableHead>
+                    {canUpdate || canDelete ? <TableHead className="text-right">Thao tác</TableHead> : null}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredTemplates.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={8}
+                        colSpan={canUpdate || canDelete ? 8 : 7}
                         className="h-28 text-center text-muted-foreground"
                       >
                         Chưa có mẫu bước duyệt phù hợp.
@@ -269,17 +281,17 @@ export default function ApprovalStepTemplatePage() {
                             Đang dùng
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-right">
+                        {canUpdate || canDelete ? <TableCell className="text-right">
                           <div className="flex justify-end gap-1">
-                            <Button
+                            {canUpdate ? <Button
                               variant="ghost"
                               size="icon-sm"
                               aria-label="Sửa mẫu"
                               onClick={() => handleOpenEdit(template)}
                             >
                               <Pencil className="size-4" />
-                            </Button>
-                            <Button
+                            </Button> : null}
+                            {canDelete ? <Button
                               variant="ghost"
                               size="icon-sm"
                               aria-label="Xóa mềm mẫu"
@@ -287,9 +299,9 @@ export default function ApprovalStepTemplatePage() {
                               onClick={() => setDeletingTemplate(template)}
                             >
                               <Trash2 className="size-4" />
-                            </Button>
+                            </Button> : null}
                           </div>
-                        </TableCell>
+                        </TableCell> : null}
                       </TableRow>
                     ))
                   )}
@@ -300,7 +312,7 @@ export default function ApprovalStepTemplatePage() {
         </CardContent>
       </Card>
 
-      <ApprovalStepTemplateDialog
+      {canCreate || canUpdate ? <ApprovalStepTemplateDialog
         key={`${dialogOpen ? "open" : "closed"}-${editingTemplate?.id ?? "create"}`}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
@@ -312,9 +324,9 @@ export default function ApprovalStepTemplatePage() {
           createTemplateMutation.isPending || updateTemplateMutation.isPending
         }
         onSubmit={handleSubmit}
-      />
+      /> : null}
 
-      <AlertDialog
+      {canDelete ? <AlertDialog
         open={Boolean(deletingTemplate)}
         onOpenChange={(open) => {
           if (!open) {
@@ -340,7 +352,7 @@ export default function ApprovalStepTemplatePage() {
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
+      </AlertDialog> : null}
     </div>
   );
 }

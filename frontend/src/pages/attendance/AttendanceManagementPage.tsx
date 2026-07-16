@@ -20,7 +20,14 @@ import { AttendanceEditDialog } from "./AttendanceEditDialog";
 import { attendanceApi } from "../../services/attendance.api";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "../../utils/api-error";
+import { PERMISSIONS } from "../../constants/permissions";
+import { usePermissionAccess } from "../../hooks/usePermissionAccess";
 export default function AttendanceManagementPage() {
+  const { can } = usePermissionAccess();
+  const canReadDashboard = can(PERMISSIONS.ATTENDANCE.READ_DASHBOARD);
+  const canUpdate = can(PERMISSIONS.ATTENDANCE.UPDATE);
+  const canReadDepartments = can(PERMISSIONS.DEPARTMENT.READ);
+  const canReadPositions = can(PERMISSIONS.POSITION.READ);
   const today = new Date().toISOString().split("T")[0];
 
   const [searchInput, setSearchInput] = useState("");
@@ -35,10 +42,10 @@ export default function AttendanceManagementPage() {
   const [status, setStatus] = useState("all");
   const [page, setPage] = useState(1);
   const { data: dashboard, isLoading: dashboardLoading } =
-    useAttendanceDashboard();
+    useAttendanceDashboard(canReadDashboard);
 
-  const { data: departments = [] } = useDepartments();
-  const { data: positions = [] } = usePositions();
+  const { data: departments = [] } = useDepartments(canReadDepartments);
+  const { data: positions = [] } = usePositions(canReadPositions);
   const [openEditDialog, setOpenEditDialog] = useState(false);
 
   const [selectedAttendance, setSelectedAttendance] =
@@ -93,7 +100,9 @@ export default function AttendanceManagementPage() {
         </p>
       </div>
 
-      <AttendanceStatsCards data={dashboard} isLoading={dashboardLoading} />
+      {canReadDashboard ? (
+        <AttendanceStatsCards data={dashboard} isLoading={dashboardLoading} />
+      ) : null}
 
       <AttendanceFilter
         searchInput={searchInput}
@@ -116,6 +125,7 @@ export default function AttendanceManagementPage() {
         data={attendanceResponse?.data ?? []}
         setSelectedAttendance={setSelectedAttendance}
         setOpenEditDialog={setOpenEditDialog}
+        canUpdate={canUpdate}
       />
 
       <Pagination
@@ -126,13 +136,13 @@ export default function AttendanceManagementPage() {
         setPage={setPage}
         itemName="tài khoản"
       />
-      <AttendanceEditDialog
+      {canUpdate ? <AttendanceEditDialog
         key={selectedAttendance?.id}
         open={openEditDialog}
         onOpenChange={setOpenEditDialog}
         attendance={selectedAttendance}
         onSubmit={handleUpdateAttendance}
-      />
+      /> : null}
     </div>
   );
 }

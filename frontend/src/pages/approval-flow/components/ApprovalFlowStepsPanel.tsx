@@ -31,6 +31,10 @@ interface ApprovalFlowStepsPanelProps {
   flow: ApprovalFlow | null;
   onAddStepFromTemplate: () => void;
   onEditStep: (step: ApprovalFlowStep) => void;
+  canRead: boolean;
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
 }
 
 function getApproverTarget(step: ApprovalFlowStep) {
@@ -53,8 +57,12 @@ export function ApprovalFlowStepsPanel({
   flow,
   onAddStepFromTemplate,
   onEditStep,
+  canRead,
+  canCreate,
+  canUpdate,
+  canDelete,
 }: ApprovalFlowStepsPanelProps) {
-  const { data: steps = [], isLoading } = useApprovalFlowSteps(flow?.id);
+  const { data: steps = [], isLoading } = useApprovalFlowSteps(flow?.id, canRead);
   const deleteStepMutation = useDeleteApprovalFlowStep();
 
   const handleDelete = async (step: ApprovalFlowStep) => {
@@ -62,7 +70,7 @@ export function ApprovalFlowStepsPanel({
     toast.success("Đã xóa bước duyệt");
   };
 
-  if (!flow) {
+  if (!flow || !canRead) {
     return (
       <Card>
         <CardContent className="py-10 text-center text-muted-foreground">
@@ -79,10 +87,10 @@ export function ApprovalFlowStepsPanel({
           <CardTitle>Cấu hình bước duyệt</CardTitle>
           <p className="text-sm text-muted-foreground">{flow.name}</p>
         </div>
-        <Button onClick={onAddStepFromTemplate} className="bg-teal-500 text-white hover:bg-teal-700">
+        {canCreate ? <Button onClick={onAddStepFromTemplate} className="bg-teal-500 text-white hover:bg-teal-700">
           <Plus className="size-4" />
           Thêm từ mẫu
-        </Button>
+        </Button> : null}
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -126,15 +134,15 @@ export function ApprovalFlowStepsPanel({
                       <TableCell>{getApproverTarget(step)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <Button
+                          {canUpdate ? <Button
                             variant="ghost"
                             size="icon-sm"
                             aria-label="Sửa bước"
                             onClick={() => onEditStep(step)}
                           >
                             <Pencil className="size-4" />
-                          </Button>
-                          <Button
+                          </Button> : null}
+                          {canDelete ? <Button
                             variant="ghost"
                             size="icon-sm"
                             aria-label="Xóa bước"
@@ -143,7 +151,7 @@ export function ApprovalFlowStepsPanel({
                             onClick={() => void handleDelete(step)}
                           >
                             <Trash2 className="size-4" />
-                          </Button>
+                          </Button> : null}
                         </div>
                       </TableCell>
                     </TableRow>

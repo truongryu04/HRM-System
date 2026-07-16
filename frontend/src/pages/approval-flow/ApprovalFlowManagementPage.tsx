@@ -49,8 +49,20 @@ import { AddStepFromTemplateDialog } from "./components/AddStepFromTemplateDialo
 import { ApprovalFlowDialog } from "./components/ApprovalFlowDialog";
 import { ApprovalFlowStepDialog } from "./components/ApprovalFlowStepDialog";
 import { ApprovalFlowStepsPanel } from "./components/ApprovalFlowStepsPanel";
+import { PERMISSIONS } from "../../constants/permissions";
+import { usePermissionAccess } from "../../hooks/usePermissionAccess";
 
 export default function ApprovalFlowManagementPage() {
+  const { can } = usePermissionAccess();
+  const canCreateFlow = can(PERMISSIONS.APPROVAL_FLOW.CREATE);
+  const canUpdateFlow = can(PERMISSIONS.APPROVAL_FLOW.UPDATE);
+  const canDeleteFlow = can(PERMISSIONS.APPROVAL_FLOW.DELETE);
+  const canReadSteps = can(PERMISSIONS.APPROVAL_FLOW_STEP.READ);
+  const canCreateStep = can(PERMISSIONS.APPROVAL_FLOW_STEP.CREATE);
+  const canUpdateStep = can(PERMISSIONS.APPROVAL_FLOW_STEP.UPDATE);
+  const canDeleteStep = can(PERMISSIONS.APPROVAL_FLOW_STEP.DELETE);
+  const canReadTemplates = can(PERMISSIONS.APPROVAL_STEP_TEMPLATE.READ);
+  const canReadRequestTypes = can(PERMISSIONS.REQUEST_TYPE.READ);
   const navigate = useNavigate();
   const [requestTypeFilter, setRequestTypeFilter] = useState("all");
   const [flowDialogOpen, setFlowDialogOpen] = useState(false);
@@ -64,13 +76,13 @@ export default function ApprovalFlowManagementPage() {
   const selectedRequestTypeId =
     requestTypeFilter === "all" ? undefined : Number(requestTypeFilter);
 
-  const { data: requestTypes = [] } = useRequestTypes();
+  const { data: requestTypes = [] } = useRequestTypes(canReadRequestTypes);
   const {
     data: flows = [],
     isLoading,
     refetch,
   } = useApprovalFlows(selectedRequestTypeId);
-  const { data: stepTemplates = [] } = useApprovalStepTemplates();
+  const { data: stepTemplates = [] } = useApprovalStepTemplates(canReadTemplates);
 
   const createFlowMutation = useCreateApprovalFlow();
   const updateFlowMutation = useUpdateApprovalFlow();
@@ -189,20 +201,20 @@ export default function ApprovalFlowManagementPage() {
         </div>
 
         <div className="flex flex-wrap justify-end gap-2">
-          <Button
+          {canReadTemplates ? <Button
             className="bg-teal-500 text-white hover:bg-teal-700"
             onClick={() => navigate("/approval-step-templates")}
           >
             <FileText className="size-4" />
             Mẫu duyệt
-          </Button>
-          <Button
+          </Button> : null}
+          {canCreateFlow ? <Button
             onClick={handleOpenCreateFlow}
             className="bg-teal-500 text-white hover:bg-teal-700"
           >
             <Plus className="size-4" />
             Thêm flow
-          </Button>
+          </Button> : null}
         </div>
       </div>
 
@@ -299,7 +311,7 @@ export default function ApprovalFlowManagementPage() {
                           )}
                         </TableCell>
                         <TableCell>
-                          <Button
+                          {canUpdateFlow ? <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => void handleToggleActive(flow)}
@@ -311,28 +323,28 @@ export default function ApprovalFlowManagementPage() {
                             }
                           >
                             {flow.isActive ? "Active" : "Inactive"}
-                          </Button>
+                          </Button> : <span>{flow.isActive ? "Active" : "Inactive"}</span>}
                         </TableCell>
                         <TableCell>{flow.stepCount}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1">
-                            <Button
+                            {canReadSteps ? <Button
                               variant="ghost"
                               size="icon-sm"
                               aria-label="Cấu hình bước"
                               onClick={() => setSelectedFlow(flow)}
                             >
                               <Settings2 className="size-4" />
-                            </Button>
-                            <Button
+                            </Button> : null}
+                            {canUpdateFlow ? <Button
                               variant="ghost"
                               size="icon-sm"
                               aria-label="Sửa flow"
                               onClick={() => handleOpenEditFlow(flow)}
                             >
                               <Pencil className="size-4" />
-                            </Button>
-                            <Button
+                            </Button> : null}
+                            {canUpdateFlow ? <Button
                               variant="ghost"
                               size="icon-sm"
                               aria-label="Đặt mặc định"
@@ -342,8 +354,8 @@ export default function ApprovalFlowManagementPage() {
                               onClick={() => void handleSetDefault(flow)}
                             >
                               <CheckCircle2 className="size-4" />
-                            </Button>
-                            <Button
+                            </Button> : null}
+                            {canDeleteFlow ? <Button
                               variant="ghost"
                               size="icon-sm"
                               aria-label="Xóa flow"
@@ -352,7 +364,7 @@ export default function ApprovalFlowManagementPage() {
                               onClick={() => void handleDeleteFlow(flow)}
                             >
                               <Trash2 className="size-4" />
-                            </Button>
+                            </Button> : null}
                           </div>
                         </TableCell>
                       </TableRow>
@@ -369,9 +381,13 @@ export default function ApprovalFlowManagementPage() {
         flow={selectedFlow}
         onAddStepFromTemplate={handleOpenAddStepFromTemplate}
         onEditStep={handleOpenEditStep}
+        canRead={canReadSteps}
+        canCreate={canCreateStep && canReadTemplates}
+        canUpdate={canUpdateStep}
+        canDelete={canDeleteStep}
       />
 
-      <ApprovalFlowDialog
+      {canCreateFlow || canUpdateFlow ? <ApprovalFlowDialog
         key={`${flowDialogOpen ? "open" : "closed"}-${editingFlow?.id ?? "create"}`}
         open={flowDialogOpen}
         onOpenChange={setFlowDialogOpen}
@@ -379,9 +395,9 @@ export default function ApprovalFlowManagementPage() {
         requestTypes={requestTypes}
         loading={createFlowMutation.isPending || updateFlowMutation.isPending}
         onSubmit={handleSubmitFlow}
-      />
+      /> : null}
 
-      <ApprovalFlowStepDialog
+      {canUpdateStep ? <ApprovalFlowStepDialog
         key={`${stepDialogOpen ? "open" : "closed"}-${editingStep?.id ?? "none"}`}
         open={stepDialogOpen}
         onOpenChange={(open) => {
@@ -394,9 +410,9 @@ export default function ApprovalFlowManagementPage() {
         templates={stepTemplates}
         loading={updateStepMutation.isPending}
         onSubmit={handleSubmitStep}
-      />
+      /> : null}
 
-      <AddStepFromTemplateDialog
+      {canCreateStep && canReadTemplates ? <AddStepFromTemplateDialog
         key={`${addFromTemplateOpen ? "open" : "closed"}-${selectedFlow?.id ?? "none"}-${selectedFlow?.stepCount ?? 0}`}
         open={addFromTemplateOpen}
         onOpenChange={setAddFromTemplateOpen}
@@ -404,7 +420,7 @@ export default function ApprovalFlowManagementPage() {
         nextStepOrder={(selectedFlow?.stepCount ?? 0) + 1}
         loading={createStepFromTemplateMutation.isPending}
         onSubmit={handleAddStepFromTemplate}
-      />
+      /> : null}
     </div>
   );
 }
