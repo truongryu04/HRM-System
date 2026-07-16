@@ -33,6 +33,7 @@ interface EmployeeFiltersProps {
   joinDateTo: string;
   setJoinDateTo: (value: string) => void;
   departments: Array<{ id: number; code: string; name: string }>;
+  showDepartmentFilter: boolean;
   positions: Array<{ id: number; code: string; name: string }>;
   onReset: () => void;
 }
@@ -54,6 +55,7 @@ export function EmployeeFilters({
   joinDateTo,
   setJoinDateTo,
   departments,
+  showDepartmentFilter,
   positions,
   onReset,
 }: EmployeeFiltersProps) {
@@ -89,22 +91,27 @@ export function EmployeeFilters({
               </Button>
             </div>
           </div>
-          <div className="space-y-2 lg:col-span-2">
-            <Label>Phòng ban</Label>
-            <Select value={departmentId} onValueChange={setDepartmentId}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Tất cả" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả</SelectItem>
-                {departments.map((department) => (
-                  <SelectItem key={department.id} value={String(department.id)}>
-                    {department.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {showDepartmentFilter ? (
+            <div className="space-y-2 lg:col-span-2">
+              <Label>Phòng ban</Label>
+              <Select value={departmentId} onValueChange={setDepartmentId}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Tất cả" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tất cả</SelectItem>
+                  {departments.map((department) => (
+                    <SelectItem
+                      key={department.id}
+                      value={String(department.id)}
+                    >
+                      {department.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
 
           <div className="space-y-2 lg:col-span-2">
             <Label>Vị trí</Label>

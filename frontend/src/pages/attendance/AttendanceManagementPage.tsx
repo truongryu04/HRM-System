@@ -24,6 +24,7 @@ import { PERMISSIONS } from "../../constants/permissions";
 import { usePermissionAccess } from "../../hooks/usePermissionAccess";
 export default function AttendanceManagementPage() {
   const { can } = usePermissionAccess();
+  const canReadAll = can(PERMISSIONS.ATTENDANCE.READ_ALL);
   const canReadDashboard = can(PERMISSIONS.ATTENDANCE.READ_DASHBOARD);
   const canUpdate = can(PERMISSIONS.ATTENDANCE.UPDATE);
   const canReadDepartments = can(PERMISSIONS.DEPARTMENT.READ);
@@ -44,7 +45,9 @@ export default function AttendanceManagementPage() {
   const { data: dashboard, isLoading: dashboardLoading } =
     useAttendanceDashboard(canReadDashboard);
 
-  const { data: departments = [] } = useDepartments(canReadDepartments);
+  const { data: departments = [] } = useDepartments(
+    canReadDepartments && canReadAll,
+  );
   const { data: positions = [] } = usePositions(canReadPositions);
   const [openEditDialog, setOpenEditDialog] = useState(false);
 
@@ -117,6 +120,7 @@ export default function AttendanceManagementPage() {
         status={status}
         setStatus={setStatus}
         departments={departments}
+        showDepartmentFilter={canReadAll}
         positions={positions}
         onReset={handleReset}
       />

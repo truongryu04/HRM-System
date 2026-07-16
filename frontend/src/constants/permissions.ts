@@ -1,12 +1,14 @@
 export const PERMISSIONS = {
   ATTENDANCE: {
     READ: "attendance:read",
+    READ_ALL: "attendance:read-all",
     READ_DASHBOARD: "attendance:read-dashboard",
     UPDATE: "attendance:update",
   },
 
   EMPLOYEE: {
     READ: "employee:read",
+    READ_ALL: "employee:read-all",
     CREATE: "employee:create",
     UPDATE: "employee:update",
     DELETE: "employee:delete",

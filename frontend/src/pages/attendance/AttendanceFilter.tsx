@@ -34,6 +34,7 @@ interface AttendanceFilterProps {
     code: string;
     name: string;
   }>;
+  showDepartmentFilter: boolean;
 
   positions: Array<{
     id: number;
@@ -57,6 +58,7 @@ export function AttendanceFilter({
   status,
   setStatus,
   departments,
+  showDepartmentFilter,
   positions,
   onReset,
 }: AttendanceFilterProps) {
@@ -108,25 +110,30 @@ export function AttendanceFilter({
           </div>
 
           {/* Phòng ban */}
-          <div className="space-y-2 lg:col-span-2">
-            <Label>Phòng ban</Label>
+          {showDepartmentFilter ? (
+            <div className="space-y-2 lg:col-span-2">
+              <Label>Phòng ban</Label>
 
-            <Select value={departmentId} onValueChange={setDepartmentId}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Tất cả" />
-              </SelectTrigger>
+              <Select value={departmentId} onValueChange={setDepartmentId}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Tất cả" />
+                </SelectTrigger>
 
-              <SelectContent>
-                <SelectItem value="all">Tất cả</SelectItem>
+                <SelectContent>
+                  <SelectItem value="all">Tất cả</SelectItem>
 
-                {departments.map((department) => (
-                  <SelectItem key={department.id} value={String(department.id)}>
-                    {department.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+                  {departments.map((department) => (
+                    <SelectItem
+                      key={department.id}
+                      value={String(department.id)}
+                    >
+                      {department.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
 
           {/* Vị trí */}
           <div className="space-y-2 lg:col-span-2">

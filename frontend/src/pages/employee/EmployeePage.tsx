@@ -31,6 +31,7 @@ import { CanAccess } from "../../components/auth/CanAccess";
 
 export default function EmployeePage() {
   const { can } = usePermissionAccess();
+  const canReadAll = can(PERMISSIONS.EMPLOYEE.READ_ALL);
   const canUpdateStatus = can(PERMISSIONS.EMPLOYEE.UPDATE_STATUS);
   const canDelete = can(PERMISSIONS.EMPLOYEE.DELETE);
   const canReadDepartments = can(PERMISSIONS.DEPARTMENT.READ);
@@ -38,7 +39,9 @@ export default function EmployeePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data: departments = [] } = useDepartments(canReadDepartments);
+  const { data: departments = [] } = useDepartments(
+    canReadDepartments && canReadAll,
+  );
   const { data: positions = [] } = usePositions(canReadPositions);
 
   const { data: employeeResponse, isLoading } = useEmployees({
@@ -250,6 +253,7 @@ export default function EmployeePage() {
           setJoinDateTo(v);
         }}
         departments={departments}
+        showDepartmentFilter={canReadAll}
         positions={positions}
         onReset={handleResetFilters}
       />
