@@ -49,8 +49,13 @@ import {
   getStatusMeta,
   getUserLabel,
 } from "../../utils/request-approval.utils";
+import { PERMISSIONS } from "../../constants/permissions";
+import { usePermissionAccess } from "../../hooks/usePermissionAccess";
 
 export default function RequestApprovalDetailPage() {
+  const { can } = usePermissionAccess();
+  const canApprove = can(PERMISSIONS.REQUEST.APPROVE);
+  const canReject = can(PERMISSIONS.REQUEST.REJECT);
   const navigate = useNavigate();
   const { id } = useParams();
   const requestId = Number(id);
@@ -78,6 +83,9 @@ export default function RequestApprovalDetailPage() {
   const statusMeta = request ? getStatusMeta(request.status) : null;
 
   const openActionDialog = (type: "approve" | "reject") => {
+    if ((type === "approve" && !canApprove) || (type === "reject" && !canReject)) {
+      return;
+    }
     setActionType(type);
     setNote("");
   };
@@ -102,13 +110,13 @@ export default function RequestApprovalDetailPage() {
     }
 
     try {
-      if (actionType === "approve") {
+      if (actionType === "approve" && canApprove) {
         await approveMutation.mutateAsync({
           id: request.id,
           payload: { note: note.trim() || undefined },
         });
         toast.success("Đã duyệt yêu cầu");
-      } else {
+      } else if (canReject) {
         await rejectMutation.mutateAsync({
           id: request.id,
           payload: { reason: note.trim() },
@@ -180,24 +188,24 @@ export default function RequestApprovalDetailPage() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {canProcess(request) ? (
+          {canProcess(request) && (canApprove || canReject) ? (
             <>
-              <Button
+              {canApprove ? <Button
                 className="bg-teal-500 text-white hover:bg-teal-700"
                 onClick={() => openActionDialog("approve")}
                 disabled={isSubmitting}
               >
                 <CheckCircle2 className="size-4" />
                 Duyệt
-              </Button>
-              <Button
+              </Button> : null}
+              {canReject ? <Button
                 variant="destructive"
                 onClick={() => openActionDialog("reject")}
                 disabled={isSubmitting}
               >
                 <XCircle className="size-4" />
                 Từ chối
-              </Button>
+              </Button> : null}
             </>
           ) : null}
         </div>

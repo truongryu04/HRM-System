@@ -11,12 +11,14 @@ interface PermissionRowProps {
     permissionId: string,
     checked: boolean,
   ) => void;
+  disabled?: boolean;
 }
 export default function PermissionRow({
   permission,
   roles,
   rolePermissions,
   onPermissionChange,
+  disabled = false,
 }: PermissionRowProps) {
   return (
     <TableRow>
@@ -33,6 +35,7 @@ export default function PermissionRow({
             <div className="flex justify-center">
               <Checkbox
                 checked={hasPermission}
+                disabled={disabled}
                 onCheckedChange={(checked) => {
                   onPermissionChange(role.id, permission.id, checked === true);
                 }}

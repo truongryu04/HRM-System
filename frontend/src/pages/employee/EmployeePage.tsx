@@ -25,13 +25,21 @@ import { EmployeeStatusDialog } from "./components/EmployeeStatusDialog";
 import { EmployeeTable } from "./components/EmployeeTable";
 import { normalizeDateKey } from "../../utils/employee.utils";
 import { Pagination } from "../../components/Pagination";
+import { PERMISSIONS } from "../../constants/permissions";
+import { usePermissionAccess } from "../../hooks/usePermissionAccess";
+import { CanAccess } from "../../components/auth/CanAccess";
 
 export default function EmployeePage() {
+  const { can } = usePermissionAccess();
+  const canUpdateStatus = can(PERMISSIONS.EMPLOYEE.UPDATE_STATUS);
+  const canDelete = can(PERMISSIONS.EMPLOYEE.DELETE);
+  const canReadDepartments = can(PERMISSIONS.DEPARTMENT.READ);
+  const canReadPositions = can(PERMISSIONS.POSITION.READ);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data: departments = [] } = useDepartments();
-  const { data: positions = [] } = usePositions();
+  const { data: departments = [] } = useDepartments(canReadDepartments);
+  const { data: positions = [] } = usePositions(canReadPositions);
 
   const { data: employeeResponse, isLoading } = useEmployees({
     page: 1,
@@ -67,7 +75,7 @@ export default function EmployeePage() {
   });
 
   const handleDeleteSubmit = async () => {
-    if (!employeeToDelete) return;
+    if (!employeeToDelete || !canDelete) return;
     await deleteMutation.mutateAsync(employeeToDelete.id);
   };
 
@@ -79,7 +87,7 @@ export default function EmployeePage() {
 
   const updateStatusMutation = useUpdateEmployeeStatus();
   const handleUpdateStatus = async (status: EmployeeStatus) => {
-    if (!selectedEmployee) return;
+    if (!selectedEmployee || !canUpdateStatus) return;
 
     try {
       await updateStatusMutation.mutateAsync({
@@ -196,13 +204,15 @@ export default function EmployeePage() {
           </p>
         </div>
 
-        <Button
-          onClick={() => navigate(`/employees/create`)}
-          className="bg-teal-500 hover:bg-teal-700 text-white"
-        >
-          <Plus />
-          Thêm nhân viên
-        </Button>
+        <CanAccess permission={PERMISSIONS.EMPLOYEE.CREATE}>
+          <Button
+            onClick={() => navigate(`/employees/create`)}
+            className="bg-teal-500 hover:bg-teal-700 text-white"
+          >
+            <Plus />
+            Thêm nhân viên
+          </Button>
+        </CanAccess>
       </div>
 
       <EmployeeFilterBar
@@ -254,6 +264,8 @@ export default function EmployeePage() {
               setStatusDialogOpen(true);
             }}
             onDelete={setEmployeeToDelete}
+            canChangeStatus={canUpdateStatus}
+            canDelete={canDelete}
           />
         </CardContent>
       </Card>
@@ -267,16 +279,16 @@ export default function EmployeePage() {
         itemName="nhân viên"
       />
 
-      <EmployeeStatusDialog
+      {canUpdateStatus ? <EmployeeStatusDialog
         key={selectedEmployee?.id}
         open={statusDialogOpen}
         onOpenChange={setStatusDialogOpen}
         employee={selectedEmployee}
         onSubmit={handleUpdateStatus}
         loading={updateStatusMutation.isPending}
-      />
+      /> : null}
 
-      <EmployeeDeleteDialog
+      {canDelete ? <EmployeeDeleteDialog
         open={Boolean(employeeToDelete)}
         onOpenChange={(open) => {
           if (!open) setEmployeeToDelete(null);
@@ -284,7 +296,7 @@ export default function EmployeePage() {
         employee={employeeToDelete}
         onSubmit={handleDeleteSubmit}
         loading={deleteMutation.isPending}
-      />
+      /> : null}
     </div>
   );
 }

@@ -21,6 +21,8 @@ import { useEmployee } from "../../hooks/useEmployees";
 
 import { getInitials, statusLabel } from "../../utils/employee.utils";
 import { employeeStatusBadgeClass } from "./employee.constants";
+import { CanAccess } from "../../components/auth/CanAccess";
+import { PERMISSIONS } from "../../constants/permissions";
 
 export default function EmployeeDetailPage() {
   const params = useParams();
@@ -118,13 +120,15 @@ export default function EmployeeDetailPage() {
             </p>
           </div>
         </div>
-        <Button
-          className="bg-teal-500 text-white hover:bg-teal-700"
-          onClick={() => navigate(`/employees/${employeeId}/edit`)}
-        >
-          <PencilLine className="size-4  " />
-          Sửa thông tin
-        </Button>
+        <CanAccess permission={PERMISSIONS.EMPLOYEE.UPDATE}>
+          <Button
+            className="bg-teal-500 text-white hover:bg-teal-700"
+            onClick={() => navigate(`/employees/${employeeId}/edit`)}
+          >
+            <PencilLine className="size-4" />
+            Sửa thông tin
+          </Button>
+        </CanAccess>
       </div>
 
       <Card>

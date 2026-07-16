@@ -10,15 +10,16 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import PermissionRow from "../permission/PermissionRow";
-import type { Role } from "../../types/role.type";
 export function PermissionMatrixTable({
   rolePermissions,
   setRolePermissions,
+  disabled = false,
 }: {
   rolePermissions: Map<number, Set<string>>;
   setRolePermissions: React.Dispatch<
     React.SetStateAction<Map<number, Set<string>>>
   >;
+  disabled?: boolean;
 }) {
   const { data: permissions = [] } = usePermissions();
   const { data: roles = [] } = useRoles();
@@ -40,7 +41,7 @@ export function PermissionMatrixTable({
       map.set(role.id, new Set(role.permissions.map((p) => p.id)));
     });
     setRolePermissions(map);
-  }, [roles]);
+  }, [roles, setRolePermissions]);
   const handlePermissionChange = (
     roleId: number,
     permissionId: string,
@@ -106,6 +107,7 @@ export function PermissionMatrixTable({
                       roles={roles}
                       rolePermissions={rolePermissions}
                       onPermissionChange={handlePermissionChange}
+                      disabled={disabled}
                     />
                   ))}
                 </React.Fragment>

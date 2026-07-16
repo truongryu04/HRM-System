@@ -19,6 +19,8 @@ interface RequestTypeTableProps {
   onRetry: () => void;
   onEdit: (requestType: RequestType) => void;
   onDelete: (requestType: RequestType) => void;
+  canEdit: boolean;
+  canDelete: boolean;
 }
 
 const getStatusClass = (isActive: boolean) =>
@@ -33,6 +35,8 @@ export function RequestTypeTable({
   onRetry,
   onEdit,
   onDelete,
+  canEdit,
+  canDelete,
 }: RequestTypeTableProps) {
   if (isLoading) {
     return (
@@ -65,7 +69,7 @@ export function RequestTypeTable({
             <TableHead>Handler key</TableHead>
             <TableHead>Trạng thái</TableHead>
             <TableHead>Mô tả</TableHead>
-            <TableHead className="text-right">Action</TableHead>
+            {canEdit || canDelete ? <TableHead className="text-right">Action</TableHead> : null}
           </TableRow>
         </TableHeader>
 
@@ -73,7 +77,7 @@ export function RequestTypeTable({
           {requestTypes.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={6}
+                colSpan={canEdit || canDelete ? 6 : 5}
                 className="py-10 text-center text-muted-foreground"
               >
                 Chưa có loại yêu cầu nào.
@@ -98,27 +102,27 @@ export function RequestTypeTable({
                 <TableCell className="min-w-64">
                   {requestType.description ?? "-"}
                 </TableCell>
-                <TableCell className="text-right">
+                {canEdit || canDelete ? <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    <Button
+                    {canEdit ? <Button
                       variant="outline"
                       size="icon"
                       aria-label={`Sửa ${requestType.name}`}
                       onClick={() => onEdit(requestType)}
                     >
                       <Edit className="size-4" />
-                    </Button>
+                    </Button> : null}
 
-                    <Button
+                    {canDelete ? <Button
                       variant="outline"
                       size="icon"
                       aria-label={`Xóa ${requestType.name}`}
                       onClick={() => onDelete(requestType)}
                     >
                       <Trash2 className="size-4 text-destructive" />
-                    </Button>
+                    </Button> : null}
                   </div>
-                </TableCell>
+                </TableCell> : null}
               </TableRow>
             ))
           )}

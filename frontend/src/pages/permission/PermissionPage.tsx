@@ -20,12 +20,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../../components/ui/alert-dialog";
+import { PERMISSIONS } from "../../constants/permissions";
+import { usePermissionAccess } from "../../hooks/usePermissionAccess";
+import { useQueryClient } from "@tanstack/react-query";
 export default function PermissionPage() {
+  const queryClient = useQueryClient();
+  const { can } = usePermissionAccess();
+  const canAssignPermission = can(PERMISSIONS.ROLE.ASSIGN_PERMISSION);
   const [rolePermissions, setRolePermissions] = useState<
     Map<number, Set<string>>
   >(new Map());
   const handleSave = async () => {
-    const payload = [];
+    const payload: Array<{ roleId: number; permissionIds: string[] }> = [];
 
     rolePermissions.forEach((permissions, roleId) => {
       payload.push({
@@ -35,9 +41,13 @@ export default function PermissionPage() {
     });
     try {
       await updateRolePermissions(payload);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["roles"] }),
+        queryClient.invalidateQueries({ queryKey: ["auth", "me"] }),
+      ]);
 
       toast.success("Cập nhật phân quyền thành công");
-    } catch (error) {
+    } catch {
       toast.error("Cập nhật phân quyền thất bại");
     }
   };
@@ -53,12 +63,13 @@ export default function PermissionPage() {
             Manage role permissions in the system.
           </p>
         </div>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button className="bg-teal-500 hover:bg-teal-700 text-white ">
-              Lưu
-            </Button>
-          </AlertDialogTrigger>
+        {canAssignPermission ? (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button className="bg-teal-500 hover:bg-teal-700 text-white ">
+                Lưu
+              </Button>
+            </AlertDialogTrigger>
 
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -77,7 +88,8 @@ export default function PermissionPage() {
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
-        </AlertDialog>
+          </AlertDialog>
+        ) : null}
       </div>
       <Card>
         <CardHeader>
@@ -88,6 +100,7 @@ export default function PermissionPage() {
           <PermissionMatrixTable
             rolePermissions={rolePermissions}
             setRolePermissions={setRolePermissions}
+            disabled={!canAssignPermission}
           />
         </CardContent>
       </Card>

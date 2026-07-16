@@ -5,6 +5,8 @@ import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { useLeaveRequests } from "../../hooks/useLeaveRequests";
 import { RequestTable } from "./components/RequestTable";
+import { CanAccess } from "../../components/auth/CanAccess";
+import { PERMISSIONS } from "../../constants/permissions";
 
 export default function RequestPage() {
   const navigate = useNavigate();
@@ -27,13 +29,15 @@ export default function RequestPage() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Button
-            onClick={() => navigate("/requests/create")}
-            className="bg-teal-500 text-white hover:bg-teal-700"
-          >
-            <Plus className="size-4" />
-            Thêm yêu cầu mới
-          </Button>
+          <CanAccess permission={PERMISSIONS.REQUEST.CREATE}>
+            <Button
+              onClick={() => navigate("/requests/create")}
+              className="bg-teal-500 text-white hover:bg-teal-700"
+            >
+              <Plus className="size-4" />
+              Thêm yêu cầu mới
+            </Button>
+          </CanAccess>
         </div>
       </div>
 

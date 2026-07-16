@@ -62,6 +62,8 @@ interface EmployeeTableProps {
   onViewDetail: (employee: EmployeeSummary) => void;
   onChangeStatus: (employee: EmployeeSummary) => void;
   onDelete: (employee: EmployeeSummary) => void;
+  canChangeStatus: boolean;
+  canDelete: boolean;
 }
 
 export function EmployeeTable({
@@ -69,6 +71,8 @@ export function EmployeeTable({
   onViewDetail,
   onChangeStatus,
   onDelete,
+  canChangeStatus,
+  canDelete,
 }: EmployeeTableProps) {
   return (
     <Card>
@@ -166,7 +170,7 @@ export function EmployeeTable({
                             <Eye className="size-4" />
                             Xem chi tiết
                           </DropdownMenuItem>
-                          <DropdownMenuItem
+                          {canChangeStatus ? <DropdownMenuItem
                             onSelect={(event) => {
                               event.preventDefault();
                               onChangeStatus(employee);
@@ -174,12 +178,12 @@ export function EmployeeTable({
                           >
                             <ShieldCheck className="size-4" />
                             Đổi trạng thái
-                          </DropdownMenuItem>
-                          <EmployeeActionItem
+                          </DropdownMenuItem> : null}
+                          {canDelete ? <EmployeeActionItem
                             label="Xóa mềm"
                             destructive
                             onClick={() => onDelete(employee)}
-                          />
+                          /> : null}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

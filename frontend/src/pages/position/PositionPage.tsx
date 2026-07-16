@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "../../components/ui/button";
@@ -47,6 +47,8 @@ import {
   updatePosition,
 } from "../../services/position.api";
 import type { Position, PositionRequest } from "@/types/position.type";
+import { PERMISSIONS } from "../../constants/permissions";
+import { usePermissionAccess } from "../../hooks/usePermissionAccess";
 
 type PositionMode = "create" | "edit";
 
@@ -65,30 +67,13 @@ function PositionFormDialog({
   onSubmit: (payload: PositionRequest) => Promise<void>;
   loading: boolean;
 }) {
-  const [code, setCode] = useState("");
-  const [name, setName] = useState("");
-  const [level, setLevel] = useState("");
-  const [description, setDescription] = useState("");
-  const [status, setStatus] = useState("ACTIVE");
-
-  useEffect(() => {
-    if (open && position) {
-      setCode(position.code);
-      setName(position.name);
-      setLevel(position.level ?? "");
-      setDescription(position.description ?? "");
-      setStatus(position.status ?? "ACTIVE");
-      return;
-    }
-
-    if (open) {
-      setCode("");
-      setName("");
-      setLevel("");
-      setDescription("");
-      setStatus("ACTIVE");
-    }
-  }, [open, position]);
+  const [code, setCode] = useState(() => position?.code ?? "");
+  const [name, setName] = useState(() => position?.name ?? "");
+  const [level, setLevel] = useState(() => position?.level ?? "");
+  const [description, setDescription] = useState(
+    () => position?.description ?? "",
+  );
+  const [status, setStatus] = useState(() => position?.status ?? "ACTIVE");
 
   const handleSubmit = async () => {
     if (!code.trim() || !name.trim()) {
@@ -188,6 +173,10 @@ function PositionFormDialog({
 }
 
 export default function PositionPage() {
+  const { can } = usePermissionAccess();
+  const canCreate = can(PERMISSIONS.POSITION.CREATE);
+  const canUpdate = can(PERMISSIONS.POSITION.UPDATE);
+  const canDelete = can(PERMISSIONS.POSITION.DELETE);
   const queryClient = useQueryClient();
   const { data: positions = [] } = usePositions();
 
@@ -268,12 +257,12 @@ export default function PositionPage() {
           <p className="text-muted-foreground">Quản lý vị trí làm việc</p>
         </div>
 
-        <Button
+        {canCreate ? <Button
           onClick={openCreateDialog}
           className="bg-teal-500 text-white hover:bg-teal-700"
         >
           Thêm vị trí
-        </Button>
+        </Button> : null}
       </div>
 
       <Card>
@@ -319,15 +308,15 @@ export default function PositionPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button
+                        {canUpdate ? <Button
                           variant="outline"
                           size="sm"
                           onClick={() => openEditDialog(position)}
                         >
                           Sửa
-                        </Button>
+                        </Button> : null}
 
-                        <AlertDialog
+                        {canDelete ? <AlertDialog
                           open={deleteTarget?.id === position.id}
                           onOpenChange={(open) =>
                             !open && setDeleteTarget(null)
@@ -360,7 +349,7 @@ export default function PositionPage() {
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
-                        </AlertDialog>
+                        </AlertDialog> : null}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -371,14 +360,15 @@ export default function PositionPage() {
         </CardContent>
       </Card>
 
-      <PositionFormDialog
+      {canCreate || canUpdate ? <PositionFormDialog
+        key={`${openDialog}-${mode}-${selectedPosition?.id ?? "new"}`}
         open={openDialog}
         onOpenChange={setOpenDialog}
         mode={mode}
         position={selectedPosition}
         onSubmit={handleSubmit}
         loading={createMutation.isPending || updateMutation.isPending}
-      />
+      /> : null}
     </div>
   );
 }

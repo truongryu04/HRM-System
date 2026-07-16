@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "../../components/ui/button";
@@ -48,6 +48,8 @@ import {
   updateDepartment,
 } from "../../services/department.api";
 import type { Department, DepartmentRequest } from "@/types/department.type";
+import { PERMISSIONS } from "../../constants/permissions";
+import { usePermissionAccess } from "../../hooks/usePermissionAccess";
 
 type DepartmentMode = "create" | "edit";
 
@@ -68,32 +70,15 @@ function DepartmentFormDialog({
   loading: boolean;
   employees: { id: number; fullName: string; email: string }[];
 }) {
-  const [code, setCode] = useState("");
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [status, setStatus] = useState("ACTIVE");
-  const [managerId, setManagerId] = useState("none");
-
-  useEffect(() => {
-    if (open && department) {
-      setCode(department.code);
-      setName(department.name);
-      setDescription(department.description ?? "");
-      setStatus(department.status ?? "ACTIVE");
-      setManagerId(
-        department.manager?.id ? String(department.manager.id) : "none",
-      );
-      return;
-    }
-
-    if (open) {
-      setCode("");
-      setName("");
-      setDescription("");
-      setStatus("ACTIVE");
-      setManagerId("none");
-    }
-  }, [open, department]);
+  const [code, setCode] = useState(() => department?.code ?? "");
+  const [name, setName] = useState(() => department?.name ?? "");
+  const [description, setDescription] = useState(
+    () => department?.description ?? "",
+  );
+  const [status, setStatus] = useState(() => department?.status ?? "ACTIVE");
+  const [managerId, setManagerId] = useState(() =>
+    department?.manager?.id ? String(department.manager.id) : "none",
+  );
 
   const handleSubmit = async () => {
     if (!code.trim() || !name.trim()) {
@@ -200,6 +185,10 @@ function DepartmentFormDialog({
 }
 
 export default function DepartmentPage() {
+  const { can } = usePermissionAccess();
+  const canCreate = can(PERMISSIONS.DEPARTMENT.CREATE);
+  const canUpdate = can(PERMISSIONS.DEPARTMENT.UPDATE);
+  const canDelete = can(PERMISSIONS.DEPARTMENT.DELETE);
   const queryClient = useQueryClient();
   const { data: departments = [] } = useDepartments();
   const { data: employeeResponse } = useEmployees(
@@ -284,12 +273,12 @@ export default function DepartmentPage() {
           <p className="text-muted-foreground">Quản lý phòng ban</p>
         </div>
 
-        <Button
+        {canCreate ? <Button
           onClick={openCreateDialog}
           className="bg-teal-500 text-white hover:bg-violet-700"
         >
           Thêm phòng ban
-        </Button>
+        </Button> : null}
       </div>
 
       <Card>
@@ -337,15 +326,15 @@ export default function DepartmentPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button
+                        {canUpdate ? <Button
                           variant="outline"
                           size="sm"
                           onClick={() => openEditDialog(department)}
                         >
                           Sửa
-                        </Button>
+                        </Button> : null}
 
-                        <AlertDialog
+                        {canDelete ? <AlertDialog
                           open={deleteTarget?.id === department.id}
                           onOpenChange={(open) =>
                             !open && setDeleteTarget(null)
@@ -380,7 +369,7 @@ export default function DepartmentPage() {
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
-                        </AlertDialog>
+                        </AlertDialog> : null}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -391,7 +380,8 @@ export default function DepartmentPage() {
         </CardContent>
       </Card>
 
-      <DepartmentFormDialog
+      {canCreate || canUpdate ? <DepartmentFormDialog
+        key={`${openDialog}-${mode}-${selectedDepartment?.id ?? "new"}`}
         open={openDialog}
         onOpenChange={setOpenDialog}
         mode={mode}
@@ -399,7 +389,7 @@ export default function DepartmentPage() {
         onSubmit={handleSubmit}
         loading={createMutation.isPending || updateMutation.isPending}
         employees={employees}
-      />
+      /> : null}
     </div>
   );
 }

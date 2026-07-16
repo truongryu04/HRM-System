@@ -27,8 +27,14 @@ import {
   emptyRequestTypeForm,
   type RequestTypeMode,
 } from "./request-type.constants";
+import { PERMISSIONS } from "../../constants/permissions";
+import { usePermissionAccess } from "../../hooks/usePermissionAccess";
 
 export default function RequestTypePage() {
+  const { can } = usePermissionAccess();
+  const canCreate = can(PERMISSIONS.REQUEST_TYPE.CREATE);
+  const canUpdate = can(PERMISSIONS.REQUEST_TYPE.UPDATE);
+  const canDelete = can(PERMISSIONS.REQUEST_TYPE.DELETE);
   const queryClient = useQueryClient();
   const {
     data: requestTypes = [],
@@ -171,14 +177,14 @@ export default function RequestTypePage() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Button
+          {canCreate ? <Button
             variant="outline"
             onClick={() => void refetch()}
             disabled={isFetching}
           >
             <RefreshCcw className="size-4" />
             Làm mới
-          </Button>
+          </Button> : null}
           <Button
             onClick={openCreateDialog}
             className="bg-teal-500 text-white hover:bg-teal-700"
@@ -204,18 +210,20 @@ export default function RequestTypePage() {
             onRetry={() => void refetch()}
             onEdit={openEditDialog}
             onDelete={setDeleteTarget}
+            canEdit={canUpdate}
+            canDelete={canDelete}
           />
         </CardContent>
       </Card>
 
-      {showDefaultRequestTypes ? (
+      {showDefaultRequestTypes && canCreate ? (
         <DefaultRequestTypesCard
           loading={createMutation.isPending}
           onCreate={(payload) => void createMutation.mutateAsync(payload)}
         />
       ) : null}
 
-      <RequestTypeDialog
+      {canCreate || canUpdate ? <RequestTypeDialog
         open={openDialog}
         onOpenChange={setOpenDialog}
         mode={mode}
@@ -223,9 +231,9 @@ export default function RequestTypePage() {
         onFormChange={setForm}
         loading={createMutation.isPending || updateMutation.isPending}
         onSubmit={handleSubmit}
-      />
+      /> : null}
 
-      <RequestTypeDeleteDialog
+      {canDelete ? <RequestTypeDeleteDialog
         requestType={deleteTarget}
         loading={deleteMutation.isPending}
         onOpenChange={(open) => {
@@ -234,7 +242,7 @@ export default function RequestTypePage() {
           }
         }}
         onConfirm={handleDelete}
-      />
+      /> : null}
     </div>
   );
 }
