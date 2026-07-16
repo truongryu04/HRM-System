@@ -35,7 +35,7 @@ interface ApprovalStepTemplateDialogProps {
   onOpenChange: (open: boolean) => void;
   template: ApprovalStepTemplate | null;
   roles: Role[];
-  positions: Position[];
+  positions: Array<Pick<Position, "id" | "code" | "name">>;
   users: User[];
   loading: boolean;
   onSubmit: (payload: CreateApprovalStepTemplateRequest) => Promise<void>;

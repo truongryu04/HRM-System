@@ -31,7 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
-import { usePositions } from "../../hooks/usePositions";
+import { usePositionOptions } from "../../hooks/usePositions";
 import {
   useApprovalStepTemplates,
   useCreateApprovalStepTemplate,
@@ -79,7 +79,6 @@ export default function ApprovalStepTemplatePage() {
   const canUpdate = can(PERMISSIONS.APPROVAL_STEP_TEMPLATE.UPDATE);
   const canDelete = can(PERMISSIONS.APPROVAL_STEP_TEMPLATE.DELETE);
   const canReadRoles = can(PERMISSIONS.ROLE.READ);
-  const canReadPositions = can(PERMISSIONS.POSITION.READ);
   const canReadUsers = can(PERMISSIONS.USER.READ);
   const [search, setSearch] = useState("");
   const [approverTypeFilter, setApproverTypeFilter] =
@@ -97,7 +96,7 @@ export default function ApprovalStepTemplatePage() {
     refetch,
   } = useApprovalStepTemplates();
   const { data: roles = [] } = useRoles(canReadRoles);
-  const { data: positions = [] } = usePositions(canReadPositions);
+  const { data: positions = [] } = usePositionOptions();
   const { data: usersResponse } = useUsers(
     { page: 1, limit: 100 },
     canReadUsers,

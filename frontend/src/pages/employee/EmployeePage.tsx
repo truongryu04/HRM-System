@@ -12,7 +12,7 @@ import {
   useEmployees,
   useUpdateEmployeeStatus,
 } from "../../hooks/useEmployees";
-import { usePositions } from "../../hooks/usePositions";
+import { usePositionOptions } from "../../hooks/usePositions";
 
 import { deleteEmployee } from "../../services/employee.api";
 
@@ -35,14 +35,13 @@ export default function EmployeePage() {
   const canUpdateStatus = can(PERMISSIONS.EMPLOYEE.UPDATE_STATUS);
   const canDelete = can(PERMISSIONS.EMPLOYEE.DELETE);
   const canReadDepartments = can(PERMISSIONS.DEPARTMENT.READ);
-  const canReadPositions = can(PERMISSIONS.POSITION.READ);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const { data: departments = [] } = useDepartments(
     canReadDepartments && canReadAll,
   );
-  const { data: positions = [] } = usePositions(canReadPositions);
+  const { data: positions = [] } = usePositionOptions();
 
   const { data: employeeResponse, isLoading } = useEmployees({
     page: 1,

@@ -5,7 +5,7 @@ import { EmployeeForm } from "./components/EmployeeForm";
 import type { EmployeeCreateRequest } from "@/types/employee.type";
 
 import { useDepartments } from "../../hooks/useDepartments";
-import { usePositions } from "../../hooks/usePositions";
+import { usePositionOptions } from "../../hooks/usePositions";
 import { useEmployee } from "../../hooks/useEmployees";
 import { useUpdateEmployee } from "../../hooks/useEmployees";
 import { getApiErrorMessage } from "../../utils/api-error";
@@ -21,7 +21,11 @@ export default function EmployeeEditPage() {
     useEmployee(employeeId);
 
   const { data: departments = [] } = useDepartments();
-  const { data: positions = [] } = usePositions();
+  const {
+    data: positions = [],
+    isLoading: loadingPositions,
+    isError: positionsError,
+  } = usePositionOptions();
 
   // ===== MUTATION =====
   const updateEmployeeMutation = useUpdateEmployee();
@@ -42,8 +46,12 @@ export default function EmployeeEditPage() {
     }
   };
 
-  if (loadingEmployee) {
+  if (loadingEmployee || loadingPositions) {
     return <div>Đang tải dữ liệu nhân viên...</div>;
+  }
+
+  if (positionsError) {
+    return <div>Không thể tải danh sách vị trí</div>;
   }
 
   if (!employee) {

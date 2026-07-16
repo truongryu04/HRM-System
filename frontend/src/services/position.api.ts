@@ -1,6 +1,8 @@
 import { apiClient } from "./api-client";
 import type { Position, PositionRequest } from "@/types/position.type";
 
+export type PositionOption = Pick<Position, "id" | "code" | "name">;
+
 export const getPositions = async () => {
   const { data } = await apiClient.get("/positions");
 
@@ -26,4 +28,10 @@ export const deletePosition = async (id: number) => {
   const { data } = await apiClient.delete(`/positions/${id}`);
 
   return data;
+};
+
+export const getPositionOptions = async () => {
+  const { data } = await apiClient.get("/positions/options");
+
+  return data as PositionOption[];
 };

@@ -1,5 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { getPositions } from "../services/position.api";
+import {
+  getPositionOptions,
+  getPositions,
+  type PositionOption,
+} from "../services/position.api";
 import type { Position } from "@/types/position.type";
 
 export const usePositions = (enabled = true) => {
@@ -7,5 +11,12 @@ export const usePositions = (enabled = true) => {
     queryKey: ["positions"],
     queryFn: getPositions,
     enabled,
+  });
+};
+
+export const usePositionOptions = () => {
+  return useQuery<PositionOption[]>({
+    queryKey: ["positions", "options"],
+    queryFn: getPositionOptions,
   });
 };

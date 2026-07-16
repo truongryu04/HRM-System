@@ -10,7 +10,7 @@ import {
 } from "../../hooks/useAttendance";
 
 import { useDepartments } from "../../hooks/useDepartments";
-import { usePositions } from "../../hooks/usePositions";
+import { usePositionOptions } from "../../hooks/usePositions";
 import { Pagination } from "../../components/Pagination";
 import type {
   Attendance,
@@ -28,7 +28,6 @@ export default function AttendanceManagementPage() {
   const canReadDashboard = can(PERMISSIONS.ATTENDANCE.READ_DASHBOARD);
   const canUpdate = can(PERMISSIONS.ATTENDANCE.UPDATE);
   const canReadDepartments = can(PERMISSIONS.DEPARTMENT.READ);
-  const canReadPositions = can(PERMISSIONS.POSITION.READ);
   const today = new Date().toISOString().split("T")[0];
 
   const [searchInput, setSearchInput] = useState("");
@@ -48,7 +47,7 @@ export default function AttendanceManagementPage() {
   const { data: departments = [] } = useDepartments(
     canReadDepartments && canReadAll,
   );
-  const { data: positions = [] } = usePositions(canReadPositions);
+  const { data: positions = [] } = usePositionOptions();
   const [openEditDialog, setOpenEditDialog] = useState(false);
 
   const [selectedAttendance, setSelectedAttendance] =
