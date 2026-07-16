@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 
 import { Employee, EmployeeStatus } from './employee.entity';
 
@@ -18,6 +18,8 @@ import { WorkShiftsService } from '../work-shifts/work-shifts.service';
 import { Department } from '../department/department.entity';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { DepartmentAccessService } from '../department/department-access.service';
+import type { JwtUser } from '../auth/jwt-user.interface';
 @Injectable()
 export class EmployeeService {
   constructor(
@@ -29,6 +31,7 @@ export class EmployeeService {
     private readonly positionService: PositionService,
 
     private readonly workShiftService: WorkShiftsService,
+    private readonly departmentAccessService: DepartmentAccessService,
 
     private readonly cloudinaryService: CloudinaryService,
   ) {}
@@ -106,13 +109,32 @@ export class EmployeeService {
       throw error;
     }
   }
-  async findAll(page = 1, limit = 10) {
+  async findAll(user: JwtUser, page = 1, limit = 10) {
     const skip = (page - 1) * limit;
+    const access = await this.departmentAccessService.resolve(
+      user,
+      'employee:read-all',
+    );
+
+    if (!access.canAccessAll && !access.departmentId) {
+      return {
+        data: [],
+        total: 0,
+        page,
+        limit,
+        totalPages: 0,
+      };
+    }
+
+    const where: FindOptionsWhere<Employee> = {
+      isDeleted: false,
+      ...(!access.canAccessAll
+        ? { department: { id: access.departmentId! } }
+        : {}),
+    };
 
     const [data, total] = await this.employeeRepository.findAndCount({
-      where: {
-        isDeleted: false,
-      },
+      where,
       relations: {
         department: true,
         position: true,

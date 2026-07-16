@@ -5,11 +5,12 @@ import { Department } from './department.entity';
 
 import { EmployeeModule } from '../employee/employee.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DepartmentAccessService } from './department-access.service';
 
 @Module({
   controllers: [DepartmentController],
-  providers: [DepartmentService],
-  exports: [DepartmentService],
+  providers: [DepartmentService, DepartmentAccessService],
+  exports: [DepartmentService, DepartmentAccessService],
   imports: [
     TypeOrmModule.forFeature([Department]),
     forwardRef(() => EmployeeModule),

@@ -27,6 +27,7 @@ import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Permissions } from '../auth/decorators/permission.decorator';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import type { JwtUser } from '../auth/jwt-user.interface';
 @UseGuards(AuthGuard('jwt'), PermissionsGuard)
 @Controller('employees')
 export class EmployeeController {
@@ -53,8 +54,16 @@ export class EmployeeController {
 
   @Get()
   @Permissions('employee:read')
-  findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
-    return this.employeeService.findAll(Number(page) || 1, Number(limit) || 10);
+  findAll(
+    @CurrentUser() user: JwtUser,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.employeeService.findAll(
+      user,
+      Number(page) || 1,
+      Number(limit) || 10,
+    );
   }
 
   @Get('me/profile')
