@@ -13,12 +13,32 @@ import { AttendanceQueryDto } from './dto/attendance-query.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import { DepartmentAccessService } from '../department/department-access.service';
 import type { JwtUser } from '../auth/jwt-user.interface';
+import { LeaveRequestDay } from '../leave-request/entities/leave-request-day.entity';
+
+export interface AttendanceCalendarEntry {
+  checkInTime?: Date | null;
+  checkOutTime?: Date | null;
+  workingDayValue?: number;
+  lateMinutes?: number;
+  isLate?: boolean;
+  earlyLeaveMinutes?: number;
+  isEarlyLeave?: boolean;
+  leave?: {
+    requestId: number;
+    type: string;
+    value: number;
+    session: string;
+    isPaid: boolean;
+  };
+}
 
 @Injectable()
 export class AttendanceService {
   constructor(
     @InjectRepository(Attendance)
     private readonly attendanceRepository: Repository<Attendance>,
+    @InjectRepository(LeaveRequestDay)
+    private readonly leaveRequestDayRepository: Repository<LeaveRequestDay>,
     private readonly employeeService: EmployeeService,
     private readonly departmentAccessService: DepartmentAccessService,
   ) {}
@@ -242,21 +262,52 @@ export class AttendanceService {
       lastDay,
     ).padStart(2, '0')}`;
 
-    const attendances = await this.attendanceRepository.find({
-      where: {
-        employee: {
-          id: employeeId,
+    const [attendances, leaveDays] = await Promise.all([
+      this.attendanceRepository.find({
+        where: {
+          employee: {
+            id: employeeId,
+          },
+          attendanceDate: Between(startDate, endDate),
         },
-        attendanceDate: Between(startDate, endDate),
-      },
-      order: {
-        attendanceDate: 'ASC',
-      },
+        order: {
+          attendanceDate: 'ASC',
+        },
+      }),
+      this.leaveRequestDayRepository.find({
+        where: {
+          employee: {
+            id: employeeId,
+          },
+          date: Between(startDate, endDate),
+        },
+        relations: {
+          leaveRequest: {
+            leaveType: true,
+          },
+        },
+        order: {
+          date: 'ASC',
+        },
+      }),
+    ]);
+    const calendar: Record<string, AttendanceCalendarEntry> = {};
+
+    leaveDays.forEach((leaveDay) => {
+      calendar[leaveDay.date] = {
+        leave: {
+          requestId: leaveDay.leaveRequest.id,
+          type: leaveDay.leaveRequest.leaveType.name,
+          value: Number(leaveDay.value),
+          session: leaveDay.session,
+          isPaid: leaveDay.isPaid,
+        },
+      };
     });
-    const calendar: Record<string, any> = {};
 
     attendances.forEach((attendance) => {
       calendar[attendance.attendanceDate] = {
+        ...calendar[attendance.attendanceDate],
         checkInTime: attendance.checkInTime,
         checkOutTime: attendance.checkOutTime,
         workingDayValue: Number(attendance.workingDayValue),
