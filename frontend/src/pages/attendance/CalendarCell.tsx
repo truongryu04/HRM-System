@@ -17,11 +17,20 @@ export function CalendarCell({ date, attendance }: Props) {
   const checkOutTime = attendance?.checkOutTime
     ? format(new Date(attendance.checkOutTime), "HH:mm")
     : null;
+  const isOnLeave = Boolean(attendance?.leave);
+  const shouldShowAttendance = attendance?.leave?.session !== "FULL";
+  const leaveLabel =
+    attendance?.leave?.session === "AM"
+      ? "Nghỉ phép sáng"
+      : attendance?.leave?.session === "PM"
+        ? "Nghỉ phép chiều"
+        : "Nghỉ phép";
   const isAbsent =
     !weekend &&
     isBefore(startOfDay(date), startOfDay(new Date())) &&
     !checkInTime &&
-    !checkOutTime;
+    !checkOutTime &&
+    !isOnLeave;
 
   const checkInClass = attendance?.isLate
     ? "bg-[#fd3995] text-white ring-1 ring-rose-200"
@@ -46,7 +55,7 @@ export function CalendarCell({ date, attendance }: Props) {
       </div>
 
       <div className="mt-2 flex flex-wrap justify-center gap-1">
-        {checkInTime && (
+        {shouldShowAttendance && checkInTime && (
           <span
             className={`inline-flex min-w-12 items-center justify-center rounded-full px-1.5 py-0.5 text-sm font-medium ${checkInClass}`}
             title={attendance?.isLate ? "Check-in muộn" : "Giờ check-in"}
@@ -55,12 +64,22 @@ export function CalendarCell({ date, attendance }: Props) {
           </span>
         )}
 
-        {checkOutTime && (
+        {shouldShowAttendance && checkOutTime && (
           <span
             className={`inline-flex min-w-12 items-center justify-center rounded-full px-1.5 py-0.5 text-sm font-medium ${checkOutClass}`}
             title={attendance?.isEarlyLeave ? "Check-out sớm" : "Giờ check-out"}
           >
             {checkOutTime}
+          </span>
+        )}
+
+        {isOnLeave && (
+          <span
+            className="inline-flex items-center justify-center rounded-full bg-sky-600 px-2 py-0.5 text-sm font-medium text-white"
+            title={attendance?.leave?.type}
+            aria-label={`${leaveLabel}: ${attendance?.leave?.type}`}
+          >
+            {leaveLabel}
           </span>
         )}
 

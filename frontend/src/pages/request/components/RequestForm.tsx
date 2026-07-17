@@ -20,7 +20,11 @@ import {
   SelectValue,
 } from "../../../components/ui/select";
 import { Textarea } from "../../../components/ui/textarea";
-import type { CreateLeaveRequest, LeaveType } from "@/types/leave.type";
+import type {
+  CreateLeaveRequest,
+  LeaveSession,
+  LeaveType,
+} from "@/types/leave.type";
 import type { RequestType } from "@/types/request-type.type";
 import { calculateLeaveDays } from "../../../utils/leave.utils";
 
@@ -32,11 +36,22 @@ interface RequestFormProps {
   onSubmit: (payload: CreateLeaveRequest) => Promise<void>;
 }
 
-const emptyForm = {
+interface RequestFormState {
+  requestTypeId: string;
+  leaveTypeId: string;
+  startDate: string;
+  endDate: string;
+  session: LeaveSession;
+  reason: string;
+  attachment: string;
+}
+
+const emptyForm: RequestFormState = {
   requestTypeId: "",
   leaveTypeId: "",
   startDate: "",
   endDate: "",
+  session: "FULL",
   reason: "",
   attachment: "",
 };
@@ -59,8 +74,8 @@ export function RequestForm({
     selectedRequestType?.code === "LEAVE_REQUEST";
 
   const totalDays = useMemo(
-    () => calculateLeaveDays(form.startDate, form.endDate),
-    [form.startDate, form.endDate],
+    () => calculateLeaveDays(form.startDate, form.endDate, form.session),
+    [form.startDate, form.endDate, form.session],
   );
 
   const handleSubmit = async () => {
@@ -99,6 +114,11 @@ export function RequestForm({
       return;
     }
 
+    if (form.session !== "FULL" && form.startDate !== form.endDate) {
+      toast.error("Nghỉ nửa ngày chỉ áp dụng trong cùng một ngày");
+      return;
+    }
+
     if (!form.reason.trim()) {
       toast.error("Vui lòng nhập lý do");
       return;
@@ -109,6 +129,7 @@ export function RequestForm({
       leaveTypeId: Number(form.leaveTypeId),
       startDate: form.startDate,
       endDate: form.endDate,
+      session: form.session,
       reason: form.reason.trim(),
       attachment: form.attachment.trim() || undefined,
     });
@@ -210,6 +231,46 @@ export function RequestForm({
                 </div>
               ) : null}
 
+              {isLeaveRequest ? (
+                <div className="space-y-2">
+                  <Label>Thời gian nghỉ</Label>
+                  <Select
+                    value={form.session}
+                    onValueChange={(value: LeaveSession) =>
+                      setForm((prev) => ({ ...prev, session: value }))
+                    }
+                    disabled={!employeeId || loading}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="FULL">Cả ngày</SelectItem>
+                      <SelectItem
+                        value="AM"
+                        disabled={Boolean(
+                          form.startDate &&
+                            form.endDate &&
+                            form.startDate !== form.endDate,
+                        )}
+                      >
+                        Buổi sáng
+                      </SelectItem>
+                      <SelectItem
+                        value="PM"
+                        disabled={Boolean(
+                          form.startDate &&
+                            form.endDate &&
+                            form.startDate !== form.endDate,
+                        )}
+                      >
+                        Buổi chiều
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : null}
+
               <div className="space-y-2">
                 <Label htmlFor="request-total-days">Số ngày dự kiến</Label>
                 <Input
@@ -230,6 +291,10 @@ export function RequestForm({
                     setForm((prev) => ({
                       ...prev,
                       startDate: event.target.value,
+                      session:
+                        prev.endDate && prev.endDate !== event.target.value
+                          ? "FULL"
+                          : prev.session,
                     }))
                   }
                 />
@@ -246,6 +311,10 @@ export function RequestForm({
                     setForm((prev) => ({
                       ...prev,
                       endDate: event.target.value,
+                      session:
+                        prev.startDate && prev.startDate !== event.target.value
+                          ? "FULL"
+                          : prev.session,
                     }))
                   }
                 />

@@ -1,5 +1,5 @@
 import type { EmployeeSummary } from "./employee.type";
-import type { LeaveType } from "./leave.type";
+import type { LeaveSession, LeaveType } from "./leave.type";
 import type { User } from "./user.type";
 
 export type RequestStatus =
@@ -83,6 +83,7 @@ export interface LeaveRequestPayload {
   leaveType?: LeaveType | null;
   startDate: string;
   endDate: string;
+  session: LeaveSession;
   totalDays: number | string;
   reason: string;
   attachment?: string | null;

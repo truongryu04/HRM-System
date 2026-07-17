@@ -1,11 +1,18 @@
 export interface AttendanceCalendarDay {
-  checkInTime: string | null;
-  checkOutTime: string | null;
-  workingDayValue: number;
-  lateMinutes: number;
-  isLate: boolean;
-  earlyLeaveMinutes: number;
-  isEarlyLeave: boolean;
+  checkInTime?: string | null;
+  checkOutTime?: string | null;
+  workingDayValue?: number;
+  lateMinutes?: number;
+  isLate?: boolean;
+  earlyLeaveMinutes?: number;
+  isEarlyLeave?: boolean;
+  leave?: {
+    requestId: number;
+    type: string;
+    value: number;
+    session: "FULL" | "AM" | "PM";
+    isPaid: boolean;
+  };
 }
 
 export interface AttendanceCalendarResponse {

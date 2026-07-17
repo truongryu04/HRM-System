@@ -16,7 +16,11 @@ export function formatLeaveTotalDays(value: number | string) {
   }).format(numericValue);
 }
 
-export function calculateLeaveDays(startDate: string, endDate: string) {
+export function calculateLeaveDays(
+  startDate: string,
+  endDate: string,
+  session: "FULL" | "AM" | "PM" = "FULL",
+) {
   if (!startDate || !endDate) {
     return 0;
   }
@@ -34,5 +38,7 @@ export function calculateLeaveDays(startDate: string, endDate: string) {
     return 0;
   }
 
-  return Math.floor(diff / 86_400_000) + 1;
+  const totalDays = Math.floor(diff / 86_400_000) + 1;
+
+  return session === "FULL" ? totalDays : startDate === endDate ? 0.5 : 0;
 }

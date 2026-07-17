@@ -3,6 +3,7 @@ import type { BusinessRequest, RequestStatus } from "./request.type";
 import type { User } from "./user.type";
 
 export type LeaveStatus = RequestStatus;
+export type LeaveSession = "FULL" | "AM" | "PM";
 
 export interface LeaveType {
   id: number;
@@ -24,6 +25,7 @@ export interface LeaveRequest {
   leaveType: LeaveType;
   startDate: string;
   endDate: string;
+  session: LeaveSession;
   totalDays: number | string;
   reason: string;
   attachment?: string | null;
@@ -41,6 +43,7 @@ export interface CreateLeaveRequest {
   leaveTypeId: number;
   startDate: string;
   endDate: string;
+  session: LeaveSession;
   reason: string;
   attachment?: string;
 }
