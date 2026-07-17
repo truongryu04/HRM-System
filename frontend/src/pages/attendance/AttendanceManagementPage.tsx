@@ -42,6 +42,7 @@ export default function AttendanceManagementPage() {
 
   const [status, setStatus] = useState("all");
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const { data: dashboard, isLoading: dashboardLoading } =
     useAttendanceDashboard(canReadDashboard);
 
@@ -60,7 +61,7 @@ export default function AttendanceManagementPage() {
     positionId: positionId === "all" ? undefined : Number(positionId),
     status: status === "all" ? undefined : status,
     page,
-    limit: 10,
+    limit: pageSize,
   });
   const meta = attendanceResponse?.meta;
   const handleSearch = (value: string) => {
@@ -130,7 +131,8 @@ export default function AttendanceManagementPage() {
           page={meta?.page ?? 1}
           totalPages={meta?.totalPages ?? 1}
           totalItems={meta?.total ?? 0}
-          pageSize={meta?.limit ?? 10}
+          pageSize={meta?.limit ?? pageSize}
+          setPageSize={setPageSize}
           setPage={setPage}
           itemName="tài khoản"
         />

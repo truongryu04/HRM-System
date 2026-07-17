@@ -48,6 +48,7 @@ export default function EmployeePage() {
     limit: 1000,
   });
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(employeePageSize);
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [departmentId, setDepartmentId] = useState("all");
@@ -180,14 +181,14 @@ export default function EmployeePage() {
   // ================= PAGINATION =================
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredEmployees.length / employeePageSize),
+    Math.ceil(filteredEmployees.length / pageSize),
   );
 
   const currentPage = Math.min(page, totalPages);
 
   const pagedEmployees = filteredEmployees.slice(
-    (currentPage - 1) * employeePageSize,
-    currentPage * employeePageSize,
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
   );
 
   if (isLoading) {
@@ -271,7 +272,8 @@ export default function EmployeePage() {
           page={currentPage}
           totalPages={totalPages}
           totalItems={filteredEmployees.length}
-          pageSize={employeePageSize}
+          pageSize={pageSize}
+          setPageSize={setPageSize}
           setPage={setPage}
           itemName="nhân viên"
         />

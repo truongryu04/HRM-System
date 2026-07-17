@@ -23,6 +23,7 @@ export default function UserManagementPage() {
   const canResetPassword = can(PERMISSIONS.USER.RESET_PASSWORD);
   const canReadRoles = can(PERMISSIONS.ROLE.READ);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
 
   const [searchInput, setSearchInput] = useState("");
@@ -64,7 +65,7 @@ export default function UserManagementPage() {
 
   const { data, isLoading } = useUsers({
     page,
-    limit: 10,
+    limit: pageSize,
     search,
     role: role === "all" ? undefined : role,
     status: status === "all" ? undefined : status,
@@ -162,7 +163,11 @@ export default function UserManagementPage() {
           page={pagination?.page ?? 1}
           totalPages={pagination?.totalPages ?? 1}
           totalItems={pagination?.total ?? 0}
-          pageSize={pagination?.limit ?? 10}
+          pageSize={pagination?.limit ?? pageSize}
+          setPageSize={(nextPageSize) => {
+            setPageSize(nextPageSize);
+            setSelectedUserIds(new Set());
+          }}
           setPage={(nextPage) => {
             setPage(nextPage);
             setSelectedUserIds(new Set());

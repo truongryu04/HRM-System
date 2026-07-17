@@ -17,12 +17,11 @@ import { RequestApprovalTabs } from "./components/RequestApprovalTabs";
 import type { ApprovalQueueTab } from "@/types/request.type";
 import { canProcess, isHandled } from "../../utils/request-approval.utils";
 
-const PAGE_SIZE = 10;
-
 export default function RequestApprovalPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<ApprovalQueueTab>("pending");
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [actionRequest, setActionRequest] = useState<BusinessRequest | null>(
     null,
   );
@@ -75,12 +74,12 @@ export default function RequestApprovalPage() {
 
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredRequests.length / PAGE_SIZE),
+    Math.ceil(filteredRequests.length / pageSize),
   );
   const currentPage = Math.min(page, totalPages);
   const paginatedRequests = filteredRequests.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE,
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
   );
 
   const processingId =
@@ -185,7 +184,8 @@ export default function RequestApprovalPage() {
           page={currentPage}
           totalPages={totalPages}
           totalItems={filteredRequests.length}
-          pageSize={PAGE_SIZE}
+          pageSize={pageSize}
+          setPageSize={setPageSize}
           setPage={setPage}
           itemName="yêu cầu"
         />
