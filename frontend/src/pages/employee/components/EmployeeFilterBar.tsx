@@ -85,7 +85,7 @@ export function EmployeeFilters({
               <Button
                 type="button"
                 onClick={() => onSearch(searchInput.trim())}
-                className="shrink-0 bg-teal-500 text-white hover:bg-teal-700"
+                variant="primary"
               >
                 <Search className="size-4" />
               </Button>

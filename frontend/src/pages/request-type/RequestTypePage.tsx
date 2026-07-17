@@ -40,7 +40,6 @@ export default function RequestTypePage() {
     isLoading,
     isError,
     refetch,
-    isFetching,
   } = useRequestTypes();
 
   const [search, setSearch] = useState("");
@@ -185,27 +184,22 @@ export default function RequestTypePage() {
             ) : null}
           </div>
         </div>
+        <RequestTypeToolbar
+          search={search}
+          total={filteredRequestTypes.length}
+          onSearchChange={setSearch}
+        />
 
-        <Card>
-          <CardContent className="space-y-4 pt-6">
-            <RequestTypeToolbar
-              search={search}
-              total={filteredRequestTypes.length}
-              onSearchChange={setSearch}
-            />
-
-            <RequestTypeTable
-              requestTypes={filteredRequestTypes}
-              isLoading={isLoading}
-              isError={isError}
-              onRetry={() => void refetch()}
-              onEdit={openEditDialog}
-              onDelete={setDeleteTarget}
-              canEdit={canUpdate}
-              canDelete={canDelete}
-            />
-          </CardContent>
-        </Card>
+        <RequestTypeTable
+          requestTypes={filteredRequestTypes}
+          isLoading={isLoading}
+          isError={isError}
+          onRetry={() => void refetch()}
+          onEdit={openEditDialog}
+          onDelete={setDeleteTarget}
+          canEdit={canUpdate}
+          canDelete={canDelete}
+        />
 
         {showDefaultRequestTypes && canCreate ? (
           <DefaultRequestTypesCard

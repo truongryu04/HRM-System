@@ -10,6 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getApiErrorMessage } from "../../utils/api-error";
 import { PERMISSIONS } from "../../constants/permissions";
 import { usePermissionAccess } from "../../hooks/usePermissionAccess";
+import { Card } from "../../components/ui/card";
 
 export default function RolePage() {
   const { can } = usePermissionAccess();
@@ -78,44 +79,47 @@ export default function RolePage() {
     }
   };
   return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Role Management</h1>
-
-          <p className="text-muted-foreground">Manage roles in the system.</p>
+    <Card className="p-6">
+      <div className="space-y-6">
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight">
+              Role Management
+            </h2>
+          </div>
+          {canCreate ? (
+            <Button
+              variant="primary"
+              onClick={() => {
+                setMode("create");
+                setSelectedRole(null);
+                setOpenRoleDialog(true);
+              }}
+            >
+              Thêm vai trò
+            </Button>
+          ) : null}
         </div>
-        {canCreate ? <Button
-          className="bg-teal-500 text-white hover:bg-teal-700 hover:text-white "
-          variant="outline"
-          onClick={() => {
-            setMode("create");
-            setSelectedRole(null);
-            setOpenRoleDialog(true);
-          }}
-        >
-          Thêm vai trò
-        </Button> : null}
+        <RoleTable
+          onEdit={handleEditClick}
+          onDelete={handleDeleteClick}
+          canEdit={canEdit}
+          canDelete={canDelete}
+        ></RoleTable>
+        <RoleDialog
+          open={openRoleDialog}
+          onOpenChange={setOpenRoleDialog}
+          mode={mode}
+          role={selectedRole}
+          onSubmit={handleSaveRole}
+        />
+        <DeleteRoleDialog
+          open={openDeleteDialog}
+          onOpenChange={setOpenDeleteDialog}
+          role={selectedRole}
+          onConfirm={handleDeleteRole}
+        />
       </div>
-      <RoleTable
-        onEdit={handleEditClick}
-        onDelete={handleDeleteClick}
-        canEdit={canEdit}
-        canDelete={canDelete}
-      ></RoleTable>
-      <RoleDialog
-        open={openRoleDialog}
-        onOpenChange={setOpenRoleDialog}
-        mode={mode}
-        role={selectedRole}
-        onSubmit={handleSaveRole}
-      />
-      <DeleteRoleDialog
-        open={openDeleteDialog}
-        onOpenChange={setOpenDeleteDialog}
-        role={selectedRole}
-        onConfirm={handleDeleteRole}
-      />
-    </div>
+    </Card>
   );
 }

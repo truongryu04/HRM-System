@@ -17,35 +17,36 @@ type RoleTableProps = {
   canDelete: boolean;
 };
 
-export function RoleTable({ onEdit, onDelete, canEdit, canDelete }: RoleTableProps) {
+export function RoleTable({
+  onEdit,
+  onDelete,
+  canEdit,
+  canDelete,
+}: RoleTableProps) {
   const { data: roles = [] } = useRoles();
   return (
-    <Card>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Role Name</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Permissions</TableHead>
-              <TableHead className="w-[120px]">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Role Name</TableHead>
+          <TableHead>Description</TableHead>
+          <TableHead>Permissions</TableHead>
+          <TableHead className="w-[120px]">Actions</TableHead>
+        </TableRow>
+      </TableHeader>
 
-          <TableBody>
-            {roles.map((role) => (
-              <RoleRow
-                key={role.id}
-                role={role}
-                onEdit={onEdit}
-                onDelete={onDelete}
-                canEdit={canEdit}
-                canDelete={canDelete}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+      <TableBody>
+        {roles.map((role) => (
+          <RoleRow
+            key={role.id}
+            role={role}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            canEdit={canEdit}
+            canDelete={canDelete}
+          />
+        ))}
+      </TableBody>
+    </Table>
   );
 }

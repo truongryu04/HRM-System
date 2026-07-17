@@ -58,13 +58,8 @@ export function RequestTypeDialog({
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
-            {mode === "create"
-              ? "Thêm loại yêu cầu"
-              : "Cập nhật loại yêu cầu"}
+            {mode === "create" ? "Thêm loại yêu cầu" : "Cập nhật loại yêu cầu"}
           </DialogTitle>
-          <DialogDescription>
-            Thiết lập code, handler key và trạng thái sử dụng.
-          </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 md:grid-cols-2">
@@ -138,7 +133,7 @@ export function RequestTypeDialog({
           <Button
             onClick={() => void handleSubmit()}
             disabled={loading}
-            className="bg-teal-500 text-white hover:bg-teal-700"
+            variant="primary"
           >
             {loading ? "Đang lưu..." : "Lưu"}
           </Button>

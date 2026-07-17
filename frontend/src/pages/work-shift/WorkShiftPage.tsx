@@ -40,10 +40,7 @@ import {
   useUpdateWorkShift,
   useWorkShifts,
 } from "../../hooks/useWorkShifts";
-import type {
-  WorkShift,
-  WorkShiftRequest,
-} from "../../types/work-shift.type";
+import type { WorkShift, WorkShiftRequest } from "../../types/work-shift.type";
 import { getApiErrorMessage } from "../../utils/api-error";
 import { PERMISSIONS } from "../../constants/permissions";
 import { usePermissionAccess } from "../../hooks/usePermissionAccess";
@@ -198,7 +195,11 @@ function WorkShiftDialog({
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Hủy
             </Button>
             <Button type="submit" disabled={loading}>
@@ -216,7 +217,12 @@ export default function WorkShiftPage() {
   const canCreate = can(PERMISSIONS.WORK_SHIFT.CREATE);
   const canUpdate = can(PERMISSIONS.WORK_SHIFT.UPDATE);
   const canDelete = can(PERMISSIONS.WORK_SHIFT.DELETE);
-  const { data: workShifts = [], isLoading, isError, refetch } = useWorkShifts();
+  const {
+    data: workShifts = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useWorkShifts();
   const createMutation = useCreateWorkShift();
   const updateMutation = useUpdateWorkShift();
   const deleteMutation = useDeleteWorkShift();
@@ -257,77 +263,173 @@ export default function WorkShiftPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Ca làm việc</h1>
-          <p className="text-muted-foreground">
-            Quản lý khung giờ và công chuẩn của nhân viên.
-          </p>
+    <Card className="p-6">
+      <div className="space-y-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight">Ca làm việc</h2>
+          </div>
+          {canCreate ? (
+            <Button onClick={openCreate} variant="primary">
+              <Plus /> Thêm ca làm việc
+            </Button>
+          ) : null}
         </div>
-        {canCreate ? <Button onClick={openCreate} className="bg-teal-500 text-white hover:bg-teal-700">
-          <Plus /> Thêm ca làm việc
-        </Button> : null}
-      </div>
 
-      <Card>
-        <CardContent className="pt-6">
-          {isLoading ? (
-            <div className="py-12 text-center text-muted-foreground">Đang tải ca làm việc...</div>
-          ) : isError ? (
-            <div className="space-y-3 py-12 text-center">
-              <p className="text-destructive">Không thể tải danh sách ca làm việc.</p>
-              <Button variant="outline" onClick={() => void refetch()}>Thử lại</Button>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Tên ca</TableHead>
-                    <TableHead>Khung giờ</TableHead>
-                    <TableHead>Giờ nghỉ</TableHead>
-                    <TableHead>Đi muộn sau</TableHead>
-                    <TableHead>Công chuẩn</TableHead>
-                    <TableHead>Trạng thái</TableHead>
-                    <TableHead className="text-right">Thao tác</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {workShifts.length === 0 ? (
-                    <TableRow><TableCell colSpan={7} className="py-12 text-center text-muted-foreground">Chưa có ca làm việc nào.</TableCell></TableRow>
-                  ) : workShifts.map((shift) => (
-                    <TableRow key={shift.id}>
-                      <TableCell className="font-medium">
-                        <div className="flex items-center gap-2"><Clock3 className="size-4 text-muted-foreground" />{shift.name}{shift.isDefault && <Badge variant="secondary">Mặc định</Badge>}</div>
-                      </TableCell>
-                      <TableCell>{timeValue(shift.startTime)} – {timeValue(shift.endTime)}</TableCell>
-                      <TableCell>{shift.breakStart && shift.breakEnd ? `${timeValue(shift.breakStart)} – ${timeValue(shift.breakEnd)}` : "Không có"}</TableCell>
-                      <TableCell>{timeValue(shift.lateAfter)}</TableCell>
-                      <TableCell>{shift.standardMinutes} phút</TableCell>
-                      <TableCell><Badge variant={shift.isActive ? "default" : "outline"}>{shift.isActive ? "Hoạt động" : "Ngừng hoạt động"}</Badge></TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          {canUpdate ? <Button size="icon-sm" variant="ghost" aria-label={`Sửa ${shift.name}`} onClick={() => { setEditingShift(shift); setDialogOpen(true); }}><Pencil /></Button> : null}
-                          {canDelete ? <Button size="icon-sm" variant="ghost" className="text-destructive" aria-label={`Xóa ${shift.name}`} disabled={shift.isDefault} onClick={() => setDeleteTarget(shift)}><Trash2 /></Button> : null}
-                        </div>
-                      </TableCell>
+        <Card>
+          <CardContent className="pt-6">
+            {isLoading ? (
+              <div className="py-12 text-center text-muted-foreground">
+                Đang tải ca làm việc...
+              </div>
+            ) : isError ? (
+              <div className="space-y-3 py-12 text-center">
+                <p className="text-destructive">
+                  Không thể tải danh sách ca làm việc.
+                </p>
+                <Button variant="outline" onClick={() => void refetch()}>
+                  Thử lại
+                </Button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Tên ca</TableHead>
+                      <TableHead>Khung giờ</TableHead>
+                      <TableHead>Giờ nghỉ</TableHead>
+                      <TableHead>Đi muộn sau</TableHead>
+                      <TableHead>Công chuẩn</TableHead>
+                      <TableHead>Trạng thái</TableHead>
+                      <TableHead className="text-right">Thao tác</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                  </TableHeader>
+                  <TableBody>
+                    {workShifts.length === 0 ? (
+                      <TableRow>
+                        <TableCell
+                          colSpan={7}
+                          className="py-12 text-center text-muted-foreground"
+                        >
+                          Chưa có ca làm việc nào.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      workShifts.map((shift) => (
+                        <TableRow key={shift.id}>
+                          <TableCell className="font-medium">
+                            <div className="flex items-center gap-2">
+                              <Clock3 className="size-4 text-muted-foreground" />
+                              {shift.name}
+                              {shift.isDefault && (
+                                <Badge variant="secondary">Mặc định</Badge>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {timeValue(shift.startTime)} –{" "}
+                            {timeValue(shift.endTime)}
+                          </TableCell>
+                          <TableCell>
+                            {shift.breakStart && shift.breakEnd
+                              ? `${timeValue(shift.breakStart)} – ${timeValue(shift.breakEnd)}`
+                              : "Không có"}
+                          </TableCell>
+                          <TableCell>{timeValue(shift.lateAfter)}</TableCell>
+                          <TableCell>{shift.standardMinutes} phút</TableCell>
+                          <TableCell>
+                            <Badge
+                              className={
+                                shift.isActive
+                                  ? "border-green-200 bg-green-100 text-green-700 hover:bg-green-100"
+                                  : "border-gray-200 bg-gray-100 text-gray-600 hover:bg-gray-100"
+                              }
+                            >
+                              {shift.isActive ? "Hoạt động" : "Ngừng hoạt động"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              {canUpdate ? (
+                                <Button
+                                  size="icon-sm"
+                                  variant="primary"
+                                  aria-label={`Sửa ${shift.name}`}
+                                  onClick={() => {
+                                    setEditingShift(shift);
+                                    setDialogOpen(true);
+                                  }}
+                                >
+                                  <Pencil />
+                                </Button>
+                              ) : null}
+                              {canDelete ? (
+                                <Button
+                                  size="icon-sm"
+                                  variant="ghost"
+                                  className="text-destructive"
+                                  aria-label={`Xóa ${shift.name}`}
+                                  disabled={shift.isDefault}
+                                  onClick={() => setDeleteTarget(shift)}
+                                >
+                                  <Trash2 />
+                                </Button>
+                              ) : null}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-      {canCreate || canUpdate ? <WorkShiftDialog key={`${dialogOpen}-${editingShift?.id ?? "new"}`} open={dialogOpen} onOpenChange={setDialogOpen} workShift={editingShift} loading={createMutation.isPending || updateMutation.isPending} onSubmit={handleSubmit} /> : null}
-      {canDelete ? <AlertDialog open={Boolean(deleteTarget)} onOpenChange={(open) => !open && setDeleteTarget(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader><AlertDialogTitle>Xóa ca làm việc?</AlertDialogTitle><AlertDialogDescription>Ca “{deleteTarget?.name}” sẽ bị xóa vĩnh viễn. Không thể xóa ca đang được gán cho nhân viên.</AlertDialogDescription></AlertDialogHeader>
-          <AlertDialogFooter><AlertDialogCancel disabled={deleteMutation.isPending}>Hủy</AlertDialogCancel><AlertDialogAction variant="destructive" disabled={deleteMutation.isPending} onClick={(event) => { event.preventDefault(); void handleDelete(); }}>{deleteMutation.isPending ? "Đang xóa..." : "Xóa"}</AlertDialogAction></AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog> : null}
-    </div>
+        {canCreate || canUpdate ? (
+          <WorkShiftDialog
+            key={`${dialogOpen}-${editingShift?.id ?? "new"}`}
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+            workShift={editingShift}
+            loading={createMutation.isPending || updateMutation.isPending}
+            onSubmit={handleSubmit}
+          />
+        ) : null}
+        {canDelete ? (
+          <AlertDialog
+            open={Boolean(deleteTarget)}
+            onOpenChange={(open) => !open && setDeleteTarget(null)}
+          >
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Xóa ca làm việc?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Ca “{deleteTarget?.name}” sẽ bị xóa vĩnh viễn. Không thể xóa
+                  ca đang được gán cho nhân viên.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={deleteMutation.isPending}>
+                  Hủy
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  variant="destructive"
+                  disabled={deleteMutation.isPending}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    void handleDelete();
+                  }}
+                >
+                  {deleteMutation.isPending ? "Đang xóa..." : "Xóa"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        ) : null}
+      </div>
+    </Card>
   );
 }

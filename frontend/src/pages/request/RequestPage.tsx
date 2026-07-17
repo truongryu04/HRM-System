@@ -41,26 +41,20 @@ export default function RequestPage() {
           </div>
         </div>
 
-        <Card>
-          <CardContent className="pt-6">
-            {isLoading ? (
-              <div className="py-12 text-center text-muted-foreground">
-                Đang tải danh sách yêu cầu...
-              </div>
-            ) : isError ? (
-              <div className="space-y-3 py-12 text-center">
-                <p className="text-destructive">
-                  Không thể tải danh sách yêu cầu.
-                </p>
-                <Button variant="outline" onClick={() => void refetch()}>
-                  Thử lại
-                </Button>
-              </div>
-            ) : (
-              <RequestTable requests={requests} />
-            )}
-          </CardContent>
-        </Card>
+        {isLoading ? (
+          <div className="py-12 text-center text-muted-foreground">
+            Đang tải danh sách yêu cầu...
+          </div>
+        ) : isError ? (
+          <div className="space-y-3 py-12 text-center">
+            <p className="text-destructive">Không thể tải danh sách yêu cầu.</p>
+            <Button variant="outline" onClick={() => void refetch()}>
+              Thử lại
+            </Button>
+          </div>
+        ) : (
+          <RequestTable requests={requests} />
+        )}
       </div>
     </Card>
   );

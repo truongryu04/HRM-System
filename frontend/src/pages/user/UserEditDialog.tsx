@@ -88,13 +88,6 @@ export default function UserEditDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Chỉnh sửa tài khoản</DialogTitle>
-          <DialogDescription>
-            Cập nhật thông tin tài khoản người dùng.
-          </DialogDescription>
-        </DialogHeader>
-
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="user-email">Email</Label>
@@ -198,7 +191,7 @@ export default function UserEditDialog({
           <Button
             onClick={handleSubmit}
             disabled={updateUserMutation.isPending}
-            className="bg-teal-500 text-white hover:bg-teal-700"
+            variant="primary"
           >
             {updateUserMutation.isPending
               ? "Đang cập nhật..."

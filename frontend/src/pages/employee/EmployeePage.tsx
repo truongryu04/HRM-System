@@ -195,111 +195,110 @@ export default function EmployeePage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Quản lý nhân viên
-          </h1>
-          <p className="text-muted-foreground">
-            Danh sách nhân viên, bộ lọc, phân trang và thao tác CRUD.
-          </p>
+    <Card className="p-6">
+      <div className="space-y-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight">
+              Quản lý nhân viên
+            </h2>
+          </div>
+
+          <CanAccess permission={PERMISSIONS.EMPLOYEE.CREATE}>
+            <Button
+              onClick={() => navigate(`/employees/create`)}
+              variant="primary"
+            >
+              <Plus />
+              Thêm nhân viên
+            </Button>
+          </CanAccess>
         </div>
 
-        <CanAccess permission={PERMISSIONS.EMPLOYEE.CREATE}>
-          <Button
-            onClick={() => navigate(`/employees/create`)}
-            className="bg-teal-500 hover:bg-teal-700 text-white"
-          >
-            <Plus />
-            Thêm nhân viên
-          </Button>
-        </CanAccess>
-      </div>
+        <EmployeeFilterBar
+          searchInput={searchInput}
+          setSearchInput={setSearchInput}
+          onSearch={handleSearch}
+          departmentId={departmentId}
+          setDepartmentId={(v: string) => {
+            setPage(1);
+            setDepartmentId(v);
+          }}
+          positionId={positionId}
+          setPositionId={(v: string) => {
+            setPage(1);
+            setPositionId(v);
+          }}
+          status={status}
+          setStatus={(v: string) => {
+            setPage(1);
+            setStatus(v);
+          }}
+          gender={gender}
+          setGender={(v: string) => {
+            setPage(1);
+            setGender(v);
+          }}
+          joinDateFrom={joinDateFrom}
+          setJoinDateFrom={(v: string) => {
+            setPage(1);
+            setJoinDateFrom(v);
+          }}
+          joinDateTo={joinDateTo}
+          setJoinDateTo={(v: string) => {
+            setPage(1);
+            setJoinDateTo(v);
+          }}
+          departments={departments}
+          showDepartmentFilter={canReadAll}
+          positions={positions}
+          onReset={handleResetFilters}
+        />
 
-      <EmployeeFilterBar
-        searchInput={searchInput}
-        setSearchInput={setSearchInput}
-        onSearch={handleSearch}
-        departmentId={departmentId}
-        setDepartmentId={(v: string) => {
-          setPage(1);
-          setDepartmentId(v);
-        }}
-        positionId={positionId}
-        setPositionId={(v: string) => {
-          setPage(1);
-          setPositionId(v);
-        }}
-        status={status}
-        setStatus={(v: string) => {
-          setPage(1);
-          setStatus(v);
-        }}
-        gender={gender}
-        setGender={(v: string) => {
-          setPage(1);
-          setGender(v);
-        }}
-        joinDateFrom={joinDateFrom}
-        setJoinDateFrom={(v: string) => {
-          setPage(1);
-          setJoinDateFrom(v);
-        }}
-        joinDateTo={joinDateTo}
-        setJoinDateTo={(v: string) => {
-          setPage(1);
-          setJoinDateTo(v);
-        }}
-        departments={departments}
-        showDepartmentFilter={canReadAll}
-        positions={positions}
-        onReset={handleResetFilters}
-      />
+        <EmployeeTable
+          employees={pagedEmployees}
+          onViewDetail={(e) => navigate(`/employees/${e.id}`)}
+          onChangeStatus={(employee) => {
+            setSelectedEmployee(employee);
+            setStatusDialogOpen(true);
+          }}
+          onDelete={setEmployeeToDelete}
+          canChangeStatus={canUpdateStatus}
+          canDelete={canDelete}
+        />
 
-      <Card>
-        <CardContent className="pt-6">
-          <EmployeeTable
-            employees={pagedEmployees}
-            onViewDetail={(e) => navigate(`/employees/${e.id}`)}
-            onChangeStatus={(employee) => {
-              setSelectedEmployee(employee);
-              setStatusDialogOpen(true);
-            }}
-            onDelete={setEmployeeToDelete}
-            canChangeStatus={canUpdateStatus}
-            canDelete={canDelete}
+        <Pagination
+          page={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredEmployees.length}
+          pageSize={employeePageSize}
+          setPage={setPage}
+          itemName="nhân viên"
+        />
+
+        {canUpdateStatus ? (
+          <EmployeeStatusDialog
+            key={selectedEmployee?.id}
+            open={statusDialogOpen}
+            onOpenChange={setStatusDialogOpen}
+            employee={selectedEmployee}
+            onSubmit={handleUpdateStatus}
+            loading={updateStatusMutation.isPending}
           />
-        </CardContent>
-      </Card>
+        ) : null}
 
-      <Pagination
-        page={currentPage}
-        totalPages={totalPages}
-        totalItems={filteredEmployees.length}
-        pageSize={employeePageSize}
-        setPage={setPage}
-        itemName="nhân viên"
-      />
-
-      {canUpdateStatus ? <EmployeeStatusDialog
-        key={selectedEmployee?.id}
-        open={statusDialogOpen}
-        onOpenChange={setStatusDialogOpen}
-        employee={selectedEmployee}
-        onSubmit={handleUpdateStatus}
-        loading={updateStatusMutation.isPending}
-      /> : null}
-
-      {canDelete ? <EmployeeDeleteDialog
-        open={Boolean(employeeToDelete)}
-        onOpenChange={(open) => {
-          if (!open) setEmployeeToDelete(null);
-        }}
-        employee={employeeToDelete}
-        onSubmit={handleDeleteSubmit}
-        loading={deleteMutation.isPending}
-      /> : null}
-    </div>
+        {canDelete ? (
+          <EmployeeDeleteDialog
+            open={Boolean(employeeToDelete)}
+            onOpenChange={(open) => {
+              if (!open) setEmployeeToDelete(null);
+            }}
+            employee={employeeToDelete}
+            onSubmit={handleDeleteSubmit}
+            loading={deleteMutation.isPending}
+          />
+        ) : null}
+      </div>
+    </Card>
   );
 }

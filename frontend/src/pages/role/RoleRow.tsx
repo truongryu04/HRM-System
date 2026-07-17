@@ -27,24 +27,30 @@ export function RoleRow({
       <TableCell>{role.permissions.length}</TableCell>
 
       <TableCell>
-        {canEdit || canDelete ? <div className="flex gap-2">
-          {canEdit ? (
-          <Button variant="outline" size="icon" onClick={() => onEdit(role)}>
-            <Pencil />
-          </Button>
-          ) : null}
-          {canDelete ? (
-          <Button
-            variant="destructive"
-            size="icon"
-            onClick={() => {
-              onDelete(role);
-            }}
-          >
-            <Trash />
-          </Button>
-          ) : null}
-        </div> : null}
+        {canEdit || canDelete ? (
+          <div className="flex gap-2">
+            {canEdit ? (
+              <Button
+                variant="primary"
+                size="icon"
+                onClick={() => onEdit(role)}
+              >
+                <Pencil />
+              </Button>
+            ) : null}
+            {canDelete ? (
+              <Button
+                variant="destructive"
+                size="icon"
+                onClick={() => {
+                  onDelete(role);
+                }}
+              >
+                <Trash />
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
       </TableCell>
     </TableRow>
   );

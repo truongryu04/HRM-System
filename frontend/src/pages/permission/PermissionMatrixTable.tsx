@@ -69,7 +69,7 @@ export function PermissionMatrixTable({
     });
   };
   return (
-    <div className="rounded-md border">
+    <div className="border">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>

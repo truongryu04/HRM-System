@@ -14,6 +14,7 @@ import { getApiErrorMessage } from "../../utils/api-error";
 import { ResetPasswordDialog } from "./ResetPasswordDialog";
 import { PERMISSIONS } from "../../constants/permissions";
 import { usePermissionAccess } from "../../hooks/usePermissionAccess";
+import { Card } from "../../components/ui/card";
 
 export default function UserManagementPage() {
   const { can } = usePermissionAccess();
@@ -48,10 +49,7 @@ export default function UserManagementPage() {
     setSelectedUserIds(new Set());
   };
 
-  const changeFilter = (
-    setter: (value: string) => void,
-    value: string,
-  ) => {
+  const changeFilter = (setter: (value: string) => void, value: string) => {
     setter(value);
     setPage(1);
     setSelectedUserIds(new Set());
@@ -112,83 +110,92 @@ export default function UserManagementPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
-          <p className="text-muted-foreground">
-            Quản lý tài khoản, phân quyền và trạng thái đăng nhập.
-          </p>
+    <Card className="p-6">
+      <div className="space-y-4">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight">
+              Quản lý tài khoản người dùng
+            </h2>
+          </div>
+
+          <div className="flex flex-wrap justify-end gap-2">
+            {canResetPassword && selectedUserIds.size > 0 && (
+              <Button variant="outline" onClick={openBulkReset}>
+                <KeyRound /> Đặt lại mật khẩu ({selectedUserIds.size})
+              </Button>
+            )}
+            {canCreate ? (
+              <Button
+                onClick={() => setOpenCreateDialog(true)}
+                variant="primary"
+              >
+                Thêm tài khoản
+              </Button>
+            ) : null}
+          </div>
         </div>
 
-        <div className="flex flex-wrap justify-end gap-2">
-          {canResetPassword && selectedUserIds.size > 0 && (
-            <Button variant="outline" onClick={openBulkReset}>
-              <KeyRound /> Đặt lại mật khẩu ({selectedUserIds.size})
-            </Button>
-          )}
-          {canCreate ? <Button
-            onClick={() => setOpenCreateDialog(true)}
-            className="bg-teal-500 text-white hover:bg-teal-700"
-          >
-            Thêm tài khoản
-          </Button> : null}
-        </div>
+        <UserFilterBar
+          searchInput={searchInput}
+          setSearchInput={setSearchInput}
+          onSearch={handleSearch}
+          role={role}
+          setRole={(value) => changeFilter(setRole, value)}
+          status={status}
+          setStatus={(value) => changeFilter(setStatus, value)}
+          linkedEmployee={linkedEmployee}
+          setLinkedEmployee={(value) => changeFilter(setLinkedEmployee, value)}
+          roles={roles}
+        />
+
+        <UserTable
+          users={users}
+          onEdit={handleEditUser}
+          onResetPassword={openSingleReset}
+          selectedUserIds={selectedUserIds}
+          onSelectionChange={setSelectedUserIds}
+          canEdit={canUpdate}
+          canResetPassword={canResetPassword}
+        />
+        <Pagination
+          page={pagination?.page ?? 1}
+          totalPages={pagination?.totalPages ?? 1}
+          totalItems={pagination?.total ?? 0}
+          pageSize={pagination?.limit ?? 10}
+          setPage={(nextPage) => {
+            setPage(nextPage);
+            setSelectedUserIds(new Set());
+          }}
+          itemName="tài khoản"
+        />
+        {canCreate ? (
+          <UserCreateDialog
+            key={openCreateDialog ? "open" : "closed"}
+            open={openCreateDialog}
+            onOpenChange={setOpenCreateDialog}
+            roles={roles}
+          />
+        ) : null}
+        {canUpdate ? (
+          <UserEditDialog
+            key={`${openEditDialog}-${selectedUser?.id ?? "none"}`}
+            open={openEditDialog}
+            onOpenChange={setOpenEditDialog}
+            user={selectedUser}
+            roles={roles}
+          />
+        ) : null}
+        {canResetPassword ? (
+          <ResetPasswordDialog
+            open={resetTargets.length > 0}
+            onOpenChange={(open) => !open && setResetTargets([])}
+            users={resetTargets}
+            loading={resetPasswordMutation.isPending}
+            onConfirm={() => void handleResetPasswords()}
+          />
+        ) : null}
       </div>
-
-      <UserFilterBar
-        searchInput={searchInput}
-        setSearchInput={setSearchInput}
-        onSearch={handleSearch}
-        role={role}
-        setRole={(value) => changeFilter(setRole, value)}
-        status={status}
-        setStatus={(value) => changeFilter(setStatus, value)}
-        linkedEmployee={linkedEmployee}
-        setLinkedEmployee={(value) => changeFilter(setLinkedEmployee, value)}
-        roles={roles}
-      />
-
-      <UserTable
-        users={users}
-        onEdit={handleEditUser}
-        onResetPassword={openSingleReset}
-        selectedUserIds={selectedUserIds}
-        onSelectionChange={setSelectedUserIds}
-        canEdit={canUpdate}
-        canResetPassword={canResetPassword}
-      />
-      <Pagination
-        page={pagination?.page ?? 1}
-        totalPages={pagination?.totalPages ?? 1}
-        totalItems={pagination?.total ?? 0}
-        pageSize={pagination?.limit ?? 10}
-        setPage={(nextPage) => {
-          setPage(nextPage);
-          setSelectedUserIds(new Set());
-        }}
-        itemName="tài khoản"
-      />
-      {canCreate ? <UserCreateDialog
-        key={openCreateDialog ? "open" : "closed"}
-        open={openCreateDialog}
-        onOpenChange={setOpenCreateDialog}
-        roles={roles}
-      /> : null}
-      {canUpdate ? <UserEditDialog
-        key={`${openEditDialog}-${selectedUser?.id ?? "none"}`}
-        open={openEditDialog}
-        onOpenChange={setOpenEditDialog}
-        user={selectedUser}
-        roles={roles}
-      /> : null}
-      {canResetPassword ? <ResetPasswordDialog
-        open={resetTargets.length > 0}
-        onOpenChange={(open) => !open && setResetTargets([])}
-        users={resetTargets}
-        loading={resetPasswordMutation.isPending}
-        onConfirm={() => void handleResetPasswords()}
-      /> : null}
-    </div>
+    </Card>
   );
 }

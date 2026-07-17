@@ -52,58 +52,49 @@ export default function PermissionPage() {
     }
   };
   return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Permission Management
-          </h1>
+    <Card className="p-6">
+      <div className="space-y-6">
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight">
+              Ma trận phân quyền
+            </h2>
+          </div>
+          {canAssignPermission ? (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="primary">Lưu</Button>
+              </AlertDialogTrigger>
 
-          <p className="text-muted-foreground">
-            Manage role permissions in the system.
-          </p>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    Xác nhận cập nhật phân quyền?
+                  </AlertDialogTitle>
+
+                  <AlertDialogDescription>
+                    Thao tác này sẽ thay đổi quyền của các role trong hệ thống.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Hủy</AlertDialogCancel>
+
+                  <AlertDialogAction onClick={handleSave}>
+                    Xác nhận
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          ) : null}
         </div>
-        {canAssignPermission ? (
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button className="bg-teal-500 hover:bg-teal-700 text-white ">
-                Lưu
-              </Button>
-            </AlertDialogTrigger>
 
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Xác nhận cập nhật phân quyền?</AlertDialogTitle>
-
-              <AlertDialogDescription>
-                Thao tác này sẽ thay đổi quyền của các role trong hệ thống.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-
-            <AlertDialogFooter>
-              <AlertDialogCancel>Hủy</AlertDialogCancel>
-
-              <AlertDialogAction onClick={handleSave}>
-                Xác nhận
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-          </AlertDialog>
-        ) : null}
+        <PermissionMatrixTable
+          rolePermissions={rolePermissions}
+          setRolePermissions={setRolePermissions}
+          disabled={!canAssignPermission}
+        />
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Permission Matrix</CardTitle>
-        </CardHeader>
-
-        <CardContent>
-          <PermissionMatrixTable
-            rolePermissions={rolePermissions}
-            setRolePermissions={setRolePermissions}
-            disabled={!canAssignPermission}
-          />
-        </CardContent>
-      </Card>
-    </div>
+    </Card>
   );
 }

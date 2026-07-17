@@ -415,7 +415,7 @@ function ApprovalStepsCard({ detail }: { detail: BusinessRequestDetail }) {
         <CardTitle>Các bước duyệt</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto rounded-md border">
+        <div className="overflow-x-auto border">
           <Table>
             <TableHeader>
               <TableRow>

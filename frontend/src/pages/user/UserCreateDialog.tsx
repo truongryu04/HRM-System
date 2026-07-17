@@ -97,9 +97,6 @@ export default function UserCreateDialog({
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Thêm tài khoản</DialogTitle>
-          <DialogDescription>
-            Tạo tài khoản người dùng mới và gán nhân viên, vai trò tương ứng.
-          </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 md:grid-cols-2">
@@ -191,7 +188,7 @@ export default function UserCreateDialog({
           <Button
             onClick={handleSubmit}
             disabled={createUserMutation.isPending}
-            className="bg-teal-500 text-white hover:bg-teal-700"
+            variant="primary"
           >
             {createUserMutation.isPending ? "Đang tạo..." : "Tạo tài khoản"}
           </Button>
