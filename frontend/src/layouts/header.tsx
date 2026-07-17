@@ -10,11 +10,7 @@ import { Button } from "../components/ui/button";
 import { Bell, User, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { logoutApi } from "../services/auth.api";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "../components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { useEmployeeProfile } from "../hooks/useEmployeeProfile";
 import { useAuthStore } from "../store/auth.store";
 
@@ -36,11 +32,19 @@ export function Header() {
       <h1 className="font-semibold text-base">HRM System</h1>
 
       <div className="flex items-center gap-4">
-        <Button size="icon">
-          <Bell />
+        <Button
+          size="icon"
+          variant="ghost"
+          className="text-primary hover:text-primary-foreground"
+        >
+          <Bell className="size-5" />
         </Button>
-        <Button size="icon">
-          <Settings />
+        <Button
+          size="icon"
+          variant="ghost"
+          className="text-primary hover:text-primary-foreground"
+        >
+          <Settings className="size-5 " />
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
