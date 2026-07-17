@@ -47,9 +47,7 @@ export default function AttendancePage() {
       />
 
       <div className="mt-6 overflow-x-auto">
-        <div className="min-w-[1200px]">
-          <AttendanceCalendar days={days} calendarData={data?.calendar || {}} />
-        </div>
+        <AttendanceCalendar days={days} calendarData={data?.calendar || {}} />
       </div>
     </Card>
   );

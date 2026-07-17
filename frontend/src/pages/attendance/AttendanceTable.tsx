@@ -80,88 +80,82 @@ export function AttendanceTable({
   canUpdate,
 }: AttendanceTableProps) {
   return (
-    <Card>
-      <CardContent className="p-0">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>STT</TableHead>
-              <TableHead>Mã NV</TableHead>
-              <TableHead>Nhân viên</TableHead>
-              <TableHead>Phòng ban</TableHead>
-              <TableHead>Chức vụ</TableHead>
-              <TableHead>Ngày</TableHead>
-              <TableHead>Check In</TableHead>
-              <TableHead>Check Out</TableHead>
-              <TableHead>Giờ làm</TableHead>
-              <TableHead>Trạng thái</TableHead>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>STT</TableHead>
+          <TableHead>Mã NV</TableHead>
+          <TableHead>Nhân viên</TableHead>
+          <TableHead>Phòng ban</TableHead>
+          <TableHead>Chức vụ</TableHead>
+          <TableHead>Ngày</TableHead>
+          <TableHead>Check In</TableHead>
+          <TableHead>Check Out</TableHead>
+          <TableHead>Giờ làm</TableHead>
+          <TableHead>Trạng thái</TableHead>
+          {canUpdate ? (
+            <TableHead className="text-right">Thao tác</TableHead>
+          ) : null}
+        </TableRow>
+      </TableHeader>
+
+      <TableBody>
+        {data.length === 0 ? (
+          <TableRow>
+            <TableCell
+              colSpan={canUpdate ? 11 : 10}
+              className="text-center py-8"
+            >
+              Không có dữ liệu
+            </TableCell>
+          </TableRow>
+        ) : (
+          data.map((item, index) => (
+            <TableRow key={item.id}>
+              <TableCell>{index + 1}</TableCell>
+
+              <TableCell>{item.employee.employeeCode}</TableCell>
+
+              <TableCell className="font-medium">
+                {item.employee.fullName}
+              </TableCell>
+
+              <TableCell>{item.employee.department?.name ?? "--"}</TableCell>
+              <TableCell>{item.employee.position?.name ?? "--"}</TableCell>
+
+              <TableCell>{formatDate(item.attendanceDate)}</TableCell>
+
+              <TableCell>{formatTime(item.checkInTime)}</TableCell>
+
+              <TableCell>{formatTime(item.checkOutTime)}</TableCell>
+
+              <TableCell>{formatWorkMinutes(item.workMinutes)}</TableCell>
+
+              <TableCell>
+                <StatusBadge
+                  isLate={item.isLate}
+                  checkOutTime={item.checkOutTime}
+                />
+              </TableCell>
+
               {canUpdate ? (
-                <TableHead className="text-right">Thao tác</TableHead>
+                <TableCell className="text-right">
+                  <Button
+                    size="icon"
+                    variant="primary"
+                    onClick={() => {
+                      setSelectedAttendance(item);
+                      setOpenEditDialog(true);
+                    }}
+                  >
+                    <Pencil className="size-4" />
+                  </Button>
+                </TableCell>
               ) : null}
             </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {data.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={canUpdate ? 11 : 10}
-                  className="text-center py-8"
-                >
-                  Không có dữ liệu
-                </TableCell>
-              </TableRow>
-            ) : (
-              data.map((item, index) => (
-                <TableRow key={item.id}>
-                  <TableCell>{index + 1}</TableCell>
-
-                  <TableCell>{item.employee.employeeCode}</TableCell>
-
-                  <TableCell className="font-medium">
-                    {item.employee.fullName}
-                  </TableCell>
-
-                  <TableCell>
-                    {item.employee.department?.name ?? "--"}
-                  </TableCell>
-                  <TableCell>{item.employee.position?.name ?? "--"}</TableCell>
-
-                  <TableCell>{formatDate(item.attendanceDate)}</TableCell>
-
-                  <TableCell>{formatTime(item.checkInTime)}</TableCell>
-
-                  <TableCell>{formatTime(item.checkOutTime)}</TableCell>
-
-                  <TableCell>{formatWorkMinutes(item.workMinutes)}</TableCell>
-
-                  <TableCell>
-                    <StatusBadge
-                      isLate={item.isLate}
-                      checkOutTime={item.checkOutTime}
-                    />
-                  </TableCell>
-
-                  {canUpdate ? (
-                    <TableCell className="text-right">
-                      <Button
-                        size="icon"
-                        variant="primary"
-                        onClick={() => {
-                          setSelectedAttendance(item);
-                          setOpenEditDialog(true);
-                        }}
-                      >
-                        <Pencil className="size-4" />
-                      </Button>
-                    </TableCell>
-                  ) : null}
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+          ))
+        )}
+      </TableBody>
+    </Table>
   );
 }

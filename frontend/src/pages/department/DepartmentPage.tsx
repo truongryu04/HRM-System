@@ -102,9 +102,7 @@ function DepartmentFormDialog({
           <DialogTitle>
             {mode === "create" ? "Thêm phòng ban" : "Cập nhật phòng ban"}
           </DialogTitle>
-          <DialogDescription>Quản lý thông tin phòng ban</DialogDescription>
         </DialogHeader>
-
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="department-code">Mã phòng ban</Label>
@@ -264,77 +262,77 @@ export default function DepartmentPage() {
       : "bg-slate-500/10 text-slate-700";
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Department Management
-          </h1>
-          <p className="text-muted-foreground">Quản lý phòng ban</p>
+    <Card className="p-6">
+      <div className="space-y-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight">
+              Quản lý phòng ban
+            </h2>
+          </div>
+
+          {canCreate ? (
+            <Button onClick={openCreateDialog} variant="primary">
+              Thêm phòng ban
+            </Button>
+          ) : null}
         </div>
 
-        {canCreate ? <Button
-          onClick={openCreateDialog}
-          className="bg-teal-500 text-white hover:bg-violet-700"
-        >
-          Thêm phòng ban
-        </Button> : null}
-      </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Mã</TableHead>
+              <TableHead>Tên</TableHead>
+              <TableHead>Mô tả</TableHead>
+              <TableHead>Trưởng phòng</TableHead>
+              <TableHead>Trạng thái</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
 
-      <Card>
-        <CardContent className="pt-6">
-          <Table>
-            <TableHeader>
+          <TableBody>
+            {departments.length === 0 ? (
               <TableRow>
-                <TableHead>Mã</TableHead>
-                <TableHead>Tên</TableHead>
-                <TableHead>Mô tả</TableHead>
-                <TableHead>Trưởng phòng</TableHead>
-                <TableHead>Trạng thái</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableCell
+                  colSpan={6}
+                  className="py-10 text-center text-muted-foreground"
+                >
+                  Chưa có phòng ban nào.
+                </TableCell>
               </TableRow>
-            </TableHeader>
-
-            <TableBody>
-              {departments.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="py-10 text-center text-muted-foreground"
-                  >
-                    Chưa có phòng ban nào.
+            ) : (
+              departments.map((department) => (
+                <TableRow key={department.id}>
+                  <TableCell className="font-medium">
+                    {department.code}
                   </TableCell>
-                </TableRow>
-              ) : (
-                departments.map((department) => (
-                  <TableRow key={department.id}>
-                    <TableCell className="font-medium">
-                      {department.code}
-                    </TableCell>
-                    <TableCell>{department.name}</TableCell>
-                    <TableCell>{department.description ?? "-"}</TableCell>
-                    <TableCell>
-                      {department.manager?.fullName ?? "Chưa phân công"}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={statusClass(department.status)}
-                      >
-                        {department.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        {canUpdate ? <Button
+                  <TableCell>{department.name}</TableCell>
+                  <TableCell>{department.description ?? "-"}</TableCell>
+                  <TableCell>
+                    {department.manager?.fullName ?? "Chưa phân công"}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={statusClass(department.status)}
+                    >
+                      {department.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      {canUpdate ? (
+                        <Button
                           variant="outline"
                           size="sm"
                           onClick={() => openEditDialog(department)}
                         >
                           Sửa
-                        </Button> : null}
+                        </Button>
+                      ) : null}
 
-                        {canDelete ? <AlertDialog
+                      {canDelete ? (
+                        <AlertDialog
                           open={deleteTarget?.id === department.id}
                           onOpenChange={(open) =>
                             !open && setDeleteTarget(null)
@@ -369,27 +367,29 @@ export default function DepartmentPage() {
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
-                        </AlertDialog> : null}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                        </AlertDialog>
+                      ) : null}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
 
-      {canCreate || canUpdate ? <DepartmentFormDialog
-        key={`${openDialog}-${mode}-${selectedDepartment?.id ?? "new"}`}
-        open={openDialog}
-        onOpenChange={setOpenDialog}
-        mode={mode}
-        department={selectedDepartment}
-        onSubmit={handleSubmit}
-        loading={createMutation.isPending || updateMutation.isPending}
-        employees={employees}
-      /> : null}
-    </div>
+        {canCreate || canUpdate ? (
+          <DepartmentFormDialog
+            key={`${openDialog}-${mode}-${selectedDepartment?.id ?? "new"}`}
+            open={openDialog}
+            onOpenChange={setOpenDialog}
+            mode={mode}
+            department={selectedDepartment}
+            onSubmit={handleSubmit}
+            loading={createMutation.isPending || updateMutation.isPending}
+            employees={employees}
+          />
+        ) : null}
+      </div>
+    </Card>
   );
 }

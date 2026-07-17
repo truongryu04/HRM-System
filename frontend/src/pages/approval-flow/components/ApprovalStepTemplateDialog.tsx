@@ -56,8 +56,9 @@ export function ApprovalStepTemplateDialog({
   onSubmit,
 }: ApprovalStepTemplateDialogProps) {
   const [stepName, setStepName] = useState(template?.stepName ?? "");
-  const [approverType, setApproverType] =
-    useState<ApproverType>(template?.approverType ?? "DIRECT_MANAGER");
+  const [approverType, setApproverType] = useState<ApproverType>(
+    template?.approverType ?? "DIRECT_MANAGER",
+  );
   const [roleCode, setRoleCode] = useState(template?.roleCode ?? "");
   const [positionCode, setPositionCode] = useState(
     template?.positionCode ?? "",
@@ -245,7 +246,7 @@ export function ApprovalStepTemplateDialog({
           <Button
             onClick={() => void handleSubmit()}
             disabled={loading}
-            className="bg-teal-500 text-white hover:bg-teal-700"
+            variant="primary"
           >
             {loading ? "Đang lưu..." : "Lưu mẫu"}
           </Button>

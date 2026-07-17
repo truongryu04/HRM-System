@@ -105,7 +105,10 @@ export function ApprovalFlowDialog({
               </SelectTrigger>
               <SelectContent>
                 {requestTypes.map((requestType) => (
-                  <SelectItem key={requestType.id} value={String(requestType.id)}>
+                  <SelectItem
+                    key={requestType.id}
+                    value={String(requestType.id)}
+                  >
                     {requestType.name}
                   </SelectItem>
                 ))}
@@ -149,7 +152,7 @@ export function ApprovalFlowDialog({
           <Button
             onClick={() => void handleSubmit()}
             disabled={loading}
-            className="bg-teal-500 text-white hover:bg-teal-700"
+            variant="primary"
           >
             {loading ? "Đang lưu..." : "Lưu"}
           </Button>
