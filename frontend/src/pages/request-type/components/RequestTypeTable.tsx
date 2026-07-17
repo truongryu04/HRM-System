@@ -69,7 +69,9 @@ export function RequestTypeTable({
             <TableHead>Handler key</TableHead>
             <TableHead>Trạng thái</TableHead>
             <TableHead>Mô tả</TableHead>
-            {canEdit || canDelete ? <TableHead className="text-right">Action</TableHead> : null}
+            {canEdit || canDelete ? (
+              <TableHead className="text-right">Action</TableHead>
+            ) : null}
           </TableRow>
         </TableHeader>
 
@@ -102,27 +104,33 @@ export function RequestTypeTable({
                 <TableCell className="min-w-64">
                   {requestType.description ?? "-"}
                 </TableCell>
-                {canEdit || canDelete ? <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    {canEdit ? <Button
-                      variant="outline"
-                      size="icon"
-                      aria-label={`Sửa ${requestType.name}`}
-                      onClick={() => onEdit(requestType)}
-                    >
-                      <Edit className="size-4" />
-                    </Button> : null}
+                {canEdit || canDelete ? (
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2 ">
+                      {canEdit ? (
+                        <Button
+                          variant="primary"
+                          size="icon"
+                          aria-label={`Sửa ${requestType.name}`}
+                          onClick={() => onEdit(requestType)}
+                        >
+                          <Edit className="size-4 " />
+                        </Button>
+                      ) : null}
 
-                    {canDelete ? <Button
-                      variant="outline"
-                      size="icon"
-                      aria-label={`Xóa ${requestType.name}`}
-                      onClick={() => onDelete(requestType)}
-                    >
-                      <Trash2 className="size-4 text-destructive" />
-                    </Button> : null}
-                  </div>
-                </TableCell> : null}
+                      {canDelete ? (
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          aria-label={`Xóa ${requestType.name}`}
+                          onClick={() => onDelete(requestType)}
+                        >
+                          <Trash2 className="size-4 text-destructive" />
+                        </Button>
+                      ) : null}
+                    </div>
+                  </TableCell>
+                ) : null}
               </TableRow>
             ))
           )}

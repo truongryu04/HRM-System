@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { getApiErrorMessage } from "../../utils/api-error";
 import { PERMISSIONS } from "../../constants/permissions";
 import { usePermissionAccess } from "../../hooks/usePermissionAccess";
+import { Card } from "../../components/ui/card";
 export default function AttendanceManagementPage() {
   const { can } = usePermissionAccess();
   const canReadAll = can(PERMISSIONS.ATTENDANCE.READ_ALL);
@@ -52,10 +53,7 @@ export default function AttendanceManagementPage() {
 
   const [selectedAttendance, setSelectedAttendance] =
     useState<Attendance | null>(null);
-  const {
-    data: attendanceResponse,
-    refetch,
-  } = useAttendances({
+  const { data: attendanceResponse, refetch } = useAttendances({
     search,
     date: date,
     departmentId: departmentId === "all" ? undefined : Number(departmentId),
@@ -93,59 +91,59 @@ export default function AttendanceManagementPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Quản lý chấm công</h1>
+    <Card className="p-6">
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-xl font-bold">Quản lý chấm công</h2>
+        </div>
 
-        <p className="text-muted-foreground">
-          Theo dõi và quản lý dữ liệu chấm công nhân viên
-        </p>
+        {canReadDashboard ? (
+          <AttendanceStatsCards data={dashboard} isLoading={dashboardLoading} />
+        ) : null}
+
+        <AttendanceFilter
+          searchInput={searchInput}
+          setSearchInput={setSearchInput}
+          onSearch={handleSearch}
+          date={date}
+          setDate={setDate}
+          departmentId={departmentId}
+          setDepartmentId={setDepartmentId}
+          positionId={positionId}
+          setPositionId={setPositionId}
+          status={status}
+          setStatus={setStatus}
+          departments={departments}
+          showDepartmentFilter={canReadAll}
+          positions={positions}
+          onReset={handleReset}
+        />
+
+        <AttendanceTable
+          data={attendanceResponse?.data ?? []}
+          setSelectedAttendance={setSelectedAttendance}
+          setOpenEditDialog={setOpenEditDialog}
+          canUpdate={canUpdate}
+        />
+
+        <Pagination
+          page={meta?.page ?? 1}
+          totalPages={meta?.totalPages ?? 1}
+          totalItems={meta?.total ?? 0}
+          pageSize={meta?.limit ?? 10}
+          setPage={setPage}
+          itemName="tài khoản"
+        />
+        {canUpdate ? (
+          <AttendanceEditDialog
+            key={selectedAttendance?.id}
+            open={openEditDialog}
+            onOpenChange={setOpenEditDialog}
+            attendance={selectedAttendance}
+            onSubmit={handleUpdateAttendance}
+          />
+        ) : null}
       </div>
-
-      {canReadDashboard ? (
-        <AttendanceStatsCards data={dashboard} isLoading={dashboardLoading} />
-      ) : null}
-
-      <AttendanceFilter
-        searchInput={searchInput}
-        setSearchInput={setSearchInput}
-        onSearch={handleSearch}
-        date={date}
-        setDate={setDate}
-        departmentId={departmentId}
-        setDepartmentId={setDepartmentId}
-        positionId={positionId}
-        setPositionId={setPositionId}
-        status={status}
-        setStatus={setStatus}
-        departments={departments}
-        showDepartmentFilter={canReadAll}
-        positions={positions}
-        onReset={handleReset}
-      />
-
-      <AttendanceTable
-        data={attendanceResponse?.data ?? []}
-        setSelectedAttendance={setSelectedAttendance}
-        setOpenEditDialog={setOpenEditDialog}
-        canUpdate={canUpdate}
-      />
-
-      <Pagination
-        page={meta?.page ?? 1}
-        totalPages={meta?.totalPages ?? 1}
-        totalItems={meta?.total ?? 0}
-        pageSize={meta?.limit ?? 10}
-        setPage={setPage}
-        itemName="tài khoản"
-      />
-      {canUpdate ? <AttendanceEditDialog
-        key={selectedAttendance?.id}
-        open={openEditDialog}
-        onOpenChange={setOpenEditDialog}
-        attendance={selectedAttendance}
-        onSubmit={handleUpdateAttendance}
-      /> : null}
-    </div>
+    </Card>
   );
 }

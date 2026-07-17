@@ -26,11 +26,12 @@ export function AttendanceCalendar({ days, calendarData }: Props) {
           <div
             key={day}
             className="
-              bg-teal-500
+              bg-primary
               text-white
               text-center
               py-4
               font-semibold
+              text-xl
             "
           >
             {day}

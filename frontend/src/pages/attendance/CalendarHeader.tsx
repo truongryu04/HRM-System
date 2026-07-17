@@ -30,7 +30,7 @@ export function CalendarHeader({
 }: Props) {
   return (
     <div className="flex items-center justify-between">
-      <h1 className="text-3xl font-light">
+      <h1 className="text-2xl font-light">
         {year} Tháng {month}
       </h1>
 
@@ -44,15 +44,15 @@ export function CalendarHeader({
             </Button>
           )}
 
-          <Button variant="outline" onClick={onToday}>
+          <Button variant="primary" onClick={onToday}>
             Hôm nay
           </Button>
         </div>
-        <Button size="icon" variant="outline" onClick={onPrev}>
+        <Button size="icon" variant="primary" onClick={onPrev}>
           <ChevronLeft size={18} />
         </Button>
 
-        <Button size="icon" variant="outline" onClick={onNext}>
+        <Button size="icon" variant="primary" onClick={onNext}>
           <ChevronRight size={18} />
         </Button>
       </div>

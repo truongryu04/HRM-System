@@ -11,7 +11,7 @@ import type { CreateLeaveRequest } from "@/types/leave.type";
 import { RequestForm } from "./components/RequestForm";
 import { getEmployeeIdFromAccessToken } from "./request.helpers";
 import { getApiErrorMessage } from "../../utils/api-error";
-
+import { Card } from "../../components/ui/card";
 export default function RequestCreatePage() {
   const navigate = useNavigate();
   const authUser = useAuthStore((state) => state.user);
@@ -31,16 +31,18 @@ export default function RequestCreatePage() {
   };
 
   return (
-    <RequestForm
-      employeeId={employeeId}
-      requestTypes={requestTypes.filter(
-        (requestType) => requestType.isActive !== false,
-      )}
-      leaveTypes={leaveTypes.filter(
-        (leaveType) => !leaveType.isDeleted && leaveType.isActive !== false,
-      )}
-      loading={createLeaveRequestMutation.isPending}
-      onSubmit={handleSubmit}
-    />
+    <Card className="p-6">
+      <RequestForm
+        employeeId={employeeId}
+        requestTypes={requestTypes.filter(
+          (requestType) => requestType.isActive !== false,
+        )}
+        leaveTypes={leaveTypes.filter(
+          (leaveType) => !leaveType.isDeleted && leaveType.isActive !== false,
+        )}
+        loading={createLeaveRequestMutation.isPending}
+        onSubmit={handleSubmit}
+      />
+    </Card>
   );
 }

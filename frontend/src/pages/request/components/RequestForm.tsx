@@ -124,12 +124,9 @@ export function RequestForm({
       <div className="mx-auto max-w-5xl space-y-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h2 className="text-xl font-bold tracking-tight">
               Thêm yêu cầu mới
-            </h1>
-            <p className="text-muted-foreground">
-              Điền thông tin cần thiết để gửi yêu cầu.
-            </p>
+            </h2>
           </div>
 
           <Button
@@ -298,7 +295,7 @@ export function RequestForm({
           <Button
             type="submit"
             disabled={!employeeId || loading}
-            className="bg-teal-500 text-white hover:bg-teal-700"
+            variant="primary"
           >
             <Save className="size-4" />
             {loading ? "Đang lưu..." : "Lưu yêu cầu"}

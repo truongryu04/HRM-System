@@ -82,7 +82,8 @@ export default function ApprovalFlowManagementPage() {
     isLoading,
     refetch,
   } = useApprovalFlows(selectedRequestTypeId);
-  const { data: stepTemplates = [] } = useApprovalStepTemplates(canReadTemplates);
+  const { data: stepTemplates = [] } =
+    useApprovalStepTemplates(canReadTemplates);
 
   const createFlowMutation = useCreateApprovalFlow();
   const updateFlowMutation = useUpdateApprovalFlow();
@@ -189,238 +190,266 @@ export default function ApprovalFlowManagementPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h3 className="text-3xl font-bold tracking-tight">
-            Quản lý luồng duyệt
-          </h3>
-          <p className="text-muted-foreground">
-            Quản lý luồng duyệt cho từng yêu cầu trong hệ thống.
-          </p>
-        </div>
-
-        <div className="flex flex-wrap justify-end gap-2">
-          {canReadTemplates ? <Button
-            className="bg-teal-500 text-white hover:bg-teal-700"
-            onClick={() => navigate("/approval-step-templates")}
-          >
-            <FileText className="size-4" />
-            Mẫu duyệt
-          </Button> : null}
-          {canCreateFlow ? <Button
-            onClick={handleOpenCreateFlow}
-            className="bg-teal-500 text-white hover:bg-teal-700"
-          >
-            <Plus className="size-4" />
-            Thêm flow
-          </Button> : null}
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Tổng flow</p>
-            <p className="text-2xl font-semibold">{flows.length}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Active</p>
-            <p className="text-2xl font-semibold">{activeFlows}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Mặc định</p>
-            <p className="text-2xl font-semibold">{defaultFlows}</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardContent className="space-y-4 pt-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <Select
-              value={requestTypeFilter}
-              onValueChange={setRequestTypeFilter}
-            >
-              <SelectTrigger className="w-full sm:w-72">
-                <SelectValue placeholder="Lọc theo loại request" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả loại request</SelectItem>
-                {requestTypes.map((requestType) => (
-                  <SelectItem
-                    key={requestType.id}
-                    value={String(requestType.id)}
-                  >
-                    {requestType.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Button variant="outline" onClick={() => void refetch()}>
-              Làm mới
-            </Button>
+    <Card className="p-6">
+      <div className="space-y-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight">
+              Quản lý luồng duyệt
+            </h2>
           </div>
 
-          {isLoading ? (
-            <div className="py-12 text-center text-muted-foreground">
-              Đang tải danh sách luồng duyệt...
+          <div className="flex flex-wrap justify-end gap-2">
+            {canReadTemplates ? (
+              <Button
+                variant="primary"
+                onClick={() => navigate("/approval-step-templates")}
+              >
+                <FileText className="size-4" />
+                Mẫu duyệt
+              </Button>
+            ) : null}
+            {canCreateFlow ? (
+              <Button
+                variant="primary"
+                onClick={handleOpenCreateFlow}
+              >
+                <Plus className="size-4" />
+                Thêm flow
+              </Button>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card>
+            <CardContent className="pt-6">
+              <p className="text-sm text-muted-foreground">Tổng flow</p>
+              <p className="text-2xl font-semibold">{flows.length}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <p className="text-sm text-muted-foreground">Active</p>
+              <p className="text-2xl font-semibold">{activeFlows}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <p className="text-sm text-muted-foreground">Mặc định</p>
+              <p className="text-2xl font-semibold">{defaultFlows}</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card>
+          <CardContent className="space-y-4 pt-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <Select
+                value={requestTypeFilter}
+                onValueChange={setRequestTypeFilter}
+              >
+                <SelectTrigger className="w-full sm:w-72">
+                  <SelectValue placeholder="Lọc theo loại request" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tất cả loại request</SelectItem>
+                  {requestTypes.map((requestType) => (
+                    <SelectItem
+                      key={requestType.id}
+                      value={String(requestType.id)}
+                    >
+                      {requestType.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Button variant="outline" onClick={() => void refetch()}>
+                Làm mới
+              </Button>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Tên flow</TableHead>
-                    <TableHead>Loại request</TableHead>
-                    <TableHead>Mặc định</TableHead>
-                    <TableHead>Trạng thái</TableHead>
-                    <TableHead>Số bước duyệt</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {flows.length === 0 ? (
+
+            {isLoading ? (
+              <div className="py-12 text-center text-muted-foreground">
+                Đang tải danh sách luồng duyệt...
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell
-                        colSpan={6}
-                        className="h-28 text-center text-muted-foreground"
-                      >
-                        Chưa có luồng duyệt nào.
-                      </TableCell>
+                      <TableHead>Tên flow</TableHead>
+                      <TableHead>Loại request</TableHead>
+                      <TableHead>Mặc định</TableHead>
+                      <TableHead>Trạng thái</TableHead>
+                      <TableHead>Số bước duyệt</TableHead>
+                      <TableHead className="text-right">Action</TableHead>
                     </TableRow>
-                  ) : (
-                    flows.map((flow) => (
-                      <TableRow key={flow.id}>
-                        <TableCell className="font-medium">
-                          {flow.name}
-                        </TableCell>
-                        <TableCell>{flow.requestType?.name ?? "-"}</TableCell>
-                        <TableCell>
-                          {flow.isDefault ? (
-                            <Badge className="border-emerald-200 bg-emerald-50 text-emerald-700">
-                              Có
-                            </Badge>
-                          ) : (
-                            <span className="text-muted-foreground">Không</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {canUpdateFlow ? <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => void handleToggleActive(flow)}
-                            disabled={updateFlowMutation.isPending}
-                            className={
-                              flow.isActive
-                                ? "text-emerald-700 hover:text-emerald-700"
-                                : "text-muted-foreground"
-                            }
-                          >
-                            {flow.isActive ? "Active" : "Inactive"}
-                          </Button> : <span>{flow.isActive ? "Active" : "Inactive"}</span>}
-                        </TableCell>
-                        <TableCell>{flow.stepCount}</TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-1">
-                            {canReadSteps ? <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              aria-label="Cấu hình bước"
-                              onClick={() => setSelectedFlow(flow)}
-                            >
-                              <Settings2 className="size-4" />
-                            </Button> : null}
-                            {canUpdateFlow ? <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              aria-label="Sửa flow"
-                              onClick={() => handleOpenEditFlow(flow)}
-                            >
-                              <Pencil className="size-4" />
-                            </Button> : null}
-                            {canUpdateFlow ? <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              aria-label="Đặt mặc định"
-                              disabled={
-                                flow.isDefault || updateFlowMutation.isPending
-                              }
-                              onClick={() => void handleSetDefault(flow)}
-                            >
-                              <CheckCircle2 className="size-4" />
-                            </Button> : null}
-                            {canDeleteFlow ? <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              aria-label="Xóa flow"
-                              className="text-destructive hover:text-destructive"
-                              disabled={deleteFlowMutation.isPending}
-                              onClick={() => void handleDeleteFlow(flow)}
-                            >
-                              <Trash2 className="size-4" />
-                            </Button> : null}
-                          </div>
+                  </TableHeader>
+                  <TableBody>
+                    {flows.length === 0 ? (
+                      <TableRow>
+                        <TableCell
+                          colSpan={6}
+                          className="h-28 text-center text-muted-foreground"
+                        >
+                          Chưa có luồng duyệt nào.
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                    ) : (
+                      flows.map((flow) => (
+                        <TableRow key={flow.id}>
+                          <TableCell className="font-medium">
+                            {flow.name}
+                          </TableCell>
+                          <TableCell>{flow.requestType?.name ?? "-"}</TableCell>
+                          <TableCell>
+                            {flow.isDefault ? (
+                              <Badge className="border-emerald-200 bg-emerald-50 text-emerald-700">
+                                Có
+                              </Badge>
+                            ) : (
+                              <span className="text-muted-foreground">
+                                Không
+                              </span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {canUpdateFlow ? (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => void handleToggleActive(flow)}
+                                disabled={updateFlowMutation.isPending}
+                                className={
+                                  flow.isActive
+                                    ? "text-emerald-700 hover:text-emerald-700"
+                                    : "text-muted-foreground"
+                                }
+                              >
+                                {flow.isActive ? "Active" : "Inactive"}
+                              </Button>
+                            ) : (
+                              <span>
+                                {flow.isActive ? "Active" : "Inactive"}
+                              </span>
+                            )}
+                          </TableCell>
+                          <TableCell>{flow.stepCount}</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-1">
+                              {canReadSteps ? (
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  aria-label="Cấu hình bước"
+                                  onClick={() => setSelectedFlow(flow)}
+                                >
+                                  <Settings2 className="size-4" />
+                                </Button>
+                              ) : null}
+                              {canUpdateFlow ? (
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  aria-label="Sửa flow"
+                                  onClick={() => handleOpenEditFlow(flow)}
+                                >
+                                  <Pencil className="size-4" />
+                                </Button>
+                              ) : null}
+                              {canUpdateFlow ? (
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  aria-label="Đặt mặc định"
+                                  disabled={
+                                    flow.isDefault ||
+                                    updateFlowMutation.isPending
+                                  }
+                                  onClick={() => void handleSetDefault(flow)}
+                                >
+                                  <CheckCircle2 className="size-4" />
+                                </Button>
+                              ) : null}
+                              {canDeleteFlow ? (
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  aria-label="Xóa flow"
+                                  className="text-destructive hover:text-destructive"
+                                  disabled={deleteFlowMutation.isPending}
+                                  onClick={() => void handleDeleteFlow(flow)}
+                                >
+                                  <Trash2 className="size-4" />
+                                </Button>
+                              ) : null}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-      <ApprovalFlowStepsPanel
-        flow={selectedFlow}
-        onAddStepFromTemplate={handleOpenAddStepFromTemplate}
-        onEditStep={handleOpenEditStep}
-        canRead={canReadSteps}
-        canCreate={canCreateStep && canReadTemplates}
-        canUpdate={canUpdateStep}
-        canDelete={canDeleteStep}
-      />
+        <ApprovalFlowStepsPanel
+          flow={selectedFlow}
+          onAddStepFromTemplate={handleOpenAddStepFromTemplate}
+          onEditStep={handleOpenEditStep}
+          canRead={canReadSteps}
+          canCreate={canCreateStep && canReadTemplates}
+          canUpdate={canUpdateStep}
+          canDelete={canDeleteStep}
+        />
 
-      {canCreateFlow || canUpdateFlow ? <ApprovalFlowDialog
-        key={`${flowDialogOpen ? "open" : "closed"}-${editingFlow?.id ?? "create"}`}
-        open={flowDialogOpen}
-        onOpenChange={setFlowDialogOpen}
-        flow={editingFlow}
-        requestTypes={requestTypes}
-        loading={createFlowMutation.isPending || updateFlowMutation.isPending}
-        onSubmit={handleSubmitFlow}
-      /> : null}
+        {canCreateFlow || canUpdateFlow ? (
+          <ApprovalFlowDialog
+            key={`${flowDialogOpen ? "open" : "closed"}-${editingFlow?.id ?? "create"}`}
+            open={flowDialogOpen}
+            onOpenChange={setFlowDialogOpen}
+            flow={editingFlow}
+            requestTypes={requestTypes}
+            loading={
+              createFlowMutation.isPending || updateFlowMutation.isPending
+            }
+            onSubmit={handleSubmitFlow}
+          />
+        ) : null}
 
-      {canUpdateStep ? <ApprovalFlowStepDialog
-        key={`${stepDialogOpen ? "open" : "closed"}-${editingStep?.id ?? "none"}`}
-        open={stepDialogOpen}
-        onOpenChange={(open) => {
-          setStepDialogOpen(open);
-          if (!open) {
-            setEditingStep(null);
-          }
-        }}
-        step={editingStep}
-        templates={stepTemplates}
-        loading={updateStepMutation.isPending}
-        onSubmit={handleSubmitStep}
-      /> : null}
+        {canUpdateStep ? (
+          <ApprovalFlowStepDialog
+            key={`${stepDialogOpen ? "open" : "closed"}-${editingStep?.id ?? "none"}`}
+            open={stepDialogOpen}
+            onOpenChange={(open) => {
+              setStepDialogOpen(open);
+              if (!open) {
+                setEditingStep(null);
+              }
+            }}
+            step={editingStep}
+            templates={stepTemplates}
+            loading={updateStepMutation.isPending}
+            onSubmit={handleSubmitStep}
+          />
+        ) : null}
 
-      {canCreateStep && canReadTemplates ? <AddStepFromTemplateDialog
-        key={`${addFromTemplateOpen ? "open" : "closed"}-${selectedFlow?.id ?? "none"}-${selectedFlow?.stepCount ?? 0}`}
-        open={addFromTemplateOpen}
-        onOpenChange={setAddFromTemplateOpen}
-        templates={stepTemplates}
-        nextStepOrder={(selectedFlow?.stepCount ?? 0) + 1}
-        loading={createStepFromTemplateMutation.isPending}
-        onSubmit={handleAddStepFromTemplate}
-      /> : null}
-    </div>
+        {canCreateStep && canReadTemplates ? (
+          <AddStepFromTemplateDialog
+            key={`${addFromTemplateOpen ? "open" : "closed"}-${selectedFlow?.id ?? "none"}-${selectedFlow?.stepCount ?? 0}`}
+            open={addFromTemplateOpen}
+            onOpenChange={setAddFromTemplateOpen}
+            templates={stepTemplates}
+            nextStepOrder={(selectedFlow?.stepCount ?? 0) + 1}
+            loading={createStepFromTemplateMutation.isPending}
+            onSubmit={handleAddStepFromTemplate}
+          />
+        ) : null}
+      </div>
+    </Card>
   );
 }

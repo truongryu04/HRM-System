@@ -19,48 +19,49 @@ export default function RequestPage() {
   } = useLeaveRequests();
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Yêu cầu của tôi</h1>
-          <p className="text-muted-foreground">
-            Theo dõi các yêu cầu đã gửi và trạng thái phê duyệt.
-          </p>
-        </div>
+    <Card className="p-6">
+      <div className="space-y-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight">
+              Yêu cầu của tôi
+            </h2>
+          </div>
 
-        <div className="flex flex-wrap gap-2">
-          <CanAccess permission={PERMISSIONS.REQUEST.CREATE}>
-            <Button
-              onClick={() => navigate("/requests/create")}
-              className="bg-teal-500 text-white hover:bg-teal-700"
-            >
-              <Plus className="size-4" />
-              Thêm yêu cầu mới
-            </Button>
-          </CanAccess>
-        </div>
-      </div>
-
-      <Card>
-        <CardContent className="pt-6">
-          {isLoading ? (
-            <div className="py-12 text-center text-muted-foreground">
-              Đang tải danh sách yêu cầu...
-            </div>
-          ) : isError ? (
-            <div className="space-y-3 py-12 text-center">
-              <p className="text-destructive">
-                Không thể tải danh sách yêu cầu.
-              </p>
-              <Button variant="outline" onClick={() => void refetch()}>
-                Thử lại
+          <div className="flex flex-wrap gap-2">
+            <CanAccess permission={PERMISSIONS.REQUEST.CREATE}>
+              <Button
+                onClick={() => navigate("/requests/create")}
+                variant="primary"
+              >
+                <Plus className="size-4" />
+                Thêm yêu cầu mới
               </Button>
-            </div>
-          ) : (
-            <RequestTable requests={requests} />
-          )}
-        </CardContent>
-      </Card>
-    </div>
+            </CanAccess>
+          </div>
+        </div>
+
+        <Card>
+          <CardContent className="pt-6">
+            {isLoading ? (
+              <div className="py-12 text-center text-muted-foreground">
+                Đang tải danh sách yêu cầu...
+              </div>
+            ) : isError ? (
+              <div className="space-y-3 py-12 text-center">
+                <p className="text-destructive">
+                  Không thể tải danh sách yêu cầu.
+                </p>
+                <Button variant="outline" onClick={() => void refetch()}>
+                  Thử lại
+                </Button>
+              </div>
+            ) : (
+              <RequestTable requests={requests} />
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </Card>
   );
 }

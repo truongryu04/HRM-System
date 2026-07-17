@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, RefreshCcw } from "lucide-react";
+import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "../../components/ui/button";
@@ -29,7 +29,6 @@ import {
 } from "./request-type.constants";
 import { PERMISSIONS } from "../../constants/permissions";
 import { usePermissionAccess } from "../../hooks/usePermissionAccess";
-
 export default function RequestTypePage() {
   const { can } = usePermissionAccess();
   const canCreate = can(PERMISSIONS.REQUEST_TYPE.CREATE);
@@ -165,84 +164,81 @@ export default function RequestTypePage() {
     !isLoading && !isError && requestTypes.length === 0;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Quản lý loại yêu cầu
-          </h1>
-          <p className="text-muted-foreground">
-            Quản lý request_types dùng cho các luồng yêu cầu nội bộ.
-          </p>
+    <Card className="p-6">
+      <div className="space-y-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight">
+              Quản lý loại yêu cầu
+            </h2>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {canCreate ? (
+              <Button
+                onClick={openCreateDialog}
+                className="bg-teal-500 hover:bg-teal-600 hover:text-white"
+              >
+                <Plus className="size-4" />
+                Thêm loại yêu cầu
+              </Button>
+            ) : null}
+          </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {canCreate ? <Button
-            variant="outline"
-            onClick={() => void refetch()}
-            disabled={isFetching}
-          >
-            <RefreshCcw className="size-4" />
-            Làm mới
-          </Button> : null}
-          <Button
-            onClick={openCreateDialog}
-            className="bg-teal-500 text-white hover:bg-teal-700"
-          >
-            <Plus className="size-4" />
-            Thêm loại yêu cầu
-          </Button>
-        </div>
+        <Card>
+          <CardContent className="space-y-4 pt-6">
+            <RequestTypeToolbar
+              search={search}
+              total={filteredRequestTypes.length}
+              onSearchChange={setSearch}
+            />
+
+            <RequestTypeTable
+              requestTypes={filteredRequestTypes}
+              isLoading={isLoading}
+              isError={isError}
+              onRetry={() => void refetch()}
+              onEdit={openEditDialog}
+              onDelete={setDeleteTarget}
+              canEdit={canUpdate}
+              canDelete={canDelete}
+            />
+          </CardContent>
+        </Card>
+
+        {showDefaultRequestTypes && canCreate ? (
+          <DefaultRequestTypesCard
+            loading={createMutation.isPending}
+            onCreate={(payload) => void createMutation.mutateAsync(payload)}
+          />
+        ) : null}
+
+        {canCreate || canUpdate ? (
+          <RequestTypeDialog
+            open={openDialog}
+            onOpenChange={setOpenDialog}
+            mode={mode}
+            form={form}
+            onFormChange={setForm}
+            loading={createMutation.isPending || updateMutation.isPending}
+            onSubmit={handleSubmit}
+          />
+        ) : null}
+
+        {canDelete ? (
+          <RequestTypeDeleteDialog
+            requestType={deleteTarget}
+            loading={deleteMutation.isPending}
+            onOpenChange={(open) => {
+              if (!open) {
+                setDeleteTarget(null);
+              }
+            }}
+            onConfirm={handleDelete}
+          />
+        ) : null}
       </div>
-
-      <Card>
-        <CardContent className="space-y-4 pt-6">
-          <RequestTypeToolbar
-            search={search}
-            total={filteredRequestTypes.length}
-            onSearchChange={setSearch}
-          />
-
-          <RequestTypeTable
-            requestTypes={filteredRequestTypes}
-            isLoading={isLoading}
-            isError={isError}
-            onRetry={() => void refetch()}
-            onEdit={openEditDialog}
-            onDelete={setDeleteTarget}
-            canEdit={canUpdate}
-            canDelete={canDelete}
-          />
-        </CardContent>
-      </Card>
-
-      {showDefaultRequestTypes && canCreate ? (
-        <DefaultRequestTypesCard
-          loading={createMutation.isPending}
-          onCreate={(payload) => void createMutation.mutateAsync(payload)}
-        />
-      ) : null}
-
-      {canCreate || canUpdate ? <RequestTypeDialog
-        open={openDialog}
-        onOpenChange={setOpenDialog}
-        mode={mode}
-        form={form}
-        onFormChange={setForm}
-        loading={createMutation.isPending || updateMutation.isPending}
-        onSubmit={handleSubmit}
-      /> : null}
-
-      {canDelete ? <RequestTypeDeleteDialog
-        requestType={deleteTarget}
-        loading={deleteMutation.isPending}
-        onOpenChange={(open) => {
-          if (!open) {
-            setDeleteTarget(null);
-          }
-        }}
-        onConfirm={handleDelete}
-      /> : null}
-    </div>
+    </Card>
   );
 }

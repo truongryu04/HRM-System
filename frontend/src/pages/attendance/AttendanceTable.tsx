@@ -51,14 +51,26 @@ function StatusBadge({
   checkOutTime: string | null;
 }) {
   if (!checkOutTime) {
-    return <Badge>Đang làm việc</Badge>;
+    return (
+      <Badge className="border-blue-200 bg-blue-100 text-blue-700 hover:bg-blue-100">
+        Đang làm việc
+      </Badge>
+    );
   }
 
   if (isLate) {
-    return <Badge variant="secondary">Đi muộn</Badge>;
+    return (
+      <Badge className="border-red-200 bg-red-100 text-red-700 hover:bg-red-100">
+        Đi muộn
+      </Badge>
+    );
   }
 
-  return <Badge>Có mặt</Badge>;
+  return (
+    <Badge className="border-green-200 bg-green-100 text-green-700 hover:bg-green-100">
+      Có mặt
+    </Badge>
+  );
 }
 
 export function AttendanceTable({
@@ -83,14 +95,19 @@ export function AttendanceTable({
               <TableHead>Check Out</TableHead>
               <TableHead>Giờ làm</TableHead>
               <TableHead>Trạng thái</TableHead>
-              {canUpdate ? <TableHead className="text-right">Thao tác</TableHead> : null}
+              {canUpdate ? (
+                <TableHead className="text-right">Thao tác</TableHead>
+              ) : null}
             </TableRow>
           </TableHeader>
 
           <TableBody>
             {data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={canUpdate ? 11 : 10} className="text-center py-8">
+                <TableCell
+                  colSpan={canUpdate ? 11 : 10}
+                  className="text-center py-8"
+                >
                   Không có dữ liệu
                 </TableCell>
               </TableRow>
@@ -125,18 +142,20 @@ export function AttendanceTable({
                     />
                   </TableCell>
 
-                  {canUpdate ? <TableCell className="text-right">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => {
-                        setSelectedAttendance(item);
-                        setOpenEditDialog(true);
-                      }}
-                    >
-                      <Pencil className="size-4" />
-                    </Button>
-                  </TableCell> : null}
+                  {canUpdate ? (
+                    <TableCell className="text-right">
+                      <Button
+                        size="icon"
+                        variant="primary"
+                        onClick={() => {
+                          setSelectedAttendance(item);
+                          setOpenEditDialog(true);
+                        }}
+                      >
+                        <Pencil className="size-4" />
+                      </Button>
+                    </TableCell>
+                  ) : null}
                 </TableRow>
               ))
             )}
