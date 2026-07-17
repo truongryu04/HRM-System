@@ -10,6 +10,62 @@ import {
 import UserActionDropdown from "./UserActionDropdown";
 import type { User } from "@/types/user.type";
 import { Checkbox } from "../../components/ui/checkbox";
+import { Badge } from "../../components/ui/badge";
+
+const userStatusMeta: Record<
+  string,
+  { label: string; className: string; dotClassName: string }
+> = {
+  ACTIVE: {
+    label: "Đang hoạt động",
+    className:
+      "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300",
+    dotClassName: "bg-emerald-500",
+  },
+  PENDING: {
+    label: "Chờ kích hoạt",
+    className:
+      "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300",
+    dotClassName: "bg-amber-500",
+  },
+  INACTIVE: {
+    label: "Ngừng hoạt động",
+    className:
+      "border-slate-200 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300",
+    dotClassName: "bg-slate-500",
+  },
+  LOCKED: {
+    label: "Đã khóa",
+    className:
+      "border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/50 dark:text-red-300",
+    dotClassName: "bg-red-500",
+  },
+  SUSPENDED: {
+    label: "Tạm khóa",
+    className:
+      "border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-800 dark:bg-violet-950/50 dark:text-violet-300",
+    dotClassName: "bg-violet-500",
+  },
+};
+
+function UserStatusBadge({ status }: { status: string }) {
+  const normalizedStatus = status.toUpperCase();
+  const meta = userStatusMeta[normalizedStatus];
+
+  if (!meta) {
+    return <Badge variant="outline">{status}</Badge>;
+  }
+
+  return (
+    <Badge variant="outline" className={meta.className}>
+      <span
+        aria-hidden="true"
+        className={`size-1.5 rounded-full ${meta.dotClassName}`}
+      />
+      {meta.label}
+    </Badge>
+  );
+}
 
 interface UserTableProps {
   users: User[];
@@ -98,7 +154,9 @@ export function UserTable({
                 <TableCell>{u.employee?.fullName ?? "Chưa liên kết"}</TableCell>
                 <TableCell>{u.roles?.map((r) => r.name).join(", ")}</TableCell>
 
-                <TableCell>{u.status}</TableCell>
+                <TableCell>
+                  <UserStatusBadge status={u.status} />
+                </TableCell>
 
                 <TableCell>
                   {u.lastLoginAt
