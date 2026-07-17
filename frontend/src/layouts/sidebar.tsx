@@ -115,7 +115,11 @@ function getActiveGroupLabel(pathname: string) {
   return activeGroup?.label ?? null;
 }
 
-export function Sidebar() {
+type SidebarProps = {
+  isOpen: boolean;
+};
+
+export function Sidebar({ isOpen }: SidebarProps) {
   const location = useLocation();
   const { canAll, canAny } = usePermissionAccess();
   const isAllowed = (item: PermissionRequirement) =>
@@ -136,7 +140,11 @@ export function Sidebar() {
   );
 
   return (
-    <aside className="w-64 border-r bg-background">
+    <aside
+      id="main-sidebar"
+      hidden={!isOpen}
+      className="w-64 shrink-0 border-r bg-background"
+    >
       <div className="p-4 text-xl font-bold">HRM System</div>
 
       <nav className="space-y-1 p-2">

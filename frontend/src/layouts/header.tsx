@@ -7,14 +7,19 @@ import {
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
 import { Button } from "../components/ui/button";
-import { Bell, User, Settings } from "lucide-react";
+import { Bell, Menu, Settings, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { logoutApi } from "../services/auth.api";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { useEmployeeProfile } from "../hooks/useEmployeeProfile";
 import { useAuthStore } from "../store/auth.store";
 
-export function Header() {
+type HeaderProps = {
+  isSidebarOpen: boolean;
+  onToggleSidebar: () => void;
+};
+
+export function Header({ isSidebarOpen, onToggleSidebar }: HeaderProps) {
   const navigate = useNavigate();
   const token = useAuthStore((state) => state.accessToken);
   const clearAuth = useAuthStore((state) => state.logout);
@@ -29,7 +34,23 @@ export function Header() {
   const { data: employee } = useEmployeeProfile(Boolean(token));
   return (
     <header className="flex h-16 items-center justify-between border-b px-6">
-      <h1 className="font-semibold text-base">HRM System</h1>
+      <Button
+        type="button"
+        size="icon-lg"
+        variant="ghost"
+        className={
+          isSidebarOpen
+            ? "hover:bg-primary! hover:text-primary-foreground!"
+            : "bg-primary! text-primary-foreground! hover:bg-primary-hover! hover:text-primary-hover-foreground!"
+        }
+        onClick={onToggleSidebar}
+        aria-controls="main-sidebar"
+        aria-expanded={isSidebarOpen}
+        aria-label={isSidebarOpen ? "Ẩn thanh bên" : "Hiện thanh bên"}
+        title={isSidebarOpen ? "Ẩn thanh bên" : "Hiện thanh bên"}
+      >
+        <Menu className="size-6" />
+      </Button>
 
       <div className="flex items-center gap-4">
         <Button
