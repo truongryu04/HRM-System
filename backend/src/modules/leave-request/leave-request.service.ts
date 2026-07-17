@@ -49,7 +49,9 @@ export class LeaveRequestService
   async create(dto: CreateLeaveRequestDto, user?: JwtUser): Promise<unknown> {
     const startDate = this.parseDate(dto.startDate);
     const endDate = this.parseDate(dto.endDate);
+    const session = dto.session ?? LeaveSession.FULL;
     this.assertValidDateRange(startDate, endDate);
+    this.assertValidSessionRange(startDate, endDate, session);
 
     const employeeId = dto.employeeId ?? user?.employeeId;
     if (!employeeId) {
@@ -99,7 +101,8 @@ export class LeaveRequestService
         leaveType,
         startDate,
         endDate,
-        totalDays: this.calculateDays(startDate, endDate),
+        session,
+        totalDays: this.calculateDays(startDate, endDate, session),
         reason: dto.reason,
         attachment: dto.attachment,
       });
@@ -214,7 +217,9 @@ export class LeaveRequestService
       ? this.parseDate(dto.startDate)
       : request.startDate;
     const endDate = dto.endDate ? this.parseDate(dto.endDate) : request.endDate;
+    const session = dto.session ?? request.session;
     this.assertValidDateRange(startDate, endDate);
+    this.assertValidSessionRange(startDate, endDate, session);
 
     if (dto.leaveTypeId) {
       const leaveType = await this.leaveTypeRepository.findOne({
@@ -226,7 +231,7 @@ export class LeaveRequestService
       request.leaveType = leaveType;
     }
 
-    if (dto.startDate || dto.endDate) {
+    if (dto.startDate || dto.endDate || dto.session) {
       await this.assertNoOverlappingLeave(
         request.request.employee.id,
         this.toDateOnly(startDate),
@@ -235,7 +240,8 @@ export class LeaveRequestService
       );
       request.startDate = startDate;
       request.endDate = endDate;
-      request.totalDays = this.calculateDays(startDate, endDate);
+      request.session = session;
+      request.totalDays = this.calculateDays(startDate, endDate, session);
       request.request.title = `Xin nghi phep ${this.toDateOnly(startDate)} - ${this.toDateOnly(endDate)}`;
     }
 
@@ -305,7 +311,11 @@ export class LeaveRequestService
     }
   }
 
-  private calculateDays(startDate: Date, endDate: Date): number {
+  private calculateDays(
+    startDate: Date,
+    endDate: Date,
+    session: LeaveSession,
+  ): number {
     const start = Date.UTC(
       startDate.getUTCFullYear(),
       startDate.getUTCMonth(),
@@ -317,7 +327,9 @@ export class LeaveRequestService
       endDate.getUTCDate(),
     );
 
-    return (end - start) / (1000 * 60 * 60 * 24) + 1;
+    const totalDays = (end - start) / (1000 * 60 * 60 * 24) + 1;
+
+    return session === LeaveSession.FULL ? totalDays : 0.5;
   }
 
   private parseDate(value: string | Date): Date {
@@ -340,6 +352,21 @@ export class LeaveRequestService
     }
   }
 
+  private assertValidSessionRange(
+    startDate: Date,
+    endDate: Date,
+    session: LeaveSession,
+  ): void {
+    if (
+      session !== LeaveSession.FULL &&
+      this.toDateOnly(startDate) !== this.toDateOnly(endDate)
+    ) {
+      throw new BadRequestException(
+        'Nghi nua ngay chi ap dung khi ngay bat dau va ket thuc giong nhau',
+      );
+    }
+  }
+
   private toDateOnly(date: Date): string {
     return date.toISOString().slice(0, 10);
   }
@@ -358,8 +385,8 @@ export class LeaveRequestService
           leaveRequest,
           employee: leaveRequest.request.employee,
           date: current.toISOString().slice(0, 10),
-          value: 1,
-          session: LeaveSession.FULL,
+          value: leaveRequest.session === LeaveSession.FULL ? 1 : 0.5,
+          session: leaveRequest.session,
           isPaid: leaveRequest.leaveType.isPaid,
           deductFromBalance: true,
         }),
@@ -382,6 +409,7 @@ export class LeaveRequestService
       leaveType: leaveRequest.leaveType,
       startDate: this.toDateOnly(this.parseDate(leaveRequest.startDate)),
       endDate: this.toDateOnly(this.parseDate(leaveRequest.endDate)),
+      session: leaveRequest.session,
       totalDays: leaveRequest.totalDays,
       reason: leaveRequest.reason,
       attachment: leaveRequest.attachment,

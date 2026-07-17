@@ -12,6 +12,7 @@ import {
 
 import { Request } from '../../request/entities/request.entity';
 import { LeaveType } from './leave-type.entity';
+import { LeaveSession } from '../enums/leave-session.enum';
 
 @Entity('leave_requests')
 @Index('UQ_leave_requests_request_id', ['request'], { unique: true })
@@ -38,6 +39,13 @@ export class LeaveRequest {
     type: 'date',
   })
   endDate!: Date;
+
+  @Column({
+    type: 'enum',
+    enum: LeaveSession,
+    default: LeaveSession.FULL,
+  })
+  session!: LeaveSession;
 
   @Column({
     type: 'decimal',

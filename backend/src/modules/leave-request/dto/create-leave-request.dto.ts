@@ -1,4 +1,11 @@
-import { IsDateString, IsInt, IsOptional, IsString } from 'class-validator';
+import {
+  IsDateString,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import { LeaveSession } from '../enums/leave-session.enum';
 
 export class CreateLeaveRequestDto {
   @IsOptional()
@@ -13,6 +20,10 @@ export class CreateLeaveRequestDto {
 
   @IsDateString()
   endDate!: string;
+
+  @IsOptional()
+  @IsEnum(LeaveSession)
+  session?: LeaveSession;
 
   @IsString()
   reason!: string;
