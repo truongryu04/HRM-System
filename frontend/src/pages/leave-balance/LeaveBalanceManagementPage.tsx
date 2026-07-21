@@ -54,6 +54,7 @@ import type {
 } from "../../types/leave.type";
 import { getApiErrorMessage } from "../../utils/api-error";
 import { GrantDefaultLeaveBalanceDialog } from "./GrantDefaultLeaveBalanceDialog";
+import { EmployeeSearchCombobox } from "./EmployeeSearchCombobox";
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 6 }, (_, index) => currentYear + 1 - index);
@@ -135,13 +136,13 @@ export default function LeaveBalanceManagementPage() {
     }) => adjustLeaveBalance(id, { amount, reason }),
     onSuccess: async () => {
       await refreshBalance();
-      toast.success("Đã điều chỉnh số dư nghỉ phép");
+      toast.success("Đã điều chỉnh số ngày nghỉ phép");
       setAdjustTarget(null);
       setDialogError(null);
     },
     onError: (error) =>
       setDialogError(
-        getApiErrorMessage(error, "Không thể điều chỉnh số dư nghỉ phép."),
+        getApiErrorMessage(error, "Không thể điều chỉnh số ngày nghỉ phép."),
       ),
   });
 
@@ -231,7 +232,7 @@ export default function LeaveBalanceManagementPage() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h2 className="text-xl font-bold tracking-tight">
-              Quản lý số dư nghỉ phép
+              Quản lý số ngày nghỉ phép
             </h2>
           </div>
           <div className="flex flex-wrap justify-end gap-2">
@@ -253,27 +254,13 @@ export default function LeaveBalanceManagementPage() {
           <CardContent className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_160px]">
             <div className="space-y-2">
               <Label htmlFor="balance-employee">Nhân viên</Label>
-              <Select
-                value={employeeId ? String(employeeId) : ""}
-                onValueChange={(value) => setEmployeeId(Number(value))}
-              >
-                <SelectTrigger id="balance-employee" className="w-full">
-                  <SelectValue
-                    placeholder={
-                      employeesQuery.isLoading
-                        ? "Đang tải nhân viên..."
-                        : "Chọn nhân viên"
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {employees.map((employee) => (
-                    <SelectItem key={employee.id} value={String(employee.id)}>
-                      {employee.employeeCode} · {employee.fullName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <EmployeeSearchCombobox
+                employees={employees}
+                value={employeeId}
+                onChange={setEmployeeId}
+                loading={employeesQuery.isLoading}
+                error={employeesQuery.isError}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="balance-year">Năm</Label>
@@ -298,16 +285,16 @@ export default function LeaveBalanceManagementPage() {
 
         {!employeeId ? (
           <Card className="items-center p-12 text-center text-muted-foreground">
-            Chọn nhân viên để xem và quản lý số dư nghỉ phép.
+            Chọn nhân viên để xem và quản lý số ngày nghỉ phép.
           </Card>
         ) : loading ? (
           <Card className="items-center p-12 text-center text-muted-foreground">
-            Đang tải số dư nghỉ phép...
+            Đang tải số ngày nghỉ phép...
           </Card>
         ) : error ? (
           <Card className="items-center p-12 text-center">
             <p className="text-destructive">
-              Không thể tải số dư của nhân viên.
+              Không thể tải số ngày của nhân viên.
             </p>
             <Button
               variant="outline"
@@ -323,7 +310,7 @@ export default function LeaveBalanceManagementPage() {
           <>
             <Card>
               <CardHeader className="border-b">
-                <CardTitle>Số dư năm {year}</CardTitle>
+                <CardTitle>Số ngày nghỉ phép năm {year}</CardTitle>
               </CardHeader>
               <CardContent className="overflow-x-auto">
                 <Table>
@@ -543,7 +530,7 @@ export default function LeaveBalanceManagementPage() {
         >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Điều chỉnh số dư</DialogTitle>
+              <DialogTitle>Điều chỉnh số ngày nghỉ phép</DialogTitle>
               <DialogDescription>
                 Nhập số dương để cộng hoặc số âm để trừ. Số dư sau điều chỉnh
                 không được âm.
