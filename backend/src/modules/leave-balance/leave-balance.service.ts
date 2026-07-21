@@ -28,6 +28,8 @@ export class LeaveBalanceService {
   ) {}
 
   async grant(dto: GrantLeaveBalanceDto, user: JwtUser) {
+    this.validateHalfDayIncrement(dto.annualGranted, 'Quota năm');
+
     return this.dataSource.transaction(async (manager) => {
       const employee = await manager.findOne(Employee, {
         where: { id: dto.employeeId, isDeleted: false },
@@ -98,6 +100,8 @@ export class LeaveBalanceService {
   }
 
   async adjust(id: number, dto: AdjustLeaveBalanceDto, user: JwtUser) {
+    this.validateHalfDayIncrement(dto.amount, 'Mức điều chỉnh');
+
     return this.dataSource.transaction(async (manager) => {
       const balance = await manager.findOne(LeaveBalance, {
         where: { id },
@@ -250,6 +254,14 @@ export class LeaveBalanceService {
       Number(balance.carryOverUsed) -
       Number(balance.carryOverExpired)
     );
+  }
+
+  private validateHalfDayIncrement(value: number, fieldName: string): void {
+    if (!Number.isFinite(value) || !Number.isInteger(value * 2)) {
+      throw new BadRequestException(
+        `${fieldName} phải tăng theo bước 0,5 ngày`,
+      );
+    }
   }
 
   private toResponse(balance: LeaveBalance) {

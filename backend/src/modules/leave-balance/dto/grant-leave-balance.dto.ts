@@ -1,7 +1,6 @@
 import { Type } from 'class-transformer';
 import {
   IsInt,
-  IsDivisibleBy,
   IsNumber,
   IsOptional,
   IsString,
@@ -28,7 +27,6 @@ export class GrantLeaveBalanceDto {
 
   @Type(() => Number)
   @IsNumber({ maxDecimalPlaces: 1 })
-  @IsDivisibleBy(0.5)
   @Min(0)
   annualGranted!: number;
 

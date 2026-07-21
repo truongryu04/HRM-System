@@ -20,6 +20,8 @@ export class LeaveTypeService {
   ) {}
 
   async create(dto: CreateLeaveTypeDto): Promise<LeaveType> {
+    this.validateHalfDayIncrement(dto.annualQuota, 'Quota năm');
+
     const normalizedName = dto.name.trim();
     const existed = await this.leaveTypeRepository
       .createQueryBuilder('leaveType')
@@ -63,6 +65,8 @@ export class LeaveTypeService {
   }
 
   async update(id: number, dto: UpdateLeaveTypeDto): Promise<LeaveType> {
+    this.validateHalfDayIncrement(dto.annualQuota, 'Quota năm');
+
     const leaveType = await this.findOne(id);
 
     if (dto.code !== undefined) {
@@ -154,5 +158,19 @@ export class LeaveTypeService {
       deductFromBalance: true,
       annualQuota: annualQuota ?? 12,
     };
+  }
+
+  private validateHalfDayIncrement(
+    value: number | undefined,
+    fieldName: string,
+  ): void {
+    if (
+      value !== undefined &&
+      (!Number.isFinite(value) || !Number.isInteger(value * 2))
+    ) {
+      throw new BadRequestException(
+        `${fieldName} phải tăng theo bước 0,5 ngày`,
+      );
+    }
   }
 }

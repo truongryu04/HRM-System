@@ -285,6 +285,7 @@ export class AttendanceService {
           leaveRequest: {
             leaveType: true,
           },
+          leaveType: true,
         },
         order: {
           date: 'ASC',
@@ -294,10 +295,26 @@ export class AttendanceService {
     const calendar: Record<string, AttendanceCalendarEntry> = {};
 
     leaveDays.forEach((leaveDay) => {
+      const type =
+        leaveDay.leaveType?.name ?? leaveDay.leaveRequest.leaveType.name;
+      const existingLeave = calendar[leaveDay.date]?.leave;
+
+      if (existingLeave) {
+        const value = existingLeave.value + Number(leaveDay.value);
+        existingLeave.type =
+          existingLeave.type === type
+            ? type
+            : `${existingLeave.type} / ${type}`;
+        existingLeave.value = value;
+        existingLeave.session = value >= 1 ? 'FULL' : existingLeave.session;
+        existingLeave.isPaid = existingLeave.isPaid && leaveDay.isPaid;
+        return;
+      }
+
       calendar[leaveDay.date] = {
         leave: {
           requestId: leaveDay.leaveRequest.id,
-          type: leaveDay.leaveRequest.leaveType.name,
+          type,
           value: Number(leaveDay.value),
           session: leaveDay.session,
           isPaid: leaveDay.isPaid,
