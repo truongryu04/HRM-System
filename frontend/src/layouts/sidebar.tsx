@@ -43,6 +43,11 @@ const navItems: Array<NavItem | NavGroup> = [
     label: "Cấu hình",
     children: [
       {
+        to: "/leave-types",
+        label: "Loại nghỉ phép",
+        allPermissions: [PERMISSIONS.LEAVE_TYPE.READ],
+      },
+      {
         to: "/request-types",
         label: "Loại yêu cầu",
         allPermissions: [PERMISSIONS.REQUEST_TYPE.READ],

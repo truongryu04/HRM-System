@@ -1,8 +1,10 @@
 import { apiClient } from "./api-client";
 import type {
+  CreateLeaveTypeRequest,
   CreateLeaveRequest,
   LeaveRequest,
   LeaveType,
+  UpdateLeaveTypeRequest,
 } from "@/types/leave.type";
 
 export const getLeaveRequests = async () => {
@@ -33,4 +35,22 @@ export const getLeaveTypes = async () => {
   const { data } = await apiClient.get("/leave-types");
 
   return data as LeaveType[];
+};
+
+export const createLeaveType = async (payload: CreateLeaveTypeRequest) => {
+  const { data } = await apiClient.post("/leave-types", payload);
+  return data as LeaveType;
+};
+
+export const updateLeaveType = async (
+  id: number,
+  payload: UpdateLeaveTypeRequest,
+) => {
+  const { data } = await apiClient.patch(`/leave-types/${id}`, payload);
+  return data as LeaveType;
+};
+
+export const deactivateLeaveType = async (id: number) => {
+  const { data } = await apiClient.delete(`/leave-types/${id}`);
+  return data as { message: string };
 };

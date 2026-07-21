@@ -28,6 +28,7 @@ import RequestApprovalDetailPage from "../pages/request-approval/RequestApproval
 import RequestTypePage from "../pages/request-type/RequestTypePage";
 import ApprovalFlowManagementPage from "../pages/approval-flow/ApprovalFlowManagementPage";
 import ApprovalStepTemplatePage from "../pages/approval-step-template/ApprovalStepTemplatePage";
+import LeaveTypePage from "../pages/leave-type/LeaveTypePage";
 import PermissionRoute from "../guards/PermissionRoute";
 import ForbiddenPage from "../pages/error/ForbiddenPage";
 import { PERMISSIONS } from "../constants/permissions";
@@ -95,7 +96,9 @@ export const router = createBrowserRouter([
           {
             path: "approval-flows",
             element: (
-              <PermissionRoute allPermissions={[PERMISSIONS.APPROVAL_FLOW.READ]}>
+              <PermissionRoute
+                allPermissions={[PERMISSIONS.APPROVAL_FLOW.READ]}
+              >
                 <ApprovalFlowManagementPage />
               </PermissionRoute>
             ),
@@ -184,6 +187,14 @@ export const router = createBrowserRouter([
             element: (
               <PermissionRoute allPermissions={[PERMISSIONS.POSITION.READ]}>
                 <PositionPage />
+              </PermissionRoute>
+            ),
+          },
+          {
+            path: "leave-types",
+            element: (
+              <PermissionRoute allPermissions={[PERMISSIONS.LEAVE_TYPE.READ]}>
+                <LeaveTypePage />
               </PermissionRoute>
             ),
           },

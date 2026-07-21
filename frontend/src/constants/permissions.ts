@@ -73,6 +73,13 @@ export const PERMISSIONS = {
     DELETE: "request-type:delete",
   },
 
+  LEAVE_TYPE: {
+    READ: "leave-type:read",
+    CREATE: "leave-type:create",
+    UPDATE: "leave-type:update",
+    DELETE: "leave-type:delete",
+  },
+
   APPROVAL_FLOW: {
     READ: "approval-flow:read",
     CREATE: "approval-flow:create",
