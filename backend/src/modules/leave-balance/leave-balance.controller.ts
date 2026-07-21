@@ -16,6 +16,7 @@ import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import type { JwtUser } from '../auth/jwt-user.interface';
 import { AdjustLeaveBalanceDto } from './dto/adjust-leave-balance.dto';
 import { GrantLeaveBalanceDto } from './dto/grant-leave-balance.dto';
+import { GrantDefaultLeaveBalanceDto } from './dto/grant-default-leave-balance.dto';
 import { LeaveBalanceQueryDto } from './dto/leave-balance-query.dto';
 import { LeaveBalanceService } from './leave-balance.service';
 
@@ -28,6 +29,15 @@ export class LeaveBalanceController {
   // @Permissions('leave-balance:grant')
   grant(@Body() dto: GrantLeaveBalanceDto, @CurrentUser() user: JwtUser) {
     return this.leaveBalanceService.grant(dto, user);
+  }
+
+  @Post('grant-default')
+  // @Permissions('leave-balance:grant')
+  grantDefault(
+    @Body() dto: GrantDefaultLeaveBalanceDto,
+    @CurrentUser() user: JwtUser,
+  ) {
+    return this.leaveBalanceService.grantDefault(dto, user);
   }
 
   @Patch(':id/adjust')

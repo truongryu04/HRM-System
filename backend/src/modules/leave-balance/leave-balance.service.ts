@@ -4,14 +4,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager, In, Repository } from 'typeorm';
 import type { JwtUser } from '../auth/jwt-user.interface';
-import { Employee } from '../employee/employee.entity';
+import { Employee, EmployeeStatus } from '../employee/employee.entity';
 import { LeaveType } from '../leave-request/entities/leave-type.entity';
 import { Request } from '../request/entities/request.entity';
 import { User } from '../user/user.entity';
 import { AdjustLeaveBalanceDto } from './dto/adjust-leave-balance.dto';
 import { GrantLeaveBalanceDto } from './dto/grant-leave-balance.dto';
+import { GrantDefaultLeaveBalanceDto } from './dto/grant-default-leave-balance.dto';
 import { LeaveBalanceQueryDto } from './dto/leave-balance-query.dto';
 import { LeaveBalanceTransaction } from './entities/leave-balance-transaction.entity';
 import { LeaveBalance } from './entities/leave-balance.entity';
@@ -96,6 +97,101 @@ export class LeaveBalanceService {
           relations: { employee: true, leaveType: true },
         }),
       );
+    });
+  }
+
+  async grantDefault(dto: GrantDefaultLeaveBalanceDto, user: JwtUser) {
+    this.validateHalfDayIncrement(dto.annualGranted, 'Quota năm');
+
+    return this.dataSource.transaction(async (manager) => {
+      const leaveType = await manager.findOne(LeaveType, {
+        where: { id: dto.leaveTypeId, isDeleted: false, isActive: true },
+      });
+      if (!leaveType) {
+        throw new NotFoundException('Không tìm thấy loại nghỉ phép');
+      }
+      if (!leaveType.deductFromBalance) {
+        throw new BadRequestException('Loại nghỉ này không áp dụng số dư phép');
+      }
+
+      const employees = await manager.find(Employee, {
+        where: {
+          isDeleted: false,
+          status: In([
+            EmployeeStatus.ACTIVE,
+            EmployeeStatus.INACTIVE,
+            EmployeeStatus.ON_LEAVE,
+          ]),
+        },
+        order: { id: 'ASC' },
+      });
+
+      const result = {
+        totalEmployees: employees.length,
+        created: 0,
+        updated: 0,
+        unchanged: 0,
+        skipped: 0,
+      };
+
+      for (const employee of employees) {
+        let balance = await manager.findOne(LeaveBalance, {
+          where: {
+            employee: { id: employee.id },
+            leaveType: { id: leaveType.id },
+            year: dto.year,
+          },
+          lock: { mode: 'pessimistic_write' },
+        });
+
+        const isNew = !balance;
+        const previousGranted = Number(balance?.annualGranted ?? 0);
+        if (!balance) {
+          balance = manager.create(LeaveBalance, {
+            employee,
+            leaveType,
+            year: dto.year,
+          });
+        }
+
+        const delta = dto.annualGranted - previousGranted;
+        if (!isNew && this.getRemaining(balance) + delta < 0) {
+          result.skipped += 1;
+          continue;
+        }
+
+        if (!isNew && delta === 0) {
+          result.unchanged += 1;
+          continue;
+        }
+
+        balance.annualGranted = dto.annualGranted;
+        const saved = await manager.save(LeaveBalance, balance);
+
+        if (delta !== 0) {
+          await manager.save(
+            LeaveBalanceTransaction,
+            manager.create(LeaveBalanceTransaction, {
+              balance: saved,
+              type: isNew
+                ? LeaveBalanceTransactionType.GRANT
+                : LeaveBalanceTransactionType.ADJUSTMENT,
+              amount: delta,
+              createdBy: { id: user.id } as User,
+              note:
+                dto.note?.trim() || `Đặt quota phép mặc định năm ${dto.year}`,
+            }),
+          );
+        }
+
+        if (isNew) {
+          result.created += 1;
+        } else {
+          result.updated += 1;
+        }
+      }
+
+      return result;
     });
   }
 
