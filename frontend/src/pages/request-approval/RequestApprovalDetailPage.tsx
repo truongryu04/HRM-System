@@ -36,10 +36,11 @@ import {
 import { useLeaveRequestByRequestId } from "../../hooks/useLeaveRequests";
 import { formatDateTime } from "../../utils/employee.utils";
 import { formatLeaveDate, formatLeaveTotalDays } from "../../utils/leave.utils";
+import type { LeaveRequest } from "@/types/leave.type";
 import type {
-  LeaveRequest,
-} from "@/types/leave.type";
-import type { BusinessRequest, BusinessRequestDetail } from "@/types/request.type";
+  BusinessRequest,
+  BusinessRequestDetail,
+} from "@/types/request.type";
 import {
   approvalStepStatusMeta,
   canProcess,
@@ -83,7 +84,10 @@ export default function RequestApprovalDetailPage() {
   const statusMeta = request ? getStatusMeta(request.status) : null;
 
   const openActionDialog = (type: "approve" | "reject") => {
-    if ((type === "approve" && !canApprove) || (type === "reject" && !canReject)) {
+    if (
+      (type === "approve" && !canApprove) ||
+      (type === "reject" && !canReject)
+    ) {
       return;
     }
     setActionType(type);
@@ -159,124 +163,117 @@ export default function RequestApprovalDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="space-y-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="-ml-2"
-            onClick={() => navigate("/requests/approval")}
-          >
-            <ArrowLeft className="size-4" />
-            Quay lại
-          </Button>
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-3xl font-bold tracking-tight">
-                Chi tiết đơn duyệt
-              </h1>
-              <Badge variant="outline" className={statusMeta?.badgeClassName}>
-                {statusMeta?.label}
-              </Badge>
-            </div>
-            <p className="text-muted-foreground">
-              {request.code} - {request.requestType?.name ?? "Yêu cầu"}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          {canProcess(request) && (canApprove || canReject) ? (
-            <>
-              {canApprove ? <Button
-                className="bg-teal-500 text-white hover:bg-teal-700"
-                onClick={() => openActionDialog("approve")}
-                disabled={isSubmitting}
-              >
-                <CheckCircle2 className="size-4" />
-                Duyệt
-              </Button> : null}
-              {canReject ? <Button
-                variant="destructive"
-                onClick={() => openActionDialog("reject")}
-                disabled={isSubmitting}
-              >
-                <XCircle className="size-4" />
-                Từ chối
-              </Button> : null}
-            </>
-          ) : null}
-        </div>
-      </div>
-
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.55fr)]">
-        <div className="space-y-6">
-          <RequestInfoCard detail={detail} leaveRequest={leaveRequest} />
-          <ApprovalStepsCard detail={detail} />
-        </div>
-
-        <div className="space-y-6">
-          <RequesterInfoCard request={request} />
-          <HistoryCard detail={detail} />
-        </div>
-      </div>
-
-      <Dialog open={Boolean(actionType)} onOpenChange={closeActionDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {actionType === "approve" ? "Duyệt yêu cầu" : "Từ chối yêu cầu"}
-            </DialogTitle>
-            <DialogDescription>
-              {request.code} - {request.title}
-            </DialogDescription>
-          </DialogHeader>
-
+    <Card className="p-6">
+      <div className="space-y-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium" htmlFor="approval-note">
-              {actionType === "approve" ? "Ghi chú" : "Lý do từ chối"}
-            </label>
-            <Textarea
-              id="approval-note"
-              value={note}
-              onChange={(event) => setNote(event.target.value)}
-              placeholder={
-                actionType === "approve"
-                  ? "Nhập ghi chú nếu cần"
-                  : "Nhập lý do từ chối"
-              }
-              disabled={isSubmitting}
-            />
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-3xl font-bold tracking-tight">
+                  Chi tiết đơn duyệt
+                </h1>
+                <Badge variant="outline" className={statusMeta?.badgeClassName}>
+                  {statusMeta?.label}
+                </Badge>
+              </div>
+            </div>
           </div>
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={closeActionDialog}
-              disabled={isSubmitting}
-            >
-              Hủy
-            </Button>
-            <Button
-              type="button"
-              className={
-                actionType === "approve"
-                  ? "bg-teal-500 text-white hover:bg-teal-700"
-                  : undefined
-              }
-              variant={actionType === "reject" ? "destructive" : "default"}
-              onClick={() => void handleSubmitAction()}
-              disabled={isSubmitting}
-            >
-              {actionType === "approve" ? "Duyệt" : "Từ chối"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+          <div className="flex flex-wrap gap-2">
+            {canProcess(request) && (canApprove || canReject) ? (
+              <>
+                {canApprove ? (
+                  <Button
+                    className="bg-teal-500 text-white hover:bg-teal-700"
+                    onClick={() => openActionDialog("approve")}
+                    disabled={isSubmitting}
+                  >
+                    <CheckCircle2 className="size-4" />
+                    Duyệt
+                  </Button>
+                ) : null}
+                {canReject ? (
+                  <Button
+                    variant="destructive"
+                    onClick={() => openActionDialog("reject")}
+                    disabled={isSubmitting}
+                  >
+                    <XCircle className="size-4" />
+                    Từ chối
+                  </Button>
+                ) : null}
+              </>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.55fr)]">
+          <div className="space-y-6">
+            <RequestInfoCard detail={detail} leaveRequest={leaveRequest} />
+            <ApprovalStepsCard detail={detail} />
+          </div>
+
+          <div className="space-y-6">
+            <RequesterInfoCard request={request} />
+            <HistoryCard detail={detail} />
+          </div>
+        </div>
+
+        <Dialog open={Boolean(actionType)} onOpenChange={closeActionDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                {actionType === "approve" ? "Duyệt yêu cầu" : "Từ chối yêu cầu"}
+              </DialogTitle>
+              <DialogDescription>
+                {request.code} - {request.title}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium" htmlFor="approval-note">
+                {actionType === "approve" ? "Ghi chú" : "Lý do từ chối"}
+              </label>
+              <Textarea
+                id="approval-note"
+                value={note}
+                onChange={(event) => setNote(event.target.value)}
+                placeholder={
+                  actionType === "approve"
+                    ? "Nhập ghi chú nếu cần"
+                    : "Nhập lý do từ chối"
+                }
+                disabled={isSubmitting}
+              />
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={closeActionDialog}
+                disabled={isSubmitting}
+              >
+                Hủy
+              </Button>
+              <Button
+                type="button"
+                className={
+                  actionType === "approve"
+                    ? "bg-teal-500 text-white hover:bg-teal-700"
+                    : undefined
+                }
+                variant={actionType === "reject" ? "destructive" : "default"}
+                onClick={() => void handleSubmitAction()}
+                disabled={isSubmitting}
+              >
+                {actionType === "approve" ? "Duyệt" : "Từ chối"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </Card>
   );
 }
 
@@ -565,4 +562,3 @@ function formatLeaveDeadline(request: LeaveRequest) {
 
   return `${startDate} - ${endDate}`;
 }
-

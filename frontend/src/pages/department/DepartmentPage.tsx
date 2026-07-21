@@ -50,6 +50,7 @@ import {
 import type { Department, DepartmentRequest } from "@/types/department.type";
 import { PERMISSIONS } from "../../constants/permissions";
 import { usePermissionAccess } from "../../hooks/usePermissionAccess";
+import { Pencil, Trash } from "lucide-react";
 
 type DepartmentMode = "create" | "edit";
 
@@ -323,11 +324,11 @@ export default function DepartmentPage() {
                     <div className="flex justify-end gap-2">
                       {canUpdate ? (
                         <Button
-                          variant="outline"
-                          size="sm"
+                          variant="primary"
+                          size="icon"
                           onClick={() => openEditDialog(department)}
                         >
-                          Sửa
+                          <Pencil />
                         </Button>
                       ) : null}
 
@@ -340,11 +341,11 @@ export default function DepartmentPage() {
                         >
                           <AlertDialogTrigger asChild>
                             <Button
-                              variant="outline"
-                              size="sm"
+                              variant="destructive"
+                              size="icon"
                               onClick={() => setDeleteTarget(department)}
                             >
-                              Xóa
+                              <Trash />
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>

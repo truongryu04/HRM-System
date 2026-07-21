@@ -49,6 +49,7 @@ import {
 import type { Position, PositionRequest } from "@/types/position.type";
 import { PERMISSIONS } from "../../constants/permissions";
 import { usePermissionAccess } from "../../hooks/usePermissionAccess";
+import { Pencil, Trash } from "lucide-react";
 
 type PositionMode = "create" | "edit";
 
@@ -248,75 +249,72 @@ export default function PositionPage() {
       : "bg-slate-500/10 text-slate-700";
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Position Management
-          </h1>
-          <p className="text-muted-foreground">Quản lý vị trí làm việc</p>
+    <Card className="p-6">
+      <div className="space-y-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight">
+              Quản lý vị trí nhân sự
+            </h2>
+          </div>
+
+          {canCreate ? (
+            <Button onClick={openCreateDialog} variant="primary">
+              Thêm vị trí
+            </Button>
+          ) : null}
         </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Mã</TableHead>
+              <TableHead>Tên</TableHead>
+              <TableHead>Level</TableHead>
+              <TableHead>Mô tả</TableHead>
+              <TableHead>Trạng thái</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
 
-        {canCreate ? <Button
-          onClick={openCreateDialog}
-          className="bg-teal-500 text-white hover:bg-teal-700"
-        >
-          Thêm vị trí
-        </Button> : null}
-      </div>
-
-      <Card>
-        <CardContent className="pt-6">
-          <Table>
-            <TableHeader>
+          <TableBody>
+            {positions.length === 0 ? (
               <TableRow>
-                <TableHead>Mã</TableHead>
-                <TableHead>Tên</TableHead>
-                <TableHead>Level</TableHead>
-                <TableHead>Mô tả</TableHead>
-                <TableHead>Trạng thái</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableCell
+                  colSpan={6}
+                  className="py-10 text-center text-muted-foreground"
+                >
+                  Chưa có vị trí nào.
+                </TableCell>
               </TableRow>
-            </TableHeader>
-
-            <TableBody>
-              {positions.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="py-10 text-center text-muted-foreground"
-                  >
-                    Chưa có vị trí nào.
+            ) : (
+              positions.map((position) => (
+                <TableRow key={position.id}>
+                  <TableCell className="font-medium">{position.code}</TableCell>
+                  <TableCell>{position.name}</TableCell>
+                  <TableCell>{position.level ?? "-"}</TableCell>
+                  <TableCell>{position.description ?? "-"}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={statusClass(position.status)}
+                    >
+                      {position.status}
+                    </Badge>
                   </TableCell>
-                </TableRow>
-              ) : (
-                positions.map((position) => (
-                  <TableRow key={position.id}>
-                    <TableCell className="font-medium">
-                      {position.code}
-                    </TableCell>
-                    <TableCell>{position.name}</TableCell>
-                    <TableCell>{position.level ?? "-"}</TableCell>
-                    <TableCell>{position.description ?? "-"}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={statusClass(position.status)}
-                      >
-                        {position.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        {canUpdate ? <Button
-                          variant="outline"
-                          size="sm"
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      {canUpdate ? (
+                        <Button
+                          variant="primary"
+                          size="icon"
                           onClick={() => openEditDialog(position)}
                         >
-                          Sửa
-                        </Button> : null}
+                          <Pencil />
+                        </Button>
+                      ) : null}
 
-                        {canDelete ? <AlertDialog
+                      {canDelete ? (
+                        <AlertDialog
                           open={deleteTarget?.id === position.id}
                           onOpenChange={(open) =>
                             !open && setDeleteTarget(null)
@@ -324,11 +322,11 @@ export default function PositionPage() {
                         >
                           <AlertDialogTrigger asChild>
                             <Button
-                              variant="outline"
-                              size="sm"
+                              variant="destructive"
+                              size="icon"
                               onClick={() => setDeleteTarget(position)}
                             >
-                              Xóa
+                              <Trash />
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
@@ -349,26 +347,28 @@ export default function PositionPage() {
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
-                        </AlertDialog> : null}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                        </AlertDialog>
+                      ) : null}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
 
-      {canCreate || canUpdate ? <PositionFormDialog
-        key={`${openDialog}-${mode}-${selectedPosition?.id ?? "new"}`}
-        open={openDialog}
-        onOpenChange={setOpenDialog}
-        mode={mode}
-        position={selectedPosition}
-        onSubmit={handleSubmit}
-        loading={createMutation.isPending || updateMutation.isPending}
-      /> : null}
-    </div>
+        {canCreate || canUpdate ? (
+          <PositionFormDialog
+            key={`${openDialog}-${mode}-${selectedPosition?.id ?? "new"}`}
+            open={openDialog}
+            onOpenChange={setOpenDialog}
+            mode={mode}
+            position={selectedPosition}
+            onSubmit={handleSubmit}
+            loading={createMutation.isPending || updateMutation.isPending}
+          />
+        ) : null}
+      </div>
+    </Card>
   );
 }
