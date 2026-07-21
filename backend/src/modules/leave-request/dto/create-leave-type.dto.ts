@@ -7,6 +7,7 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
+import { IsHalfDayIncrement } from '../../../common/validators/is-half-day-increment.decorator';
 import { LeaveTypeCode } from '../enums/leave-type-code.enum';
 
 export class CreateLeaveTypeDto {
@@ -24,6 +25,7 @@ export class CreateLeaveTypeDto {
   @IsOptional()
   @Type(() => Number)
   @IsNumber({ maxDecimalPlaces: 1 })
+  @IsHalfDayIncrement()
   @Min(0)
   annualQuota?: number;
 }

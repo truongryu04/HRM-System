@@ -8,6 +8,7 @@ import { LeaveTypeController } from './leave-type.controller';
 import { LeaveRequest } from './entities/leave-request.entity';
 import { RequestModule } from '../request/request.module';
 import { LeaveRequestDay } from './entities/leave-request-day.entity';
+import { LeaveBalanceModule } from '../leave-balance/leave-balance.module';
 
 @Module({
   controllers: [LeaveRequestController, LeaveTypeController],
@@ -16,6 +17,7 @@ import { LeaveRequestDay } from './entities/leave-request-day.entity';
   imports: [
     TypeOrmModule.forFeature([LeaveType, LeaveRequest, LeaveRequestDay]),
     RequestModule,
+    LeaveBalanceModule,
   ],
 })
 export class LeaveRequestModule {}

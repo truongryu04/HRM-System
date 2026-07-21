@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { Employee } from '../../employee/employee.entity';
 import { LeaveRequest } from './leave-request.entity';
+import { LeaveType } from './leave-type.entity';
 import { LeaveSession } from '../enums/leave-session.enum';
 
 @Entity('leave_request_days')
@@ -21,6 +22,10 @@ export class LeaveRequestDay {
   @ManyToOne(() => Employee)
   @JoinColumn({ name: 'employee_id' })
   employee!: Employee;
+
+  @ManyToOne(() => LeaveType, { nullable: true })
+  @JoinColumn({ name: 'leave_type_id' })
+  leaveType!: LeaveType | null;
 
   @Column({ type: 'date' })
   date!: string;

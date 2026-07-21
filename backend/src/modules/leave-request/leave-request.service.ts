@@ -18,12 +18,24 @@ import { RequestStatus } from '../request/enums/request-status.enum';
 import { RequestTypeCode } from '../request/enums/request-type-code.enum';
 import { User } from '../user/user.entity';
 import type { JwtUser } from '../auth/jwt-user.interface';
+import { LeaveBalanceService } from '../leave-balance/leave-balance.service';
 import { CreateLeaveRequestDto } from './dto/create-leave-request.dto';
 import { UpdateLeaveRequestDto } from './dto/update-leave-request.dto';
 import { LeaveSession } from './enums/leave-session.enum';
 import { LeaveRequestDay } from './entities/leave-request-day.entity';
 import { LeaveRequest } from './entities/leave-request.entity';
 import { LeaveType } from './entities/leave-type.entity';
+import { LeaveTypeCode } from './enums/leave-type-code.enum';
+
+interface CalculatedLeaveDay {
+  date: string;
+  value: number;
+  session: LeaveSession;
+}
+
+interface LeaveDayAllocation extends CalculatedLeaveDay {
+  leaveType: LeaveType;
+}
 
 @Injectable()
 export class LeaveRequestService
@@ -33,6 +45,7 @@ export class LeaveRequestService
     private readonly dataSource: DataSource,
     private readonly requestService: RequestService,
     private readonly approvedHandlerRegistry: RequestApprovedHandlerRegistry,
+    private readonly leaveBalanceService: LeaveBalanceService,
 
     @InjectRepository(LeaveRequest)
     private readonly leaveRequestRepository: Repository<LeaveRequest>,
@@ -52,6 +65,12 @@ export class LeaveRequestService
     const session = dto.session ?? LeaveSession.FULL;
     this.assertValidDateRange(startDate, endDate);
     this.assertValidSessionRange(startDate, endDate, session);
+    const totalDays = this.calculateDays(startDate, endDate, session);
+    if (totalDays === 0) {
+      throw new BadRequestException(
+        'Khoảng thời gian nghỉ không có ngày làm việc',
+      );
+    }
 
     const employeeId = dto.employeeId ?? user?.employeeId;
     if (!employeeId) {
@@ -102,7 +121,7 @@ export class LeaveRequestService
         startDate,
         endDate,
         session,
-        totalDays: this.calculateDays(startDate, endDate, session),
+        totalDays,
         reason: dto.reason,
         attachment: dto.attachment,
       });
@@ -194,7 +213,28 @@ export class LeaveRequestService
       return;
     }
 
-    const days = this.buildLeaveDays(leaveRequest, manager);
+    const calculatedDays = this.calculateLeaveDays(
+      leaveRequest.startDate,
+      leaveRequest.endDate,
+      leaveRequest.session,
+    );
+    const allocations = await this.allocateLeaveDays(
+      leaveRequest,
+      calculatedDays,
+      manager,
+    );
+    const days = allocations.map((allocation) =>
+      manager.create(LeaveRequestDay, {
+        leaveRequest,
+        employee: leaveRequest.request.employee,
+        leaveType: allocation.leaveType,
+        date: allocation.date,
+        value: allocation.value,
+        session: allocation.session,
+        isPaid: allocation.leaveType.isPaid,
+        deductFromBalance: allocation.leaveType.deductFromBalance,
+      }),
+    );
     await manager.save(LeaveRequestDay, days);
   }
 
@@ -220,6 +260,12 @@ export class LeaveRequestService
     const session = dto.session ?? request.session;
     this.assertValidDateRange(startDate, endDate);
     this.assertValidSessionRange(startDate, endDate, session);
+    const totalDays = this.calculateDays(startDate, endDate, session);
+    if (totalDays === 0) {
+      throw new BadRequestException(
+        'Khoảng thời gian nghỉ không có ngày làm việc',
+      );
+    }
 
     if (dto.leaveTypeId) {
       const leaveType = await this.leaveTypeRepository.findOne({
@@ -241,7 +287,7 @@ export class LeaveRequestService
       request.startDate = startDate;
       request.endDate = endDate;
       request.session = session;
-      request.totalDays = this.calculateDays(startDate, endDate, session);
+      request.totalDays = totalDays;
       request.request.title = `Xin nghi phep ${this.toDateOnly(startDate)} - ${this.toDateOnly(endDate)}`;
     }
 
@@ -316,20 +362,10 @@ export class LeaveRequestService
     endDate: Date,
     session: LeaveSession,
   ): number {
-    const start = Date.UTC(
-      startDate.getUTCFullYear(),
-      startDate.getUTCMonth(),
-      startDate.getUTCDate(),
+    return this.calculateLeaveDays(startDate, endDate, session).reduce(
+      (total, day) => total + day.value,
+      0,
     );
-    const end = Date.UTC(
-      endDate.getUTCFullYear(),
-      endDate.getUTCMonth(),
-      endDate.getUTCDate(),
-    );
-
-    const totalDays = (end - start) / (1000 * 60 * 60 * 24) + 1;
-
-    return session === LeaveSession.FULL ? totalDays : 0.5;
   }
 
   private parseDate(value: string | Date): Date {
@@ -371,30 +407,105 @@ export class LeaveRequestService
     return date.toISOString().slice(0, 10);
   }
 
-  private buildLeaveDays(
-    leaveRequest: LeaveRequest,
-    manager: EntityManager,
-  ): LeaveRequestDay[] {
-    const days: LeaveRequestDay[] = [];
-    const current = new Date(leaveRequest.startDate);
-    const end = new Date(leaveRequest.endDate);
+  private calculateLeaveDays(
+    startDate: Date,
+    endDate: Date,
+    session: LeaveSession,
+  ): CalculatedLeaveDay[] {
+    const days: CalculatedLeaveDay[] = [];
+    const current = new Date(startDate);
+    const end = new Date(endDate);
 
     while (current <= end) {
-      days.push(
-        manager.create(LeaveRequestDay, {
-          leaveRequest,
-          employee: leaveRequest.request.employee,
+      const dayOfWeek = current.getUTCDay();
+      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+        days.push({
           date: current.toISOString().slice(0, 10),
-          value: leaveRequest.session === LeaveSession.FULL ? 1 : 0.5,
-          session: leaveRequest.session,
-          isPaid: leaveRequest.leaveType.isPaid,
-          deductFromBalance: leaveRequest.leaveType.deductFromBalance,
-        }),
-      );
-      current.setDate(current.getDate() + 1);
+          value: session === LeaveSession.FULL ? 1 : 0.5,
+          session,
+        });
+      }
+      current.setUTCDate(current.getUTCDate() + 1);
     }
 
     return days;
+  }
+
+  private async allocateLeaveDays(
+    leaveRequest: LeaveRequest,
+    calculatedDays: CalculatedLeaveDay[],
+    manager: EntityManager,
+  ): Promise<LeaveDayAllocation[]> {
+    if (!leaveRequest.leaveType.deductFromBalance) {
+      return calculatedDays.map((day) => ({
+        ...day,
+        leaveType: leaveRequest.leaveType,
+      }));
+    }
+
+    const unpaidLeaveType = await manager.findOne(LeaveType, {
+      where: {
+        code: LeaveTypeCode.UNPAID_LEAVE,
+        isDeleted: false,
+        isActive: true,
+      },
+    });
+    if (!unpaidLeaveType) {
+      throw new BadRequestException(
+        'Chưa cấu hình loại nghỉ không lương để chuyển phần vượt quota',
+      );
+    }
+
+    const daysByYear = new Map<number, CalculatedLeaveDay[]>();
+    for (const day of calculatedDays) {
+      const year = Number(day.date.slice(0, 4));
+      const days = daysByYear.get(year) ?? [];
+
+      days.push(day);
+      daysByYear.set(year, days);
+    }
+
+    const allocations: LeaveDayAllocation[] = [];
+    for (const [year, days] of daysByYear) {
+      const requestedAmount = days.reduce((total, day) => total + day.value, 0);
+      let paidRemaining = await this.leaveBalanceService.deductAvailable(
+        leaveRequest.request.employee.id,
+        leaveRequest.leaveType.id,
+        year,
+        requestedAmount,
+        leaveRequest.request,
+        manager,
+      );
+
+      for (const day of days) {
+        if (paidRemaining >= day.value) {
+          allocations.push({ ...day, leaveType: leaveRequest.leaveType });
+          paidRemaining -= day.value;
+          continue;
+        }
+
+        if (paidRemaining === 0) {
+          allocations.push({ ...day, leaveType: unpaidLeaveType });
+          continue;
+        }
+
+        allocations.push({
+          date: day.date,
+          value: paidRemaining,
+          session: LeaveSession.AM,
+          leaveType: leaveRequest.leaveType,
+        });
+        allocations.push({
+          date: day.date,
+          value: day.value - paidRemaining,
+          session: LeaveSession.PM,
+          leaveType: unpaidLeaveType,
+        });
+        paidRemaining = 0;
+      }
+    }
+
+    return allocations;
   }
 
   private toResponse(leaveRequest: LeaveRequest) {
