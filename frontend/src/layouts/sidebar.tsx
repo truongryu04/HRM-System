@@ -48,6 +48,11 @@ const navItems: Array<NavItem | NavGroup> = [
         allPermissions: [PERMISSIONS.LEAVE_TYPE.READ],
       },
       {
+        to: "/leave-balances",
+        label: "Quản lý số dư phép",
+        allPermissions: [PERMISSIONS.EMPLOYEE.READ],
+      },
+      {
         to: "/request-types",
         label: "Loại yêu cầu",
         allPermissions: [PERMISSIONS.REQUEST_TYPE.READ],

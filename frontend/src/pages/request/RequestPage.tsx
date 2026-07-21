@@ -2,11 +2,12 @@ import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { Button } from "../../components/ui/button";
-import { Card, CardContent } from "../../components/ui/card";
+import { Card } from "../../components/ui/card";
 import { useLeaveRequests } from "../../hooks/useLeaveRequests";
 import { RequestTable } from "./components/RequestTable";
 import { CanAccess } from "../../components/auth/CanAccess";
 import { PERMISSIONS } from "../../constants/permissions";
+import { RemainingLeaveBalance } from "./components/RemainingLeaveBalance";
 
 export default function RequestPage() {
   const navigate = useNavigate();
@@ -28,16 +29,19 @@ export default function RequestPage() {
             </h2>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <CanAccess permission={PERMISSIONS.REQUEST.CREATE}>
-              <Button
-                onClick={() => navigate("/requests/create")}
-                variant="primary"
-              >
-                <Plus className="size-4" />
-                Thêm yêu cầu mới
-              </Button>
-            </CanAccess>
+          <div className="flex flex-col items-end gap-3">
+            <RemainingLeaveBalance />
+            <div className="flex flex-wrap gap-2">
+              <CanAccess permission={PERMISSIONS.REQUEST.CREATE}>
+                <Button
+                  onClick={() => navigate("/requests/create")}
+                  variant="primary"
+                >
+                  <Plus className="size-4" />
+                  Thêm yêu cầu mới
+                </Button>
+              </CanAccess>
+            </div>
           </div>
         </div>
 

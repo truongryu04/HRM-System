@@ -29,6 +29,7 @@ import RequestTypePage from "../pages/request-type/RequestTypePage";
 import ApprovalFlowManagementPage from "../pages/approval-flow/ApprovalFlowManagementPage";
 import ApprovalStepTemplatePage from "../pages/approval-step-template/ApprovalStepTemplatePage";
 import LeaveTypePage from "../pages/leave-type/LeaveTypePage";
+import LeaveBalanceManagementPage from "../pages/leave-balance/LeaveBalanceManagementPage";
 import PermissionRoute from "../guards/PermissionRoute";
 import ForbiddenPage from "../pages/error/ForbiddenPage";
 import { PERMISSIONS } from "../constants/permissions";
@@ -195,6 +196,14 @@ export const router = createBrowserRouter([
             element: (
               <PermissionRoute allPermissions={[PERMISSIONS.LEAVE_TYPE.READ]}>
                 <LeaveTypePage />
+              </PermissionRoute>
+            ),
+          },
+          {
+            path: "leave-balances",
+            element: (
+              <PermissionRoute allPermissions={[PERMISSIONS.EMPLOYEE.READ]}>
+                <LeaveBalanceManagementPage />
               </PermissionRoute>
             ),
           },

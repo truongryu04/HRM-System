@@ -27,6 +27,7 @@ import type {
 } from "@/types/leave.type";
 import type { RequestType } from "@/types/request-type.type";
 import { calculateLeaveDays } from "../../../utils/leave.utils";
+import { RemainingLeaveBalance } from "./RemainingLeaveBalance";
 
 interface RequestFormProps {
   employeeId: number | null;
@@ -150,14 +151,17 @@ export function RequestForm({
             </h2>
           </div>
 
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigate("/requests/my")}
-          >
-            <ArrowLeft className="size-4" />
-            Quay lại
-          </Button>
+          <div className="flex flex-col items-end gap-3 sm:flex-row sm:items-center">
+            <RemainingLeaveBalance />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/requests/my")}
+            >
+              <ArrowLeft className="size-4" />
+              Quay lại
+            </Button>
+          </div>
         </div>
 
         {!employeeId ? (
@@ -250,8 +254,8 @@ export function RequestForm({
                         value="AM"
                         disabled={Boolean(
                           form.startDate &&
-                            form.endDate &&
-                            form.startDate !== form.endDate,
+                          form.endDate &&
+                          form.startDate !== form.endDate,
                         )}
                       >
                         Buổi sáng
@@ -260,8 +264,8 @@ export function RequestForm({
                         value="PM"
                         disabled={Boolean(
                           form.startDate &&
-                            form.endDate &&
-                            form.startDate !== form.endDate,
+                          form.endDate &&
+                          form.startDate !== form.endDate,
                         )}
                       >
                         Buổi chiều
