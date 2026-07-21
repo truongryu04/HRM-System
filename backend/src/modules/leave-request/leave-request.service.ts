@@ -388,7 +388,7 @@ export class LeaveRequestService
           value: leaveRequest.session === LeaveSession.FULL ? 1 : 0.5,
           session: leaveRequest.session,
           isPaid: leaveRequest.leaveType.isPaid,
-          deductFromBalance: true,
+          deductFromBalance: leaveRequest.leaveType.deductFromBalance,
         }),
       );
       current.setDate(current.getDate() + 1);

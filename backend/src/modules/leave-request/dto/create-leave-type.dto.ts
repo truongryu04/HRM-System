@@ -1,6 +1,18 @@
-import { IsBoolean, IsOptional, IsString, MaxLength } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MaxLength,
+  Min,
+} from 'class-validator';
+import { LeaveTypeCode } from '../enums/leave-type-code.enum';
 
 export class CreateLeaveTypeDto {
+  @IsEnum(LeaveTypeCode)
+  code!: LeaveTypeCode;
+
   @IsString()
   @MaxLength(100)
   name!: string;
@@ -10,6 +22,8 @@ export class CreateLeaveTypeDto {
   description?: string;
 
   @IsOptional()
-  @IsBoolean()
-  isPaid?: boolean;
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 1 })
+  @Min(0)
+  annualQuota?: number;
 }
