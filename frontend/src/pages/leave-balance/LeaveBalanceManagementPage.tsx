@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { History, PencilLine, Plus } from "lucide-react";
+import { History, PencilLine } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "../../components/ui/badge";
@@ -44,10 +44,7 @@ import {
   useEmployeeLeaveBalances,
 } from "../../hooks/useLeaveBalances";
 import { useLeaveTypes } from "../../hooks/useLeaveRequests";
-import {
-  adjustLeaveBalance,
-  grantLeaveBalance,
-} from "../../services/leave-balance.api";
+import { adjustLeaveBalance } from "../../services/leave-balance.api";
 import type {
   LeaveBalance,
   LeaveBalanceTransactionType,
@@ -85,10 +82,6 @@ export default function LeaveBalanceManagementPage() {
   const queryClient = useQueryClient();
   const [employeeId, setEmployeeId] = useState<number | null>(null);
   const [year, setYear] = useState(currentYear);
-  const [grantOpen, setGrantOpen] = useState(false);
-  const [grantLeaveTypeId, setGrantLeaveTypeId] = useState("");
-  const [grantAmount, setGrantAmount] = useState("12");
-  const [grantNote, setGrantNote] = useState("");
   const [adjustTarget, setAdjustTarget] = useState<LeaveBalance | null>(null);
   const [adjustAmount, setAdjustAmount] = useState("");
   const [adjustReason, setAdjustReason] = useState("");
@@ -109,20 +102,6 @@ export default function LeaveBalanceManagementPage() {
   const refreshBalance = async () => {
     await queryClient.invalidateQueries({ queryKey: leaveBalanceKeys.all });
   };
-
-  const grantMutation = useMutation({
-    mutationFn: grantLeaveBalance,
-    onSuccess: async () => {
-      await refreshBalance();
-      toast.success("Đã cập nhật quota nghỉ phép");
-      setGrantOpen(false);
-      setDialogError(null);
-    },
-    onError: (error) =>
-      setDialogError(
-        getApiErrorMessage(error, "Không thể cập nhật quota nghỉ phép."),
-      ),
-  });
 
   const adjustMutation = useMutation({
     mutationFn: ({
@@ -145,53 +124,6 @@ export default function LeaveBalanceManagementPage() {
         getApiErrorMessage(error, "Không thể điều chỉnh số ngày nghỉ phép."),
       ),
   });
-
-  const openGrant = () => {
-    if (!employeeId || leaveTypes.length === 0) return;
-    const existing = balances.find(
-      (balance) => balance.leaveType.id === leaveTypes[0].id,
-    );
-    setGrantLeaveTypeId(String(leaveTypes[0].id));
-    setGrantAmount(
-      String(existing?.annualGranted ?? Number(leaveTypes[0].annualQuota)),
-    );
-    setGrantNote("");
-    setDialogError(null);
-    setGrantOpen(true);
-  };
-
-  const selectGrantLeaveType = (value: string) => {
-    const leaveTypeId = Number(value);
-    const existing = balances.find(
-      (balance) => balance.leaveType.id === leaveTypeId,
-    );
-    const leaveType = leaveTypes.find((item) => item.id === leaveTypeId);
-    setGrantLeaveTypeId(value);
-    setGrantAmount(
-      String(existing?.annualGranted ?? Number(leaveType?.annualQuota ?? 0)),
-    );
-  };
-
-  const submitGrant = () => {
-    const amount = Number(grantAmount);
-    if (
-      !employeeId ||
-      !grantLeaveTypeId ||
-      !Number.isFinite(amount) ||
-      amount < 0 ||
-      amount * 2 !== Math.round(amount * 2)
-    ) {
-      setDialogError("Vui lòng nhập quota không âm theo bước 0,5 ngày.");
-      return;
-    }
-    grantMutation.mutate({
-      employeeId,
-      leaveTypeId: Number(grantLeaveTypeId),
-      year,
-      annualGranted: amount,
-      note: grantNote.trim() || undefined,
-    });
-  };
 
   const openAdjust = (balance: LeaveBalance) => {
     setAdjustTarget(balance);
@@ -239,14 +171,10 @@ export default function LeaveBalanceManagementPage() {
             <GrantDefaultLeaveBalanceDialog
               year={year}
               leaveTypes={leaveTypes}
+              employees={employees}
+              employeesLoading={employeesQuery.isLoading}
+              employeesError={employeesQuery.isError}
             />
-            <Button
-              variant="primary"
-              onClick={openGrant}
-              disabled={!employeeId || leaveTypes.length === 0}
-            >
-              <Plus className="size-4" /> Cấp hoặc cập nhật quota
-            </Button>
           </div>
         </div>
 
@@ -443,81 +371,6 @@ export default function LeaveBalanceManagementPage() {
             </Card>
           </>
         )}
-
-        <Dialog
-          open={grantOpen}
-          onOpenChange={(open) => {
-            setGrantOpen(open);
-            if (!open) setDialogError(null);
-          }}
-        >
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Cấp hoặc cập nhật quota</DialogTitle>
-              <DialogDescription>
-                Giá trị mới sẽ thay thế quota năm hiện tại; lịch sử chỉ ghi phần
-                chênh lệch.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="grant-leave-type">Loại phép</Label>
-                <Select
-                  value={grantLeaveTypeId}
-                  onValueChange={selectGrantLeaveType}
-                >
-                  <SelectTrigger id="grant-leave-type" className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {leaveTypes.map((item) => (
-                      <SelectItem key={item.id} value={String(item.id)}>
-                        {item.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="grant-amount">Quota năm {year}</Label>
-                <Input
-                  id="grant-amount"
-                  type="number"
-                  min="0"
-                  step="0.5"
-                  value={grantAmount}
-                  onChange={(event) => setGrantAmount(event.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="grant-note">Ghi chú</Label>
-                <Textarea
-                  id="grant-note"
-                  value={grantNote}
-                  onChange={(event) => setGrantNote(event.target.value)}
-                  placeholder={`Cấp quota phép năm ${year}`}
-                />
-              </div>
-              {dialogError ? (
-                <p role="alert" className="text-sm text-destructive">
-                  {dialogError}
-                </p>
-              ) : null}
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setGrantOpen(false)}>
-                Hủy
-              </Button>
-              <Button
-                variant="primary"
-                disabled={grantMutation.isPending}
-                onClick={submitGrant}
-              >
-                {grantMutation.isPending ? "Đang lưu..." : "Lưu quota"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
 
         <Dialog
           open={Boolean(adjustTarget)}

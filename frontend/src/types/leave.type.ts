@@ -78,15 +78,8 @@ export interface LeaveBalanceQuery {
   leaveTypeId?: number;
 }
 
-export interface GrantLeaveBalanceRequest {
-  employeeId: number;
-  leaveTypeId: number;
-  year: number;
-  annualGranted: number;
-  note?: string;
-}
-
 export interface GrantDefaultLeaveBalanceRequest {
+  employeeIds: number[];
   leaveTypeId: number;
   year: number;
   annualGranted: number;
@@ -94,6 +87,7 @@ export interface GrantDefaultLeaveBalanceRequest {
 }
 
 export interface GrantDefaultLeaveBalanceResult {
+  requestedEmployees: number;
   totalEmployees: number;
   created: number;
   updated: number;
