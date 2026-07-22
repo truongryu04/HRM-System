@@ -15,21 +15,15 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import type { JwtUser } from '../auth/jwt-user.interface';
 import { AdjustLeaveBalanceDto } from './dto/adjust-leave-balance.dto';
-import { GrantLeaveBalanceDto } from './dto/grant-leave-balance.dto';
 import { GrantDefaultLeaveBalanceDto } from './dto/grant-default-leave-balance.dto';
 import { LeaveBalanceQueryDto } from './dto/leave-balance-query.dto';
+import { LeaveBalanceStatusQueryDto } from './dto/leave-balance-status-query.dto';
 import { LeaveBalanceService } from './leave-balance.service';
 
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('leave-balances')
 export class LeaveBalanceController {
   constructor(private readonly leaveBalanceService: LeaveBalanceService) {}
-
-  @Post('grant')
-  // @Permissions('leave-balance:grant')
-  grant(@Body() dto: GrantLeaveBalanceDto, @CurrentUser() user: JwtUser) {
-    return this.leaveBalanceService.grant(dto, user);
-  }
 
   @Post('grant-default')
   // @Permissions('leave-balance:grant')
@@ -61,6 +55,12 @@ export class LeaveBalanceController {
     @Query() query: LeaveBalanceQueryDto,
   ) {
     return this.leaveBalanceService.findMyHistory(user, query);
+  }
+
+  @Get('granted-employee-ids')
+  // @Permissions('leave-balance:read')
+  findGrantedEmployeeIds(@Query() query: LeaveBalanceStatusQueryDto) {
+    return this.leaveBalanceService.findGrantedEmployeeIds(query);
   }
 
   @Get('employee/:employeeId')

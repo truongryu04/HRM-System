@@ -11,9 +11,9 @@ import { LeaveType } from '../leave-request/entities/leave-type.entity';
 import { Request } from '../request/entities/request.entity';
 import { User } from '../user/user.entity';
 import { AdjustLeaveBalanceDto } from './dto/adjust-leave-balance.dto';
-import { GrantLeaveBalanceDto } from './dto/grant-leave-balance.dto';
 import { GrantDefaultLeaveBalanceDto } from './dto/grant-default-leave-balance.dto';
 import { LeaveBalanceQueryDto } from './dto/leave-balance-query.dto';
+import { LeaveBalanceStatusQueryDto } from './dto/leave-balance-status-query.dto';
 import { LeaveBalanceTransaction } from './entities/leave-balance-transaction.entity';
 import { LeaveBalance } from './entities/leave-balance.entity';
 import { LeaveBalanceTransactionType } from './enums/leave-balance-transaction-type.enum';
@@ -27,78 +27,6 @@ export class LeaveBalanceService {
     @InjectRepository(LeaveBalanceTransaction)
     private readonly transactionRepository: Repository<LeaveBalanceTransaction>,
   ) {}
-
-  async grant(dto: GrantLeaveBalanceDto, user: JwtUser) {
-    this.validateHalfDayIncrement(dto.annualGranted, 'Quota năm');
-
-    return this.dataSource.transaction(async (manager) => {
-      const employee = await manager.findOne(Employee, {
-        where: { id: dto.employeeId, isDeleted: false },
-      });
-      if (!employee) {
-        throw new NotFoundException('Không tìm thấy nhân viên');
-      }
-
-      const leaveType = await manager.findOne(LeaveType, {
-        where: { id: dto.leaveTypeId, isDeleted: false, isActive: true },
-      });
-      if (!leaveType) {
-        throw new NotFoundException('Không tìm thấy loại nghỉ phép');
-      }
-      if (!leaveType.deductFromBalance) {
-        throw new BadRequestException('Loại nghỉ này không áp dụng số dư phép');
-      }
-
-      let balance = await manager.findOne(LeaveBalance, {
-        where: {
-          employee: { id: employee.id },
-          leaveType: { id: leaveType.id },
-          year: dto.year,
-        },
-        lock: { mode: 'pessimistic_write' },
-      });
-
-      const previousGranted = Number(balance?.annualGranted ?? 0);
-      if (!balance) {
-        balance = manager.create(LeaveBalance, {
-          employee,
-          leaveType,
-          year: dto.year,
-        });
-      }
-      const delta = dto.annualGranted - previousGranted;
-      if (balance && this.getRemaining(balance) + delta < 0) {
-        throw new BadRequestException(
-          'Quota mới thấp hơn số ngày phép đã sử dụng',
-        );
-      }
-      balance.annualGranted = dto.annualGranted;
-      balance = await manager.save(LeaveBalance, balance);
-
-      if (delta !== 0) {
-        await manager.save(
-          LeaveBalanceTransaction,
-          manager.create(LeaveBalanceTransaction, {
-            balance,
-            type:
-              previousGranted === 0
-                ? LeaveBalanceTransactionType.GRANT
-                : LeaveBalanceTransactionType.ADJUSTMENT,
-            amount: delta,
-            createdBy: { id: user.id } as User,
-            note: dto.note ?? `Cấp quota phép năm ${dto.year}`,
-          }),
-        );
-      }
-
-      return this.toResponse(
-        await manager.findOneOrFail(LeaveBalance, {
-          where: { id: balance.id },
-          relations: { employee: true, leaveType: true },
-        }),
-      );
-    });
-  }
 
   async grantDefault(dto: GrantDefaultLeaveBalanceDto, user: JwtUser) {
     this.validateHalfDayIncrement(dto.annualGranted, 'Quota năm');
@@ -116,6 +44,7 @@ export class LeaveBalanceService {
 
       const employees = await manager.find(Employee, {
         where: {
+          id: In(dto.employeeIds),
           isDeleted: false,
           status: In([
             EmployeeStatus.ACTIVE,
@@ -127,6 +56,7 @@ export class LeaveBalanceService {
       });
 
       const result = {
+        requestedEmployees: dto.employeeIds.length,
         totalEmployees: employees.length,
         created: 0,
         updated: 0,
@@ -254,6 +184,19 @@ export class LeaveBalanceService {
 
   async findMyHistory(user: JwtUser, query: LeaveBalanceQueryDto) {
     return this.findHistory(user.employeeId, query);
+  }
+
+  async findGrantedEmployeeIds(query: LeaveBalanceStatusQueryDto) {
+    const balances = await this.balanceRepository.find({
+      where: {
+        year: query.year,
+        leaveType: { id: query.leaveTypeId },
+        employee: { isDeleted: false },
+      },
+      relations: { employee: true },
+    });
+
+    return balances.map((balance) => balance.employee.id);
   }
 
   async findHistory(employeeId: number, query: LeaveBalanceQueryDto) {
