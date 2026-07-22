@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, Like, Repository } from 'typeorm';
+import { DataSource, EntityManager, IsNull, Like, Repository } from 'typeorm';
 import { Employee } from '../employee/employee.entity';
 import { User } from '../user/user.entity';
 import type { JwtUser } from '../auth/jwt-user.interface';
@@ -26,6 +26,7 @@ import { RequestApprovedHandlerRegistry } from './request-approved-handler.regis
 
 interface CreateBusinessRequestInput {
   requestTypeCode: RequestTypeCode;
+  requestSubtypeKey?: string;
   employee: Employee;
   createdBy: User;
   title: string;
@@ -66,7 +67,11 @@ export class RequestService {
       input.requestTypeCode,
       manager,
     );
-    const flow = await this.ensureDefaultFlow(requestType, manager);
+    const flow = await this.ensureDefaultFlow(
+      requestType,
+      input.requestSubtypeKey,
+      manager,
+    );
     const steps = await manager.find(ApprovalFlowStep, {
       where: { flow: { id: flow.id }, isDeleted: false },
       relations: { specificUser: true },
@@ -433,11 +438,29 @@ export class RequestService {
 
   private async ensureDefaultFlow(
     requestType: RequestType,
+    requestSubtypeKey: string | undefined,
     manager: EntityManager,
   ): Promise<ApprovalFlow> {
-    let flow = await manager.findOne(ApprovalFlow, {
+    const normalizedSubtypeKey = requestSubtypeKey?.trim();
+    if (normalizedSubtypeKey) {
+      const subtypeFlow = await manager.findOne(ApprovalFlow, {
+        where: {
+          requestType: { id: requestType.id },
+          subtypeKey: normalizedSubtypeKey,
+          isDefault: true,
+          isActive: true,
+          isDeleted: false,
+        },
+      });
+      if (subtypeFlow) {
+        return subtypeFlow;
+      }
+    }
+
+    const flow = await manager.findOne(ApprovalFlow, {
       where: {
         requestType: { id: requestType.id },
+        subtypeKey: IsNull(),
         isDefault: true,
         isActive: true,
         isDeleted: false,
@@ -448,7 +471,9 @@ export class RequestService {
     }
 
     throw new BadRequestException(
-      'Request type chua co approval flow mac dinh. Hay cau hinh approval flow va tao step tu approval step template truoc',
+      normalizedSubtypeKey
+        ? 'Loai chi tiet cua request chua co approval flow mac dinh'
+        : 'Request type chua co approval flow mac dinh. Hay cau hinh approval flow va tao step tu approval step template truoc',
     );
   }
 

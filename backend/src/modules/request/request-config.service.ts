@@ -141,13 +141,16 @@ export class RequestConfigService {
   }
   async createApprovalFlow(dto: CreateApprovalFlowDto): Promise<ApprovalFlow> {
     const requestType = await this.findOneRequestType(dto.requestTypeId);
+    const subtypeKey = this.normalizeOptionalText(dto.subtypeKey);
     if (dto.isDefault) {
-      await this.unsetDefaultFlows(requestType.id);
+      await this.unsetDefaultFlows(requestType.id, subtypeKey);
     }
 
     const approvalFlow = this.approvalFlowRepository.create({
       requestType,
       name: dto.name.trim(),
+      subtypeKey,
+      subtypeLabel: this.normalizeOptionalText(dto.subtypeLabel),
       isActive: dto.isActive ?? true,
       isDefault: dto.isDefault ?? false,
       isDeleted: false,
@@ -194,12 +197,21 @@ export class RequestConfigService {
     if (dto.name !== undefined) {
       approvalFlow.name = dto.name.trim();
     }
+    if (dto.subtypeKey !== undefined) {
+      approvalFlow.subtypeKey = this.normalizeOptionalText(dto.subtypeKey);
+    }
+    if (dto.subtypeLabel !== undefined) {
+      approvalFlow.subtypeLabel = this.normalizeOptionalText(dto.subtypeLabel);
+    }
     if (dto.isActive !== undefined) {
       approvalFlow.isActive = dto.isActive;
     }
     if (dto.isDefault !== undefined) {
       if (dto.isDefault) {
-        await this.unsetDefaultFlows(approvalFlow.requestType.id);
+        await this.unsetDefaultFlows(
+          approvalFlow.requestType.id,
+          approvalFlow.subtypeKey,
+        );
       }
       approvalFlow.isDefault = dto.isDefault;
     }
@@ -449,14 +461,29 @@ export class RequestConfigService {
     return user;
   }
 
-  private async unsetDefaultFlows(requestTypeId: number): Promise<void> {
-    await this.approvalFlowRepository
+  private async unsetDefaultFlows(
+    requestTypeId: number,
+    subtypeKey: string | null,
+  ): Promise<void> {
+    const query = this.approvalFlowRepository
       .createQueryBuilder()
       .update(ApprovalFlow)
       .set({ isDefault: false })
       .where('request_type_id = :requestTypeId', { requestTypeId })
-      .andWhere('"isDeleted" = false')
-      .execute();
+      .andWhere('"isDeleted" = false');
+
+    if (subtypeKey) {
+      query.andWhere('subtype_key = :subtypeKey', { subtypeKey });
+    } else {
+      query.andWhere('subtype_key IS NULL');
+    }
+
+    await query.execute();
+  }
+
+  private normalizeOptionalText(value?: string): string | null {
+    const normalized = value?.trim();
+    return normalized ? normalized : null;
   }
 
   private async assertStepOrderAvailable(

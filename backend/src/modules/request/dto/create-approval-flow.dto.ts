@@ -1,4 +1,10 @@
-import { IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 export class CreateApprovalFlowDto {
   @IsInt()
@@ -8,6 +14,16 @@ export class CreateApprovalFlowDto {
   name!: string;
 
   @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  subtypeKey?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  subtypeLabel?: string;
+
+  @IsOptional()
   @IsBoolean()
   isActive?: boolean;
 
@@ -15,4 +31,3 @@ export class CreateApprovalFlowDto {
   @IsBoolean()
   isDefault?: boolean;
 }
-

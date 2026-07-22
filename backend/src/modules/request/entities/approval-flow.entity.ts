@@ -21,6 +21,17 @@ export class ApprovalFlow {
   @Column()
   name!: string;
 
+  @Column({ name: 'subtype_key', type: 'varchar', length: 100, nullable: true })
+  subtypeKey!: string | null;
+
+  @Column({
+    name: 'subtype_label',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  subtypeLabel!: string | null;
+
   @Column({ default: true })
   isActive!: boolean;
 

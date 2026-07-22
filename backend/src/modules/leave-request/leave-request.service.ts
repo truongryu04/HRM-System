@@ -108,6 +108,7 @@ export class LeaveRequestService
       const request = await this.requestService.createBusinessRequest(
         {
           requestTypeCode: RequestTypeCode.LEAVE_REQUEST,
+          requestSubtypeKey: String(leaveType.id),
           employee,
           createdBy,
           title: `Xin nghỉ phép ${dto.startDate} đến ${dto.endDate}`,
