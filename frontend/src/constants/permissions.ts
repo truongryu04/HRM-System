@@ -80,6 +80,12 @@ export const PERMISSIONS = {
     DELETE: "leave-type:delete",
   },
 
+  LEAVE_BALANCE: {
+    READ: "leave-balance:read",
+    GRANT: "leave-balance:grant",
+    ADJUST: "leave-balance:adjust",
+  },
+
   APPROVAL_FLOW: {
     READ: "approval-flow:read",
     CREATE: "approval-flow:create",

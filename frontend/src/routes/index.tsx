@@ -202,7 +202,13 @@ export const router = createBrowserRouter([
           {
             path: "leave-balances",
             element: (
-              <PermissionRoute allPermissions={[PERMISSIONS.EMPLOYEE.READ]}>
+              <PermissionRoute
+                allPermissions={[
+                  PERMISSIONS.LEAVE_BALANCE.READ,
+                  PERMISSIONS.EMPLOYEE.READ,
+                  PERMISSIONS.LEAVE_TYPE.READ,
+                ]}
+              >
                 <LeaveBalanceManagementPage />
               </PermissionRoute>
             ),

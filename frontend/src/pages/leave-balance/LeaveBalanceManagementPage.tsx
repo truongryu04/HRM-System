@@ -52,6 +52,8 @@ import type {
 import { getApiErrorMessage } from "../../utils/api-error";
 import { GrantDefaultLeaveBalanceDialog } from "./GrantDefaultLeaveBalanceDialog";
 import { EmployeeSearchCombobox } from "./EmployeeSearchCombobox";
+import { PERMISSIONS } from "../../constants/permissions";
+import { usePermissionAccess } from "../../hooks/usePermissionAccess";
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 6 }, (_, index) => currentYear + 1 - index);
@@ -79,6 +81,9 @@ function formatDate(value: string) {
 }
 
 export default function LeaveBalanceManagementPage() {
+  const { can } = usePermissionAccess();
+  const canGrantBalance = can(PERMISSIONS.LEAVE_BALANCE.GRANT);
+  const canAdjustBalance = can(PERMISSIONS.LEAVE_BALANCE.ADJUST);
   const queryClient = useQueryClient();
   const [employeeId, setEmployeeId] = useState<number | null>(null);
   const [year, setYear] = useState(currentYear);
@@ -167,15 +172,17 @@ export default function LeaveBalanceManagementPage() {
               Quản lý số ngày nghỉ phép
             </h2>
           </div>
-          <div className="flex flex-wrap justify-end gap-2">
-            <GrantDefaultLeaveBalanceDialog
-              year={year}
-              leaveTypes={leaveTypes}
-              employees={employees}
-              employeesLoading={employeesQuery.isLoading}
-              employeesError={employeesQuery.isError}
-            />
-          </div>
+          {canGrantBalance ? (
+            <div className="flex flex-wrap justify-end gap-2">
+              <GrantDefaultLeaveBalanceDialog
+                year={year}
+                leaveTypes={leaveTypes}
+                employees={employees}
+                employeesLoading={employeesQuery.isLoading}
+                employeesError={employeesQuery.isError}
+              />
+            </div>
+          ) : null}
         </div>
 
         <Card>
@@ -250,14 +257,16 @@ export default function LeaveBalanceManagementPage() {
                       <TableHead>Điều chỉnh</TableHead>
                       <TableHead>Đã dùng</TableHead>
                       <TableHead>Còn lại</TableHead>
-                      <TableHead className="text-right">Thao tác</TableHead>
+                      {canAdjustBalance ? (
+                        <TableHead className="text-right">Thao tác</TableHead>
+                      ) : null}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {balances.length === 0 ? (
                       <TableRow>
                         <TableCell
-                          colSpan={7}
+                          colSpan={canAdjustBalance ? 7 : 6}
                           className="py-12 text-center text-muted-foreground"
                         >
                           Nhân viên chưa được cấp quota cho năm {year}.
@@ -292,15 +301,17 @@ export default function LeaveBalanceManagementPage() {
                               {formatDays(balance.remaining)}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-right">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => openAdjust(balance)}
-                            >
-                              <PencilLine className="size-4" /> Điều chỉnh
-                            </Button>
-                          </TableCell>
+                          {canAdjustBalance ? (
+                            <TableCell className="text-right">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openAdjust(balance)}
+                              >
+                                <PencilLine className="size-4" /> Điều chỉnh
+                              </Button>
+                            </TableCell>
+                          ) : null}
                         </TableRow>
                       ))
                     )}
@@ -372,66 +383,68 @@ export default function LeaveBalanceManagementPage() {
           </>
         )}
 
-        <Dialog
-          open={Boolean(adjustTarget)}
-          onOpenChange={(open) => {
-            if (!open) {
-              setAdjustTarget(null);
-              setDialogError(null);
-            }
-          }}
-        >
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Điều chỉnh số ngày nghỉ phép</DialogTitle>
-              <DialogDescription>
-                Nhập số dương để cộng hoặc số âm để trừ. Số dư sau điều chỉnh
-                không được âm.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="adjust-amount">Mức điều chỉnh (ngày)</Label>
-                <Input
-                  id="adjust-amount"
-                  type="number"
-                  step="0.5"
-                  value={adjustAmount}
-                  onChange={(event) => setAdjustAmount(event.target.value)}
-                  placeholder="Ví dụ: 1 hoặc -0.5"
-                />
+        {canAdjustBalance ? (
+          <Dialog
+            open={Boolean(adjustTarget)}
+            onOpenChange={(open) => {
+              if (!open) {
+                setAdjustTarget(null);
+                setDialogError(null);
+              }
+            }}
+          >
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Điều chỉnh số ngày nghỉ phép</DialogTitle>
+                <DialogDescription>
+                  Nhập số dương để cộng hoặc số âm để trừ. Số dư sau điều chỉnh
+                  không được âm.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="adjust-amount">Mức điều chỉnh (ngày)</Label>
+                  <Input
+                    id="adjust-amount"
+                    type="number"
+                    step="0.5"
+                    value={adjustAmount}
+                    onChange={(event) => setAdjustAmount(event.target.value)}
+                    placeholder="Ví dụ: 1 hoặc -0.5"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="adjust-reason">Lý do</Label>
+                  <Textarea
+                    id="adjust-reason"
+                    value={adjustReason}
+                    onChange={(event) => setAdjustReason(event.target.value)}
+                    placeholder="Nhập lý do điều chỉnh"
+                  />
+                </div>
+                {dialogError ? (
+                  <p role="alert" className="text-sm text-destructive">
+                    {dialogError}
+                  </p>
+                ) : null}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="adjust-reason">Lý do</Label>
-                <Textarea
-                  id="adjust-reason"
-                  value={adjustReason}
-                  onChange={(event) => setAdjustReason(event.target.value)}
-                  placeholder="Nhập lý do điều chỉnh"
-                />
-              </div>
-              {dialogError ? (
-                <p role="alert" className="text-sm text-destructive">
-                  {dialogError}
-                </p>
-              ) : null}
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setAdjustTarget(null)}>
-                Hủy
-              </Button>
-              <Button
-                variant="primary"
-                disabled={adjustMutation.isPending}
-                onClick={submitAdjustment}
-              >
-                {adjustMutation.isPending
-                  ? "Đang lưu..."
-                  : "Xác nhận điều chỉnh"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setAdjustTarget(null)}>
+                  Hủy
+                </Button>
+                <Button
+                  variant="primary"
+                  disabled={adjustMutation.isPending}
+                  onClick={submitAdjustment}
+                >
+                  {adjustMutation.isPending
+                    ? "Đang lưu..."
+                    : "Xác nhận điều chỉnh"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        ) : null}
       </div>
     </Card>
   );

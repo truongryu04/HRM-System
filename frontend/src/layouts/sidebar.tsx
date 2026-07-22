@@ -24,9 +24,23 @@ type NavGroup = PermissionRequirement & {
 const navItems: Array<NavItem | NavGroup> = [
   { to: "/", label: "Lịch làm việc" },
   {
-    to: "/attendance",
-    label: "Quản lý chấm công",
-    allPermissions: [PERMISSIONS.ATTENDANCE.READ],
+    label: "Quản lý chấm công & phép",
+    children: [
+      {
+        to: "/attendance",
+        label: "Quản lý chấm công",
+        allPermissions: [PERMISSIONS.ATTENDANCE.READ],
+      },
+      {
+        to: "/leave-balances",
+        label: "Quản lý số dư phép",
+        allPermissions: [
+          PERMISSIONS.LEAVE_BALANCE.READ,
+          PERMISSIONS.EMPLOYEE.READ,
+          PERMISSIONS.LEAVE_TYPE.READ,
+        ],
+      },
+    ],
   },
   {
     label: "Các yêu cầu",
@@ -46,11 +60,6 @@ const navItems: Array<NavItem | NavGroup> = [
         to: "/leave-types",
         label: "Loại nghỉ phép",
         allPermissions: [PERMISSIONS.LEAVE_TYPE.READ],
-      },
-      {
-        to: "/leave-balances",
-        label: "Quản lý số dư phép",
-        allPermissions: [PERMISSIONS.EMPLOYEE.READ],
       },
       {
         to: "/request-types",
@@ -153,11 +162,13 @@ export function Sidebar({ isOpen }: SidebarProps) {
     <aside
       id="main-sidebar"
       hidden={!isOpen}
-      className="w-64 shrink-0 border-r bg-background"
+      className="flex w-64 shrink-0 flex-col border-r border-primary-hover/25 bg-primary text-white shadow-sm"
     >
-      <div className="p-4 text-xl font-bold">HRM System</div>
+      <div className="flex h-16 shrink-0 items-center border-b border-primary-foreground/15 px-5">
+        <div className="text-xl font-bold tracking-tight">HRM System</div>
+      </div>
 
-      <nav className="space-y-1 p-2">
+      <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto p-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {visibleNavItems.map((item) => {
           if (!isNavGroup(item)) {
             return <SidebarLink key={item.to} item={item} />;
@@ -171,8 +182,8 @@ export function Sidebar({ isOpen }: SidebarProps) {
               <button
                 type="button"
                 className={cn(
-                  "flex w-full items-center justify-between rounded-md px-3 py-2 text-left hover:bg-muted",
-                  isActive && "bg-muted font-medium",
+                  "flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left text-sm font-medium text-white transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-hover-foreground/70",
+                  isActive && "bg-primary-hover shadow-sm",
                 )}
                 onClick={() =>
                   setOpenGroupLabel((currentLabel) =>
@@ -184,14 +195,14 @@ export function Sidebar({ isOpen }: SidebarProps) {
                 <span>{item.label}</span>
                 <ChevronDown
                   className={cn(
-                    "size-4 transition-transform",
+                    "size-4 shrink-0 opacity-75 transition-transform",
                     isOpen && "rotate-180",
                   )}
                 />
               </button>
 
               {isOpen ? (
-                <div className="mt-1 space-y-1 pl-4">
+                <div className="mt-1 ml-3 space-y-1 border-l border-primary-foreground/20 pl-2">
                   {item.children.map((child) => (
                     <SidebarLink key={child.to} item={child} nested />
                   ))}
@@ -219,9 +230,9 @@ function SidebarLink({
     <NavLink
       to={item.to}
       className={cn(
-        "block rounded-md px-3 py-2 hover:bg-muted",
-        nested && "text-sm text-muted-foreground",
-        isActive && "bg-muted font-medium text-foreground",
+        "block rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-hover-foreground/70",
+        nested && "py-2 text-[13px] text-white",
+        isActive && "bg-primary-hover shadow-sm",
       )}
     >
       {item.label}

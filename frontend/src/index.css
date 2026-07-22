@@ -12,9 +12,9 @@
   --card: oklch(1 0 0);
   --popover: oklch(1 0 0);
 
-  --primary: oklch(0.704 0.14 182.503);
-  --primary-foreground: oklch(30.54% 0.00578 17.145);
-  --primary-hover: oklch(0.511 0.096 186.391);
+  --primary: oklch(65.875% 0.06548 166.581 / 0.925);
+  --primary-foreground: oklch(16.376% 0.00002 271.152);
+  --primary-hover: oklch(58.372% 0.06496 166.705 / 0.925);
   --primary-hover-foreground: oklch(100% 0.00011 271.152 / 0.971);
 
   --border: oklch(0.922 0 0);

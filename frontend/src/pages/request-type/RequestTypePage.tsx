@@ -174,10 +174,7 @@ export default function RequestTypePage() {
 
           <div className="flex flex-wrap gap-2">
             {canCreate ? (
-              <Button
-                onClick={openCreateDialog}
-                className="bg-teal-500 hover:bg-teal-600 hover:text-white"
-              >
+              <Button onClick={openCreateDialog} variant="primary">
                 <Plus className="size-4" />
                 Thêm loại yêu cầu
               </Button>
