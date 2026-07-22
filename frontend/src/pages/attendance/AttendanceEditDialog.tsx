@@ -65,13 +65,13 @@ export function AttendanceEditDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="min-w-0 overflow-x-hidden sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Chỉnh sửa chấm công</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div>
+        <div className="min-w-0 space-y-4">
+          <div className="min-w-0">
             <Label>Nhân viên</Label>
 
             <Input
@@ -86,21 +86,23 @@ export function AttendanceEditDialog({
             <Input readOnly value={attendance?.attendanceDate ?? ""} />
           </div>
 
-          <div>
+          <div className="min-w-0">
             <Label>Giờ vào</Label>
 
             <Input
               type="datetime-local"
+              className="max-w-full min-w-0"
               value={checkInTime}
               onChange={(e) => setCheckInTime(e.target.value)}
             />
           </div>
 
-          <div>
+          <div className="min-w-0">
             <Label>Giờ ra</Label>
 
             <Input
               type="datetime-local"
+              className="max-w-full min-w-0"
               value={checkOutTime}
               onChange={(e) => setCheckOutTime(e.target.value)}
             />

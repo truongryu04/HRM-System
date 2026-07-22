@@ -164,7 +164,7 @@ export default function LeaveBalanceManagementPage() {
   const error = balancesQuery.isError || historyQuery.isError;
 
   return (
-    <Card className="p-6">
+    <Card className="p-4 sm:p-6">
       <div className="space-y-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>

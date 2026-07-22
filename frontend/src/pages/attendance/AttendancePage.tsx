@@ -33,7 +33,7 @@ export default function AttendancePage() {
   const canCheckOut =
     !!todayAttendance?.checkInTime && !todayAttendance?.checkOutTime;
   return (
-    <Card className="p-6">
+    <Card className="p-4 sm:p-6">
       <CalendarHeader
         month={month}
         year={year}

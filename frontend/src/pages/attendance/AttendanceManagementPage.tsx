@@ -92,7 +92,7 @@ export default function AttendanceManagementPage() {
   };
 
   return (
-    <Card className="p-6">
+    <Card className="p-4 sm:p-6">
       <div className="space-y-6">
         <div>
           <h2 className="text-xl font-bold">Quản lý chấm công</h2>

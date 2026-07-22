@@ -4,7 +4,7 @@ import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "../../components/ui/button";
-import { Card, CardContent } from "../../components/ui/card";
+import { Card } from "../../components/ui/card";
 import {
   requestTypesQueryKey,
   useRequestTypes,
@@ -163,7 +163,7 @@ export default function RequestTypePage() {
     !isLoading && !isError && requestTypes.length === 0;
 
   return (
-    <Card className="p-6">
+    <Card className="p-4 sm:p-6">
       <div className="space-y-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>

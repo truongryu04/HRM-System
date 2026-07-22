@@ -33,7 +33,7 @@ export function Header({ isSidebarOpen, onToggleSidebar }: HeaderProps) {
   };
   const { data: employee } = useEmployeeProfile(Boolean(token));
   return (
-    <header className="flex h-16 items-center justify-between border-b px-6">
+    <header className="flex h-16 shrink-0 items-center justify-between border-b px-3 sm:px-6">
       <Button
         type="button"
         size="icon-lg"
@@ -52,7 +52,7 @@ export function Header({ isSidebarOpen, onToggleSidebar }: HeaderProps) {
         <Menu className="size-6" />
       </Button>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-1 sm:gap-3">
         <Button
           size="icon"
           variant="ghost"

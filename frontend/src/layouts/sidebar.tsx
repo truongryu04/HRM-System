@@ -136,9 +136,10 @@ function getActiveGroupLabel(pathname: string) {
 
 type SidebarProps = {
   isOpen: boolean;
+  onNavigate: () => void;
 };
 
-export function Sidebar({ isOpen }: SidebarProps) {
+export function Sidebar({ isOpen, onNavigate }: SidebarProps) {
   const location = useLocation();
   const { canAll, canAny } = usePermissionAccess();
   const isAllowed = (item: PermissionRequirement) =>
@@ -162,7 +163,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
     <aside
       id="main-sidebar"
       hidden={!isOpen}
-      className="flex w-64 shrink-0 flex-col border-r border-primary-hover/25 bg-primary text-white shadow-sm"
+      className="fixed inset-y-0 left-0 z-50 flex w-64 shrink-0 flex-col border-r border-primary-hover/25 bg-primary text-white shadow-lg lg:static lg:z-auto lg:shadow-sm"
     >
       <div className="flex h-16 shrink-0 items-center border-b border-primary-foreground/15 px-5">
         <div className="text-xl font-bold tracking-tight">HRM System</div>
@@ -171,7 +172,9 @@ export function Sidebar({ isOpen }: SidebarProps) {
       <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto p-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {visibleNavItems.map((item) => {
           if (!isNavGroup(item)) {
-            return <SidebarLink key={item.to} item={item} />;
+            return (
+              <SidebarLink key={item.to} item={item} onNavigate={onNavigate} />
+            );
           }
 
           const isOpen = openGroupLabel === item.label;
@@ -204,7 +207,12 @@ export function Sidebar({ isOpen }: SidebarProps) {
               {isOpen ? (
                 <div className="mt-1 ml-3 space-y-1 border-l border-primary-foreground/20 pl-2">
                   {item.children.map((child) => (
-                    <SidebarLink key={child.to} item={child} nested />
+                    <SidebarLink
+                      key={child.to}
+                      item={child}
+                      nested
+                      onNavigate={onNavigate}
+                    />
                   ))}
                 </div>
               ) : null}
@@ -219,9 +227,11 @@ export function Sidebar({ isOpen }: SidebarProps) {
 function SidebarLink({
   item,
   nested = false,
+  onNavigate,
 }: {
   item: NavItem;
   nested?: boolean;
+  onNavigate: () => void;
 }) {
   const location = useLocation();
   const isActive = isSidebarLinkActive(location.pathname, item.to);
@@ -229,6 +239,7 @@ function SidebarLink({
   return (
     <NavLink
       to={item.to}
+      onClick={onNavigate}
       className={cn(
         "block rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-hover-foreground/70",
         nested && "py-2 text-[13px] text-white",

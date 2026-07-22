@@ -31,7 +31,7 @@ export default function RequestCreatePage() {
   };
 
   return (
-    <Card className="p-6">
+    <Card className="p-4 sm:p-6">
       <RequestForm
         employeeId={employeeId}
         requestTypes={requestTypes.filter(

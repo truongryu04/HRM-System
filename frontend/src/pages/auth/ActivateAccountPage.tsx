@@ -66,7 +66,7 @@ export default function ActivateAccountPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
-      <div className="w-full max-w-md rounded-xl border bg-background p-8 shadow-sm">
+      <div className="w-full max-w-md rounded-xl border bg-background p-6 shadow-sm sm:p-8">
         <div className="space-y-2 text-center">
           <h1 className="text-3xl font-bold tracking-tight">
             Kích hoạt tài khoản

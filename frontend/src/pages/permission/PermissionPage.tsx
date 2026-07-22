@@ -1,9 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../../components/ui/card";
+import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { PermissionMatrixTable } from "./PermissionMatrixTable";
 import { useState } from "react";
@@ -52,9 +47,9 @@ export default function PermissionPage() {
     }
   };
   return (
-    <Card className="p-6">
+    <Card className="p-4 sm:p-6">
       <div className="space-y-6">
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row">
           <div>
             <h2 className="text-xl font-bold tracking-tight">
               Ma trận phân quyền

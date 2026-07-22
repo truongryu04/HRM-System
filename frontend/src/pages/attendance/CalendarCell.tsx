@@ -43,21 +43,21 @@ export function CalendarCell({ date, attendance }: Props) {
     <div
       className={`
         border-r border-b
-        p-2
-        min-h-[140px]
+        min-w-0 p-0.5 sm:p-2
+        min-h-20 sm:min-h-[140px]
         relative
         ${weekend ? "bg-cyan-50" : ""}
         ${today ? "bg-yellow-50" : ""}
       `}
     >
       <div className="flex justify-end">
-        <span className="text-lg">{format(date, "d")}</span>
+        <span className="text-sm sm:text-lg">{format(date, "d")}</span>
       </div>
 
-      <div className="mt-2 flex flex-wrap justify-center gap-1">
+      <div className="mt-1 flex min-w-0 flex-col items-center gap-1 sm:mt-2 sm:flex-row sm:flex-wrap sm:justify-center">
         {shouldShowAttendance && checkInTime && (
           <span
-            className={`inline-flex min-w-12 items-center justify-center rounded-full px-1.5 py-0.5 text-sm font-medium ${checkInClass}`}
+            className={`inline-flex w-full min-w-0 items-center justify-center rounded-full px-0.5 py-0.5 text-[10px] font-medium sm:w-auto sm:min-w-12 sm:px-1.5 sm:text-sm ${checkInClass}`}
             title={attendance?.isLate ? "Check-in muộn" : "Giờ check-in"}
           >
             {checkInTime}
@@ -66,7 +66,7 @@ export function CalendarCell({ date, attendance }: Props) {
 
         {shouldShowAttendance && checkOutTime && (
           <span
-            className={`inline-flex min-w-12 items-center justify-center rounded-full px-1.5 py-0.5 text-sm font-medium ${checkOutClass}`}
+            className={`inline-flex w-full min-w-0 items-center justify-center rounded-full px-0.5 py-0.5 text-[10px] font-medium sm:w-auto sm:min-w-12 sm:px-1.5 sm:text-sm ${checkOutClass}`}
             title={attendance?.isEarlyLeave ? "Check-out sớm" : "Giờ check-out"}
           >
             {checkOutTime}
@@ -75,7 +75,7 @@ export function CalendarCell({ date, attendance }: Props) {
 
         {isOnLeave && (
           <span
-            className="inline-flex items-center justify-center rounded-full bg-sky-600 px-2 py-0.5 text-sm font-medium text-white"
+            className="inline-flex w-full min-w-0 items-center justify-center truncate rounded-full bg-sky-600 px-0.5 py-0.5 text-[10px] font-medium text-white sm:w-auto sm:px-2 sm:text-sm"
             title={attendance?.leave?.type}
             aria-label={`${leaveLabel}: ${attendance?.leave?.type}`}
           >
@@ -85,7 +85,7 @@ export function CalendarCell({ date, attendance }: Props) {
 
         {isAbsent && (
           <span
-            className="inline-flex min-w-12 items-center justify-center rounded-full bg-[#fd3995] px-1.5 py-0.5 text-sm font-medium text-white"
+            className="inline-flex w-full min-w-0 items-center justify-center rounded-full bg-[#fd3995] px-0.5 py-0.5 text-[10px] font-medium text-white sm:w-auto sm:min-w-12 sm:px-1.5 sm:text-sm"
             aria-label="Không có dữ liệu check-in và check-out"
           >
             K
