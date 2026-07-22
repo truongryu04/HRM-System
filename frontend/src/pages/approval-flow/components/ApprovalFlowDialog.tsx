@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "../../../components/ui/select";
 import type { RequestType } from "@/types/request.type";
+import type { LeaveType } from "@/types/leave.type";
 import type {
   ApprovalFlow,
   CreateApprovalFlowRequest,
@@ -30,6 +31,9 @@ interface ApprovalFlowDialogProps {
   onOpenChange: (open: boolean) => void;
   flow: ApprovalFlow | null;
   requestTypes: RequestType[];
+  leaveTypes: LeaveType[];
+  leaveTypesLoading: boolean;
+  canReadLeaveTypes: boolean;
   loading: boolean;
   onSubmit: (payload: CreateApprovalFlowRequest) => Promise<void>;
 }
@@ -39,6 +43,9 @@ export function ApprovalFlowDialog({
   onOpenChange,
   flow,
   requestTypes,
+  leaveTypes,
+  leaveTypesLoading,
+  canReadLeaveTypes,
   loading,
   onSubmit,
 }: ApprovalFlowDialogProps) {
@@ -46,12 +53,17 @@ export function ApprovalFlowDialog({
   const [requestTypeId, setRequestTypeId] = useState(
     flow?.requestType?.id ? String(flow.requestType.id) : "",
   );
+  const [subtypeKey, setSubtypeKey] = useState(flow?.subtypeKey ?? "");
   const [isActive, setIsActive] = useState(
     flow ? String(flow.isActive) : "true",
   );
   const [isDefault, setIsDefault] = useState(
     flow ? String(flow.isDefault) : "false",
   );
+  const selectedRequestType = requestTypes.find(
+    (requestType) => requestType.id === Number(requestTypeId),
+  );
+  const requiresLeaveType = selectedRequestType?.code === "LEAVE_REQUEST";
 
   const handleSubmit = async () => {
     if (!name.trim()) {
@@ -64,9 +76,20 @@ export function ApprovalFlowDialog({
       return;
     }
 
+    if (requiresLeaveType && !subtypeKey) {
+      toast.error("Vui lòng chọn loại nghỉ phép");
+      return;
+    }
+
+    const selectedLeaveType = leaveTypes.find(
+      (leaveType) => leaveType.id === Number(subtypeKey),
+    );
+
     await onSubmit({
       name: name.trim(),
       requestTypeId: Number(requestTypeId),
+      subtypeKey: requiresLeaveType ? subtypeKey : "",
+      subtypeLabel: requiresLeaveType ? (selectedLeaveType?.name ?? "") : "",
       isActive: isActive === "true",
       isDefault: isDefault === "true",
     });
@@ -99,7 +122,13 @@ export function ApprovalFlowDialog({
 
           <div className="space-y-2">
             <Label>Loại request</Label>
-            <Select value={requestTypeId} onValueChange={setRequestTypeId}>
+            <Select
+              value={requestTypeId}
+              onValueChange={(value) => {
+                setRequestTypeId(value);
+                setSubtypeKey("");
+              }}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Chọn loại request" />
               </SelectTrigger>
@@ -115,6 +144,44 @@ export function ApprovalFlowDialog({
               </SelectContent>
             </Select>
           </div>
+
+          {requiresLeaveType ? (
+            <div className="space-y-2">
+              <Label>Loại nghỉ phép</Label>
+              <Select
+                value={subtypeKey}
+                onValueChange={setSubtypeKey}
+                disabled={leaveTypesLoading || !canReadLeaveTypes}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue
+                    placeholder={
+                      leaveTypesLoading
+                        ? "Đang tải loại nghỉ phép..."
+                        : "Chọn loại nghỉ phép"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {leaveTypes
+                    .filter((leaveType) => leaveType.isActive !== false)
+                    .map((leaveType) => (
+                      <SelectItem
+                        key={leaveType.id}
+                        value={String(leaveType.id)}
+                      >
+                        {leaveType.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+              {!canReadLeaveTypes ? (
+                <p className="text-sm text-destructive">
+                  Bạn cần quyền xem loại nghỉ phép để cấu hình luồng này.
+                </p>
+              ) : null}
+            </div>
+          ) : null}
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">

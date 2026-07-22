@@ -23,10 +23,11 @@ export const useLeaveRequests = () => {
   });
 };
 
-export const useLeaveTypes = () => {
+export const useLeaveTypes = (enabled = true) => {
   return useQuery({
     queryKey: leaveRequestKeys.types(),
     queryFn: getLeaveTypes,
+    enabled,
   });
 };
 

@@ -51,6 +51,7 @@ import { ApprovalFlowStepDialog } from "./components/ApprovalFlowStepDialog";
 import { ApprovalFlowStepsPanel } from "./components/ApprovalFlowStepsPanel";
 import { PERMISSIONS } from "../../constants/permissions";
 import { usePermissionAccess } from "../../hooks/usePermissionAccess";
+import { useLeaveTypes } from "../../hooks/useLeaveRequests";
 
 export default function ApprovalFlowManagementPage() {
   const { can } = usePermissionAccess();
@@ -63,6 +64,7 @@ export default function ApprovalFlowManagementPage() {
   const canDeleteStep = can(PERMISSIONS.APPROVAL_FLOW_STEP.DELETE);
   const canReadTemplates = can(PERMISSIONS.APPROVAL_STEP_TEMPLATE.READ);
   const canReadRequestTypes = can(PERMISSIONS.REQUEST_TYPE.READ);
+  const canReadLeaveTypes = can(PERMISSIONS.LEAVE_TYPE.READ);
   const navigate = useNavigate();
   const [requestTypeFilter, setRequestTypeFilter] = useState("all");
   const [flowDialogOpen, setFlowDialogOpen] = useState(false);
@@ -77,6 +79,8 @@ export default function ApprovalFlowManagementPage() {
     requestTypeFilter === "all" ? undefined : Number(requestTypeFilter);
 
   const { data: requestTypes = [] } = useRequestTypes(canReadRequestTypes);
+  const { data: leaveTypes = [], isLoading: leaveTypesLoading } =
+    useLeaveTypes(canReadLeaveTypes);
   const {
     data: flows = [],
     isLoading,
@@ -210,10 +214,7 @@ export default function ApprovalFlowManagementPage() {
               </Button>
             ) : null}
             {canCreateFlow ? (
-              <Button
-                variant="primary"
-                onClick={handleOpenCreateFlow}
-              >
+              <Button variant="primary" onClick={handleOpenCreateFlow}>
                 <Plus className="size-4" />
                 Thêm flow
               </Button>
@@ -281,6 +282,7 @@ export default function ApprovalFlowManagementPage() {
                     <TableRow>
                       <TableHead>Tên flow</TableHead>
                       <TableHead>Loại request</TableHead>
+                      <TableHead>Loại chi tiết</TableHead>
                       <TableHead>Mặc định</TableHead>
                       <TableHead>Trạng thái</TableHead>
                       <TableHead>Số bước duyệt</TableHead>
@@ -291,7 +293,7 @@ export default function ApprovalFlowManagementPage() {
                     {flows.length === 0 ? (
                       <TableRow>
                         <TableCell
-                          colSpan={6}
+                          colSpan={7}
                           className="h-28 text-center text-muted-foreground"
                         >
                           Chưa có luồng duyệt nào.
@@ -304,6 +306,9 @@ export default function ApprovalFlowManagementPage() {
                             {flow.name}
                           </TableCell>
                           <TableCell>{flow.requestType?.name ?? "-"}</TableCell>
+                          <TableCell>
+                            {flow.subtypeLabel ?? "Áp dụng chung"}
+                          </TableCell>
                           <TableCell>
                             {flow.isDefault ? (
                               <Badge className="border-emerald-200 bg-emerald-50 text-emerald-700">
@@ -414,6 +419,9 @@ export default function ApprovalFlowManagementPage() {
             onOpenChange={setFlowDialogOpen}
             flow={editingFlow}
             requestTypes={requestTypes}
+            leaveTypes={leaveTypes}
+            leaveTypesLoading={leaveTypesLoading}
+            canReadLeaveTypes={canReadLeaveTypes}
             loading={
               createFlowMutation.isPending || updateFlowMutation.isPending
             }

@@ -11,6 +11,8 @@ export interface ApprovalFlow {
   id: number;
   requestType: RequestType;
   name: string;
+  subtypeKey?: string | null;
+  subtypeLabel?: string | null;
   isActive: boolean;
   isDeleted: boolean;
   isDefault: boolean;
@@ -53,6 +55,8 @@ export interface ApprovalStepTemplate {
 export interface CreateApprovalFlowRequest {
   requestTypeId: number;
   name: string;
+  subtypeKey?: string;
+  subtypeLabel?: string;
   isActive?: boolean;
   isDefault?: boolean;
 }
