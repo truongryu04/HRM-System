@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Pencil, Plus, RefreshCw, Search, Trash2 } from "lucide-react";
+import { Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -14,7 +14,7 @@ import {
 } from "../../components/ui/alert-dialog";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
-import { Card, CardContent } from "../../components/ui/card";
+import { Card } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import {
   Select,
@@ -96,7 +96,6 @@ export default function ApprovalStepTemplatePage() {
     data: templates = [],
     isLoading,
     isError,
-    refetch,
   } = useApprovalStepTemplates();
   const { data: roles = [] } = useRoles(canReadRoles);
   const { data: positions = [] } = usePositionOptions();

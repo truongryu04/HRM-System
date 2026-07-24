@@ -5,7 +5,6 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
-import { Card, CardContent } from "../../components/ui/card";
 import { useRoles } from "../../hooks/useRoles";
 import { RoleRow } from "./RoleRow";
 import type { Role } from "../../types/role.type";
