@@ -26,7 +26,7 @@ export class LeaveBalanceController {
   constructor(private readonly leaveBalanceService: LeaveBalanceService) {}
 
   @Post('grant-default')
-  // @Permissions('leave-balance:grant')
+  @Permissions('leave-balance:grant')
   grantDefault(
     @Body() dto: GrantDefaultLeaveBalanceDto,
     @CurrentUser() user: JwtUser,
@@ -35,7 +35,7 @@ export class LeaveBalanceController {
   }
 
   @Patch(':id/adjust')
-  // @Permissions('leave-balance:adjust')
+  @Permissions('leave-balance:adjust')
   adjust(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: AdjustLeaveBalanceDto,
@@ -58,13 +58,13 @@ export class LeaveBalanceController {
   }
 
   @Get('granted-employee-ids')
-  // @Permissions('leave-balance:read')
+  @Permissions('leave-balance:read')
   findGrantedEmployeeIds(@Query() query: LeaveBalanceStatusQueryDto) {
     return this.leaveBalanceService.findGrantedEmployeeIds(query);
   }
 
   @Get('employee/:employeeId')
-  // @Permissions('leave-balance:read')
+  @Permissions('leave-balance:read')
   findByEmployee(
     @Param('employeeId', ParseIntPipe) employeeId: number,
     @Query() query: LeaveBalanceQueryDto,
@@ -73,7 +73,7 @@ export class LeaveBalanceController {
   }
 
   @Get('employee/:employeeId/history')
-  // @Permissions('leave-balance:read')
+  @Permissions('leave-balance:read')
   findHistory(
     @Param('employeeId', ParseIntPipe) employeeId: number,
     @Query() query: LeaveBalanceQueryDto,
