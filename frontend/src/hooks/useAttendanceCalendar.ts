@@ -2,9 +2,14 @@ import { useQuery } from "@tanstack/react-query";
 
 import { attendanceApi } from "../services/attendance.api";
 
-export const useAttendanceCalendar = (month: number, year: number) => {
+export const useAttendanceCalendar = (
+  month: number,
+  year: number,
+  enabled = true,
+) => {
   return useQuery({
     queryKey: ["attendance-calendar", month, year],
     queryFn: () => attendanceApi.getCalendar(month, year),
+    enabled,
   });
 };
