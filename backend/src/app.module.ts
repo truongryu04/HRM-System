@@ -37,7 +37,6 @@ import { LeaveBalanceModule } from './modules/leave-balance/leave-balance.module
         return {
           ...dbConfig,
           autoLoadEntities: true,
-          synchronize: true,
         };
       },
     }),
