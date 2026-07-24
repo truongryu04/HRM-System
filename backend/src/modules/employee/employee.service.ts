@@ -168,7 +168,6 @@ export class EmployeeService {
       .where('employee.id = :id', { id })
       .andWhere('employee.isDeleted = false')
       .getOne();
-    console.log('employee', employee);
     if (!employee) {
       throw new NotFoundException('Employee not found');
     }

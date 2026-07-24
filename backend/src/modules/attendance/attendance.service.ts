@@ -42,6 +42,20 @@ export class AttendanceService {
     private readonly employeeService: EmployeeService,
     private readonly departmentAccessService: DepartmentAccessService,
   ) {}
+  private requireEmployeeId(employeeId: number | undefined): number {
+    if (
+      employeeId === undefined ||
+      !Number.isInteger(employeeId) ||
+      employeeId <= 0
+    ) {
+      throw new BadRequestException(
+        'Current account is not linked to an employee',
+      );
+    }
+
+    return employeeId;
+  }
+
   private timeStringToDate(baseDate: Date, time: string): Date {
     const [hour, minute] = time.split(':').map(Number);
 
@@ -143,7 +157,8 @@ export class AttendanceService {
 
     return attendance;
   }
-  async checkIn(employeeId: number) {
+  async checkIn(employeeId: number | undefined) {
+    employeeId = this.requireEmployeeId(employeeId);
     const employee = await this.employeeService.findOne(employeeId);
 
     if (!employee) {
@@ -206,7 +221,8 @@ export class AttendanceService {
     };
   }
 
-  async checkOut(employeeId: number) {
+  async checkOut(employeeId: number | undefined) {
+    employeeId = this.requireEmployeeId(employeeId);
     const now = new Date();
 
     const attendanceDate = `${now.getFullYear()}-${String(
@@ -253,7 +269,12 @@ export class AttendanceService {
     };
   }
 
-  async getCalendar(employeeId: number, month: number, year: number) {
+  async getCalendar(
+    employeeId: number | undefined,
+    month: number,
+    year: number,
+  ) {
+    employeeId = this.requireEmployeeId(employeeId);
     const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
 
     const lastDay = new Date(year, month, 0).getDate();
@@ -341,7 +362,8 @@ export class AttendanceService {
     };
   }
 
-  async getToday(employeeId: number) {
+  async getToday(employeeId: number | undefined) {
+    employeeId = this.requireEmployeeId(employeeId);
     const today = new Date();
 
     const attendanceDate = `${today.getFullYear()}-${String(

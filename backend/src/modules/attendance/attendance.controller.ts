@@ -24,29 +24,29 @@ export class AttendanceController {
   constructor(private readonly attendanceService: AttendanceService) {}
 
   @Post('check-in')
-  checkIn(@CurrentUser() user: JwtUser) {
-    return this.attendanceService.checkIn(user.employeeId);
+  checkIn(@CurrentUser('employeeId') employeeId: number | undefined) {
+    return this.attendanceService.checkIn(employeeId);
   }
 
   @Post('check-out')
-  checkOut(@CurrentUser() user: JwtUser) {
-    return this.attendanceService.checkOut(user.employeeId);
+  checkOut(@CurrentUser('employeeId') employeeId: number | undefined) {
+    return this.attendanceService.checkOut(employeeId);
   }
 
   @Get('calendar')
   getCalendar(
-    @CurrentUser() user: JwtUser,
+    @CurrentUser('employeeId') employeeId: number | undefined,
     @Query() query: AttendanceCalendarDto,
   ) {
     return this.attendanceService.getCalendar(
-      user.employeeId,
+      employeeId,
       query.month,
       query.year,
     );
   }
   @Get('today')
-  getToday(@CurrentUser() user: JwtUser) {
-    return this.attendanceService.getToday(user.employeeId);
+  getToday(@CurrentUser('employeeId') employeeId: number | undefined) {
+    return this.attendanceService.getToday(employeeId);
   }
 
   @Get('dashboard')
