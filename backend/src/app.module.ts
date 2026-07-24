@@ -20,6 +20,7 @@ import { MailModule } from './modules/mail/mail.module';
 import { UserTokenModule } from './modules/user-token/user-token.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import { LeaveBalanceModule } from './modules/leave-balance/leave-balance.module';
+import { HealthModule } from './health/health.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -55,6 +56,7 @@ import { LeaveBalanceModule } from './modules/leave-balance/leave-balance.module
     MailModule,
     UserTokenModule,
     CloudinaryModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
