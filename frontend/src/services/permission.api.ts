@@ -6,3 +6,12 @@ export const getPermissions = async (): Promise<Permission[]> => {
 
   return response.data;
 };
+
+export const updatePermission = async (
+  id: string,
+  data: { name: string },
+): Promise<Permission> => {
+  const response = await apiClient.put(`/permissions/${id}`, data);
+
+  return response.data;
+};

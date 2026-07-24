@@ -34,6 +34,7 @@ export const PERMISSIONS = {
 
   PERMISSION: {
     READ: "permission:read",
+    UPDATE: "permission:update",
   },
 
   DEPARTMENT: {

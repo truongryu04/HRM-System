@@ -18,10 +18,19 @@ import {
 import { PERMISSIONS } from "../../constants/permissions";
 import { usePermissionAccess } from "../../hooks/usePermissionAccess";
 import { useQueryClient } from "@tanstack/react-query";
+import type { Permission } from "../../types/permission.type";
+import PermissionDialog from "./PermissionDialog";
+import { updatePermission } from "../../services/permission.api";
+import { getApiErrorMessage } from "../../utils/api-error";
 export default function PermissionPage() {
   const queryClient = useQueryClient();
   const { can } = usePermissionAccess();
   const canAssignPermission = can(PERMISSIONS.ROLE.ASSIGN_PERMISSION);
+  const canEditPermission = can(PERMISSIONS.PERMISSION.UPDATE);
+  const [selectedPermission, setSelectedPermission] =
+    useState<Permission | null>(null);
+  const [openPermissionDialog, setOpenPermissionDialog] = useState(false);
+  const [isUpdatingPermission, setIsUpdatingPermission] = useState(false);
   const [rolePermissions, setRolePermissions] = useState<
     Map<number, Set<string>>
   >(new Map());
@@ -44,6 +53,28 @@ export default function PermissionPage() {
       toast.success("Cập nhật phân quyền thành công");
     } catch {
       toast.error("Cập nhật phân quyền thất bại");
+    }
+  };
+  const handleEditPermission = (permission: Permission) => {
+    setSelectedPermission(permission);
+    setOpenPermissionDialog(true);
+  };
+  const handleUpdatePermission = async (name: string) => {
+    if (!selectedPermission) return;
+
+    setIsUpdatingPermission(true);
+    try {
+      await updatePermission(selectedPermission.id, { name });
+      await queryClient.invalidateQueries({ queryKey: ["permissions"] });
+      toast.success("Cập nhật tên permission thành công");
+      setOpenPermissionDialog(false);
+      setSelectedPermission(null);
+    } catch (error) {
+      toast.error(
+        getApiErrorMessage(error, "Cập nhật tên permission thất bại"),
+      );
+    } finally {
+      setIsUpdatingPermission(false);
     }
   };
   return (
@@ -88,6 +119,19 @@ export default function PermissionPage() {
           rolePermissions={rolePermissions}
           setRolePermissions={setRolePermissions}
           disabled={!canAssignPermission}
+          canEditPermission={canEditPermission}
+          onEditPermission={handleEditPermission}
+        />
+        <PermissionDialog
+          key={selectedPermission?.id ?? "no-permission"}
+          open={openPermissionDialog}
+          onOpenChange={(open) => {
+            setOpenPermissionDialog(open);
+            if (!open) setSelectedPermission(null);
+          }}
+          permission={selectedPermission}
+          loading={isUpdatingPermission}
+          onSubmit={handleUpdatePermission}
         />
       </div>
     </Card>

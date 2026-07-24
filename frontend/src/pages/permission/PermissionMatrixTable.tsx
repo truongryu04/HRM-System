@@ -10,16 +10,21 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import PermissionRow from "../permission/PermissionRow";
+import type { Permission } from "../../types/permission.type";
 export function PermissionMatrixTable({
   rolePermissions,
   setRolePermissions,
   disabled = false,
+  canEditPermission,
+  onEditPermission,
 }: {
   rolePermissions: Map<number, Set<string>>;
   setRolePermissions: React.Dispatch<
     React.SetStateAction<Map<number, Set<string>>>
   >;
   disabled?: boolean;
+  canEditPermission: boolean;
+  onEditPermission: (permission: Permission) => void;
 }) {
   const { data: permissions = [] } = usePermissions();
   const { data: roles = [] } = useRoles();
@@ -108,6 +113,8 @@ export function PermissionMatrixTable({
                       rolePermissions={rolePermissions}
                       onPermissionChange={handlePermissionChange}
                       disabled={disabled}
+                      canEdit={canEditPermission}
+                      onEdit={onEditPermission}
                     />
                   ))}
                 </React.Fragment>
